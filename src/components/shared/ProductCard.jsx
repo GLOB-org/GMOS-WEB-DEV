@@ -78,10 +78,13 @@ class ProductCard extends Component {
     };
 
     handleChangeQuantityBeli = (quantity_beli) => {
+
         this.setState({ quantity_beli });
 
         var get_value_input = document.getElementById("product-quantity-beli").value
         var cek_kelipatan = Number(get_value_input) % Number(this.props.product.berat)
+
+        document.getElementById("product-quantity-beli").value = get_value_input.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 
         if (get_value_input.length == 1) {
             if (get_value_input == '0') {
@@ -100,7 +103,6 @@ class ProductCard extends Component {
                 disabletambahbarang: false
             });
         }
-
     };
 
     handleValueNego = () => {
