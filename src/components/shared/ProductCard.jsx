@@ -101,27 +101,6 @@ class ProductCard extends Component {
             });
         }
 
-        // if (event.target.value == undefined) {
-        //     this.setState({
-        //         disabletambahbarang: false
-        //     });
-        // }
-
-        // if (event.target.value != undefined) {
-        //     var cek_kelipatan = Number(event.target.value) % Number(this.props.product.berat)
-
-        //     if (Number(event.target.value) < Number(this.props.product.jumlah_min_beli) || cek_kelipatan != 0 || event.target.value.charAt(0) == 0) {
-        //         this.setState({
-        //             disabletambahbarang: true
-        //         });
-        //     } else if (Number(event.target.value) >= Number(this.props.product.jumlah_min_beli) && cek_kelipatan == 0) {
-        //         this.setState({
-        //             disabletambahbarang: false
-        //         });
-        //     }
-        // }
-
-
     };
 
     handleValueNego = () => {

@@ -88,11 +88,7 @@ class InputNumber extends Component {
     }
 
     render() {
-        // const {
-        //     size,
-        //     className,
-        //     ...otherProps
-        // } = this.props;
+       
         const {
             size,
             className,
