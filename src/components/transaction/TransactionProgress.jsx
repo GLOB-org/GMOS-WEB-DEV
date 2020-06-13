@@ -55,7 +55,7 @@ export default class TransactionProgress extends Component {
             data_canceled_length: '',
             checkTabPane: true,
             openConfirmation: false, openConfirmationReceived: false,
-            openConfirmationComplained: false,
+            openConfirmationComplained: false, openTimeLimitComplained: false,
             activeTab: 'waiting',
             page_waiting: 1,
             total_page_waiting: '',
@@ -250,35 +250,14 @@ export default class TransactionProgress extends Component {
                 "inner join gcm_master_payment d on c.payment_id = d.id " +
                 "where a.status = 'WAITING' and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and now() > a.create_date + interval '48 hours' and d.id = 2))"
 
-            // let query_transaction = " select a.id_transaction, status,  a.create_date, to_char(a.create_date, 'dd-MM-yyyy / HH24:MI') as create_date_edit, " +
-            //     "to_char(a.date_ongoing, 'dd-MM-yyyy / HH24:MI') as date_ongoing, to_char (a.date_shipped, 'dd-MM-yyyy / HH24:MI') as date_shipped," +
-            //     "to_char(a.date_received, 'dd-MM-yyyy / HH24:MI') as date_received, to_char(a.date_complained, 'dd-MM-yyyy / HH24:MI') as date_complained," +
-            //     "to_char(a.date_finished, 'dd-MM-yyyy / HH24:MI') as date_finished, to_char(a.date_canceled, 'dd-MM-yyyy / HH24:MI') as date_canceled," +
-            //     "sum(harga) as total, a.ongkos_kirim, case when a.ongkos_kirim is null then (sum(harga)) + 0  else (sum(harga)) + a.ongkos_kirim  end as totaltrx ," +
-            //     "sum(b.harga_final) + a.ongkos_kirim as totaltrx_final from gcm_master_transaction a inner join gcm_transaction_detail b " +
-            //     "on a.id_transaction=b.transaction_id where a.company_id=" + decrypt(localStorage.getItem('CompanyIDLogin')) +
-            //     "group by a.id_transaction, status, a.create_date, a.date_ongoing, a.date_shipped, a.date_received, a.date_complained, a.date_finished, a.date_canceled, a.ongkos_kirim " +
-            //     "order by a.create_date desc"
-
-            // let query_transaction = " select a.id_transaction, status,  a.create_date, to_char(a.create_date, 'dd-MM-yyyy / HH24:MI') as create_date_edit, " +
-            //     "to_char(a.date_ongoing, 'dd-MM-yyyy / HH24:MI') as date_ongoing, to_char (a.date_shipped, 'dd-MM-yyyy / HH24:MI') as date_shipped, " +
-            //     "to_char(a.date_received, 'dd-MM-yyyy / HH24:MI') as date_received, to_char(a.date_complained, 'dd-MM-yyyy / HH24:MI') as date_complained, " +
-            //     "to_char(a.date_finished, 'dd-MM-yyyy / HH24:MI') as date_finished, to_char(a.date_canceled, 'dd-MM-yyyy / HH24:MI') as date_canceled, " +
-            //     "sum(harga) as total, a.ongkos_kirim, case when a.ongkos_kirim is null then (sum(harga)) + 0  else (sum(harga)) + a.ongkos_kirim  end as totaltrx , " +
-            //     "case when a.ongkos_kirim is null then (sum(harga)) + ((sum(harga) * a.ppn_seller/100)) + 0  else (sum(harga)) + ((sum(harga) * a.ppn_seller/100)) + a.ongkos_kirim  end as totaltrx_tax, " +
-            //     "sum(b.harga_final) + a.ongkos_kirim as totaltrx_final from gcm_master_transaction a inner join gcm_transaction_detail b " +
-            //     "on a.id_transaction=b.transaction_id where a.company_id= " + decrypt(localStorage.getItem('CompanyIDLogin')) +
-            //     "group by a.id_transaction, status, a.create_date, a.date_ongoing, a.date_shipped, a.date_received, a.date_complained, a.date_finished, a.date_canceled, a.ongkos_kirim, a.ppn_seller " +
-            //     "order by a.create_date desc"
-
-            let query_transaction = " select a.id_transaction, status,  a.create_date, to_char(a.create_date, 'dd-MM-yyyy / HH24:MI') as create_date_edit, to_char(a.date_ongoing, 'dd-MM-yyyy / HH24:MI') as date_ongoing, "+
-            "to_char (a.date_shipped, 'dd-MM-yyyy / HH24:MI') as date_shipped, to_char(a.date_received, 'dd-MM-yyyy / HH24:MI') as date_received, to_char(a.date_complained, 'dd-MM-yyyy / HH24:MI') as date_complained, "+
-            "to_char(a.date_finished, 'dd-MM-yyyy / HH24:MI') as date_finished, to_char(a.date_canceled, 'dd-MM-yyyy / HH24:MI') as date_canceled, sum(harga) as total, a.ongkos_kirim, "+
-            "case when a.ongkos_kirim is null then (sum(harga)) + 0  else (sum(harga)) + a.ongkos_kirim  end as totaltrx , "+
-            "case when a.ongkos_kirim is null then (sum(harga)) + ((sum(harga) * a.ppn_seller/100)) + 0  else (sum(harga)) + ((sum(harga) * a.ppn_seller/100)) + a.ongkos_kirim  end as totaltrx_tax, "+
-            "case when a.ongkos_kirim is null then (sum(b.harga_final)) + ((sum(b.harga_final) * a.ppn_seller/100)) + 0  else (sum(b.harga_final)) + ((sum(b.harga_final) * a.ppn_seller/100)) + a.ongkos_kirim  end as totaltrx_tax_final, "+
-            "sum(b.harga_final) + a.ongkos_kirim as totaltrx_final from gcm_master_transaction a inner join gcm_transaction_detail b on a.id_transaction=b.transaction_id where a.company_id= " + decrypt(localStorage.getItem('CompanyIDLogin')) +" group by a.id_transaction, status, "+
-            "a.create_date, a.date_ongoing, a.date_shipped, a.date_received, a.date_complained, a.date_finished, a.date_canceled, a.ongkos_kirim, a.ppn_seller order by a.create_date desc" 
+            let query_transaction = " select a.id_transaction, status,  a.create_date, to_char(a.create_date, 'dd-MM-yyyy / HH24:MI') as create_date_edit, to_char(a.date_ongoing, 'dd-MM-yyyy / HH24:MI') as date_ongoing, " +
+                "to_char (a.date_shipped, 'dd-MM-yyyy / HH24:MI') as date_shipped, to_char(a.date_received, 'dd-MM-yyyy / HH24:MI') as date_received, to_char(a.date_complained, 'dd-MM-yyyy / HH24:MI') as date_complained, " +
+                "to_char(a.date_finished, 'dd-MM-yyyy / HH24:MI') as date_finished, to_char(a.date_canceled, 'dd-MM-yyyy / HH24:MI') as date_canceled, sum(harga) as total, a.ongkos_kirim, " +
+                "case when a.ongkos_kirim is null then (sum(harga)) + 0  else (sum(harga)) + a.ongkos_kirim  end as totaltrx , " +
+                "case when a.ongkos_kirim is null then (sum(harga)) + ((sum(harga) * a.ppn_seller/100)) + 0  else (sum(harga)) + ((sum(harga) * a.ppn_seller/100)) + a.ongkos_kirim  end as totaltrx_tax, " +
+                "case when a.ongkos_kirim is null then (sum(b.harga_final)) + ((sum(b.harga_final) * a.ppn_seller/100)) + 0  else (sum(b.harga_final)) + ((sum(b.harga_final) * a.ppn_seller/100)) + a.ongkos_kirim  end as totaltrx_tax_final, " +
+                "sum(b.harga_final) + a.ongkos_kirim as totaltrx_final from gcm_master_transaction a inner join gcm_transaction_detail b on a.id_transaction=b.transaction_id where a.company_id= " + decrypt(localStorage.getItem('CompanyIDLogin')) + " group by a.id_transaction, status, " +
+                "a.create_date, a.date_ongoing, a.date_shipped, a.date_received, a.date_complained, a.date_finished, a.date_canceled, a.ongkos_kirim, a.ppn_seller order by a.create_date desc"
 
             let final_query = encrypt(query_limit_time_bayar.concat(query_transaction))
 
@@ -1665,6 +1644,12 @@ export default class TransactionProgress extends Component {
         });
     }
 
+    toggleTimeLimitComplained = () => {
+        this.setState({
+            openTimeLimitComplained: !this.state.openTimeLimitComplained
+        });
+    }
+
     toggleFilterDate = () => {
         this.setState({
             openFilter: !this.state.openFilter
@@ -2188,7 +2173,7 @@ export default class TransactionProgress extends Component {
                                             <div id="contentShimmerTransactionReceived" style={{ display: 'none' }}>
                                                 {this.state.data_received.slice(this.state.sliceX_received, this.state.sliceY_received).map((value, index) => {
                                                     return (<TransactionReceived data={value} index={index} handleSelesaikanPesanan={this.toggleConfirmation.bind(this)} handleSubmitComplain={this.toggleConfirmationComplained.bind(this)}
-                                                        loadDataReceived={this.LoadDataReceived.bind(this)} loadDataComplained={this.LoadDataComplained.bind(this)} />)
+                                                        loadDataReceived={this.LoadDataReceived.bind(this)} loadDataComplained={this.LoadDataComplained.bind(this)} handleTimeLimitComplain={this.toggleTimeLimitComplained.bind(this)}/>)
                                                 })
                                                 }
                                             </div>
@@ -2396,6 +2381,23 @@ export default class TransactionProgress extends Component {
                         </section>
                     </div>
                 </div>
+
+                <Dialog
+                    open={this.state.openTimeLimitComplained}
+                    aria-labelledby="responsive-dialog-title"
+                >
+                    <DialogTitle id="responsive-dialog-title">Tidak Dapat Melakukan Komplain</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Anda telah melewati batas waktu komplain sejak barang diterima
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color="primary" onClick={()=> {this.toggleTimeLimitComplained(); this.LoadDataAll() } }>
+                            Perbarui data transaksi
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
                 <Dialog
                     open={this.state.openConfirmationComplained}

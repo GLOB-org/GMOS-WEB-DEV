@@ -91,24 +91,46 @@ export default class InfoCompanyCard extends Component{
         Toast.loading('loading . . .', () => {
         }); 
 
-        let queryDetailReceived = await encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.harga from gcm_transaction_detail a inner join "+
+        let queryTimeLimitComplain = await encrypt("select 1 as check_limit "+
+        "from  gcm_master_company gmc ,gcm_transaction_detail a inner join "+
+        "gcm_list_barang b on a.barang_id=b.id "+
+        "inner join gcm_master_transaction e on e.id_transaction = a.transaction_id "+
+        "inner join gcm_limit_complain f on b.company_id = f.company_id "+
+        "where gmc.id = b.company_id and transaction_id='" + id + "' "+ 
+        "and now() > e.date_received + ( f.limit_hari || ' days')::interval")
+
+        let queryDetailReceived = encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.harga from gcm_transaction_detail a inner join "+
         "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id where transaction_id='"+id+"' order by c.category_id asc, c.nama asc");
         
-        await Axios.post(url.select,{
-            query: queryDetailReceived
-        }).then( async (data)=>{
-          await this.setState({
-            temp: data.data.data,
-            temp_length: data.data.data.length
-        });
+        Axios.post(url.select,{
+            query: queryTimeLimitComplain
+        }).then(data=>{
 
-        Toast.hide()
-   
+            if( data.data.data.length > 0 && data.data.data[0].check_limit == 1){
+                Toast.hide()
+                this.props.handleTimeLimitComplain()
+            }
+            else {
+                Axios.post(url.select,{
+                        query: queryDetailReceived
+                    }).then((data)=>{
+                    this.setState({
+                        temp: data.data.data,
+                        temp_length: data.data.data.length
+                    });
+                    Toast.hide()
+                    this.controlDialogBarang();
+
+                }).catch(err=>{
+                    console.log('error');
+                    console.log(err);
+                })
+            }
+
         }).catch(err=>{
             // console.log('error');
             // console.log(err);
         })
-        await this.controlDialogBarang();
     }
 
     detailReceived= async(id)=>{

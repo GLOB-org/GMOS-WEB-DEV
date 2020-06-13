@@ -73,8 +73,8 @@ class Product extends Component {
         var get_value_input = document.getElementById("product-quantity-beli").value
         var cek_kelipatan = Number(get_value_input) % Number(this.props.product.berat)
 
-        if(get_value_input.length == 1){
-            if(get_value_input == '0'){
+        if (get_value_input.length == 1) {
+            if (get_value_input == '0') {
                 this.setState({
                     disable_button: true
                 });
@@ -139,8 +139,8 @@ class Product extends Component {
         var get_value_input = document.getElementById("product-quantity-nego").value
         var cek_kelipatan = Number(get_value_input) % Number(this.props.product.berat)
 
-        if(get_value_input.length == 1){
-            if(get_value_input == '0'){
+        if (get_value_input.length == 1) {
+            if (get_value_input == '0') {
                 this.setState({
                     disable_button_nego: true
                 });
@@ -712,7 +712,7 @@ class Product extends Component {
                                                         id="product-quantity-beli"
                                                         aria-label="Quantity"
                                                         className="product__quantity"
-                                                        size="lg"
+                                                        size="md"
                                                         min={product.jumlah_min_beli}
                                                         value={quantity}
                                                         kelipatan={product.berat}
@@ -723,14 +723,15 @@ class Product extends Component {
                                             <div className="row">
                                                 <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8">
                                                     <div className="row">
+
                                                         <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8 mt-2">
                                                             {cek_login == null || hide_harga == true ?
                                                                 (<AsyncAction
                                                                     render={({ run, loading }) => (
                                                                         <div>
                                                                             {hide_harga == true ?
-                                                                                (<div className='btn btn-primary btn-lg' style={{ width: '100%' }} onClick={() => { this.setState({ openresponlangganan: true }) }}>Tambah ke Keranjang</div>) :
-                                                                                (<Link to='/masuk' className='btn btn-primary btn-lg' style={{ width: '100%' }}>Tambah ke Keranjang</Link>)
+                                                                                (<div className='btn btn-primary btn-md' style={{ width: '100%' }} onClick={() => { this.setState({ openresponlangganan: true }) }}>Tambah ke Keranjang</div>) :
+                                                                                (<Link to='/masuk' className='btn btn-primary btn-md' style={{ width: '100%' }}>Tambah ke Keranjang</Link>)
                                                                             }
                                                                         </div>
                                                                     )}
@@ -745,7 +746,7 @@ class Product extends Component {
                                                                                     onClick={run}
                                                                                     disabled={this.state.disable_button}
                                                                                     style={{ width: '100%' }}
-                                                                                    className={classNames('btn btn-primary btn-lg', {
+                                                                                    className={classNames('btn btn-primary btn-md', {
                                                                                     })}
                                                                                 >
                                                                                     Tambah ke Keranjang
@@ -759,37 +760,42 @@ class Product extends Component {
                                                             }
                                                         </div>
 
-                                                        <div className="col-xs-12 col-sm-12 col-md-12 col-lg-4 mt-2">
-                                                            {cek_login == null || hide_harga == true ?
-                                                                (<AsyncAction
-                                                                    render={({ run, loading }) => (
-                                                                        <div>
-                                                                            {hide_harga == true ?
-                                                                                (<div className='btn btn-secondary btn-lg' style={{ width: '100%' }} onClick={() => { this.setState({ openresponlangganan: true }) }}>Nego</div>) :
-                                                                                (<Link to='/masuk' className='btn btn-secondary btn-lg' style={{ width: '100%' }}>Nego</Link>)
-                                                                            }
-                                                                        </div>
-                                                                        // <Link to='/masuk' className='btn btn-secondary btn-lg'>Nego</Link>
-                                                                    )}
-                                                                />) :
-                                                                (<AsyncAction
-                                                                    action={() => cartAddItem(product, [], quantity)}
-                                                                    render={({ run, loading }) => (
-                                                                        <button
-                                                                            type="button"
-                                                                            disabled={this.state.disable_button}
-                                                                            onClick={check_statusnego}
-                                                                            style={{ width: '100%' }}
-                                                                            className={classNames('btn btn-secondary btn-lg', {
-                                                                                'btn-loading': loading,
-                                                                            })}
-                                                                        >
-                                                                            Nego
-                                                                        </button>
-                                                                    )}
-                                                                />)
-                                                            }
-                                                        </div>
+                                                        {product.negotiable == 'yes' ? (
+                                                            <div className="col-xs-12 col-sm-12 col-md-12 col-lg-4 mt-2">
+                                                                {cek_login == null || hide_harga == true ?
+                                                                    (<AsyncAction
+                                                                        render={({ run, loading }) => (
+                                                                            <div>
+                                                                                {hide_harga == true ?
+                                                                                    (<div className='btn btn-secondary btn-md' style={{ width: '100%' }} onClick={() => { this.setState({ openresponlangganan: true }) }}>Nego</div>) :
+                                                                                    (<Link to='/masuk' className='btn btn-secondary btn-md' style={{ width: '100%' }}>Nego</Link>)
+                                                                                }
+                                                                            </div>
+                                                                        )}
+                                                                    />) :
+                                                                    (<AsyncAction
+                                                                        action={() => cartAddItem(product, [], quantity)}
+                                                                        render={({ run, loading }) => (
+                                                                            <button
+                                                                                type="button"
+                                                                                disabled={this.state.disable_button}
+                                                                                onClick={check_statusnego}
+                                                                                style={{ width: '100%' }}
+                                                                                className={classNames('btn btn-secondary btn-md', {
+                                                                                    'btn-loading': loading,
+                                                                                })}
+                                                                            >
+                                                                                Nego
+                                                                            </button>
+                                                                        )}
+                                                                    />)
+                                                                }
+                                                            </div>
+                                                        ) : (
+                                                                null
+                                                            )
+                                                        }
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -1013,7 +1019,7 @@ class Product extends Component {
                                                         id="product-quantity-beli"
                                                         aria-label="Quantity"
                                                         className="product__quantity"
-                                                        size="lg"
+                                                        size="md"
                                                         min={product.jumlah_min_beli}
                                                         value={quantity}
                                                         kelipatan={product.berat}
@@ -1030,8 +1036,8 @@ class Product extends Component {
                                                                     render={({ run, loading }) => (
                                                                         <div>
                                                                             {hide_harga == true ?
-                                                                                (<div className='btn btn-primary btn-lg' style={{ width: '100%' }} onClick={() => { this.setState({ openresponlangganan: true }) }}>Tambah ke Keranjang</div>) :
-                                                                                (<Link to='/masuk' className='btn btn-primary btn-lg' style={{ width: '100%' }}>Tambah ke Keranjang</Link>)
+                                                                                (<div className='btn btn-primary btn-md' style={{ width: '100%' }} onClick={() => { this.setState({ openresponlangganan: true }) }}>Tambah ke Keranjang</div>) :
+                                                                                (<Link to='/masuk' className='btn btn-primary btn-md' style={{ width: '100%' }}>Tambah ke Keranjang</Link>)
                                                                             }
                                                                         </div>
                                                                     )}
@@ -1046,7 +1052,7 @@ class Product extends Component {
                                                                                     onClick={run}
                                                                                     disabled={this.state.disable_button}
                                                                                     style={{ width: '100%' }}
-                                                                                    className={classNames('btn btn-primary btn-lg', {
+                                                                                    className={classNames('btn btn-primary btn-md', {
                                                                                     })}
                                                                                 >
                                                                                     Tambah ke Keranjang
@@ -1060,37 +1066,42 @@ class Product extends Component {
                                                             }
                                                         </div>
 
-                                                        <div className="col-xs-12 col-sm-12 col-md-12 col-lg-4 mt-2">
-                                                            {cek_login == null || hide_harga == true ?
-                                                                (<AsyncAction
-                                                                    render={({ run, loading }) => (
-                                                                        <div>
-                                                                            {hide_harga == true ?
-                                                                                (<div className='btn btn-secondary btn-lg' style={{ width: '100%' }} onClick={() => { this.setState({ openresponlangganan: true }) }}>Nego</div>) :
-                                                                                (<Link to='/masuk' className='btn btn-secondary btn-lg' style={{ width: '100%' }}>Nego</Link>)
-                                                                            }
-                                                                        </div>
-                                                                        // <Link to='/masuk' className='btn btn-secondary btn-lg'>Nego</Link>
-                                                                    )}
-                                                                />) :
-                                                                (<AsyncAction
-                                                                    action={() => cartAddItem(product, [], quantity)}
-                                                                    render={({ run, loading }) => (
-                                                                        <button
-                                                                            type="button"
-                                                                            disabled={this.state.disable_button}
-                                                                            onClick={check_statusnego}
-                                                                            style={{ width: '100%' }}
-                                                                            className={classNames('btn btn-secondary btn-lg', {
-                                                                                'btn-loading': loading,
-                                                                            })}
-                                                                        >
-                                                                            Nego
-                                                                        </button>
-                                                                    )}
-                                                                />)
-                                                            }
-                                                        </div>
+                                                        {product.negotiable == 'yes' ? (
+                                                            <div className="col-xs-12 col-sm-12 col-md-12 col-lg-4 mt-2">
+                                                                {cek_login == null || hide_harga == true ?
+                                                                    (<AsyncAction
+                                                                        render={({ run, loading }) => (
+                                                                            <div>
+                                                                                {hide_harga == true ?
+                                                                                    (<div className='btn btn-secondary btn-md' style={{ width: '100%' }} onClick={() => { this.setState({ openresponlangganan: true }) }}>Nego</div>) :
+                                                                                    (<Link to='/masuk' className='btn btn-secondary btn-md' style={{ width: '100%' }}>Nego</Link>)
+                                                                                }
+                                                                            </div>
+                                                                            // <Link to='/masuk' className='btn btn-secondary btn-lg'>Nego</Link>
+                                                                        )}
+                                                                    />) :
+                                                                    (<AsyncAction
+                                                                        action={() => cartAddItem(product, [], quantity)}
+                                                                        render={({ run, loading }) => (
+                                                                            <button
+                                                                                type="button"
+                                                                                disabled={this.state.disable_button}
+                                                                                onClick={check_statusnego}
+                                                                                style={{ width: '100%' }}
+                                                                                className={classNames('btn btn-secondary btn-md', {
+                                                                                    'btn-loading': loading,
+                                                                                })}
+                                                                            >
+                                                                                Nego
+                                                                            </button>
+                                                                        )}
+                                                                    />)
+                                                                }
+                                                            </div>
+                                                        ) :
+                                                            (null)
+                                                        }
+
                                                     </div>
                                                 </div>
                                             </div>

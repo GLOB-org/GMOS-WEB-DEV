@@ -84,7 +84,7 @@ class ProductCard extends Component {
         var get_value_input = document.getElementById("product-quantity-beli").value
         var cek_kelipatan = Number(get_value_input) % Number(this.props.product.berat)
 
-        document.getElementById("product-quantity-beli").value = get_value_input.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        // document.getElementById("product-quantity-beli").value = get_value_input.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
 
         if (get_value_input.length == 1) {
             if (get_value_input == '0') {
@@ -1034,13 +1034,22 @@ class ProductCard extends Component {
                                             >
                                                 Tambah ke Keranjang
                                             </button>
-                                            <button
+                                            {product.negotiable == 'yes' ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={check_statusnego}
+                                                    class="btn btn-secondary"
+                                                >
+                                                    Nego
+                                                </button>
+                                            ) : (null)}
+                                            {/* <button
                                                 type="button"
                                                 onClick={check_statusnego}
                                                 class="btn btn-secondary"
                                             >
                                                 Nego
-                                            </button>
+                                            </button> */}
                                         </React.Fragment>
                                     )}
                                 />
