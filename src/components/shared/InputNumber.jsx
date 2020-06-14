@@ -108,12 +108,12 @@ class InputNumber extends Component {
 
         return (
             <div className={classes}>
-                <input
+                {/* <input
                     className={formControlClasses}
                     type="number"
                     onChange={this.handleChange}
                     {...otherProps}
-                />
+                /> */}
 
                 {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
                 <div className="input-number__add" onMouseDown={this.handleAddMouseDown} />

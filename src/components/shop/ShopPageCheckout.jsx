@@ -897,9 +897,9 @@ class ShopPageCheckout extends Component {
                         <td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
                             <tr><span style={{ color: '#3d464d', fontSize: '14px', fontWeight: '500' }}>{data.nama}</span></tr>
                             <tr>
-                                <label style={{ color: '#3d464d', fontSize: '13px', fontWeight: '500' }}>kuantitas : {' '}
+                                <span style={{ color: '#3d464d', fontSize: '13px', fontWeight: '500' }}>kuantitas : {' '}
                                     <NumberFormat value={data.qty * data.berat} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} />
-                                    {' '}{data.satuan}</label>
+                                    {' '}{data.satuan}</span>
                             </tr>
                             {data.nego_count > 0 && data.harga_final != null && data.harga_final != 0 && data.history_nego_id != 0 && data.status_time_respon != 'no' ?
                                 (<tr>
@@ -1064,7 +1064,9 @@ class ShopPageCheckout extends Component {
                                             <span style={{ fontSize: '13px', fontWeight: '500', color: 'white' }}>{index + 1}</span>
                                         </span>
                                     </span> */}
-                                    <label style={{ fontSize: '13px', fontWeight: '500' }}>Distributor : <strong>{data.nama_perusahaan}</strong></label>
+                                    <li>
+                                        <label style={{ fontSize: '13px', fontWeight: '500' }}>Distributor : <strong>{data.nama_perusahaan}</strong></label>
+                                    </li>
                                 </td>
                             </tr>
                             <tr>
@@ -1333,8 +1335,8 @@ class ShopPageCheckout extends Component {
             return (
                 <div style={{ display: 'contents' }}>
                     <tr>
-                        <td >{penjual.nama_perusahaan}</td>
-                        <td ></td>
+                        <td>{penjual.nama_perusahaan}</td>
+                        <td></td>
                     </tr>
                     <tr>
                         <td style={{ fontSize: '12px', fontWeight: '500', paddingLeft: '20px' }}>Total Harga</td>

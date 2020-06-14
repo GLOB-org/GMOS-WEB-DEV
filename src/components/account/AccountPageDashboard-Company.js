@@ -97,6 +97,14 @@ export default class InfoCompanyCard extends Component{
                     <div className="address-card__row-content">{this.props.data.nama_tipe_bisnis}</div>
                 </div>
                 <div className="address-card__row">
+                    <div className="address-card__row-title">NPWP</div>
+                    <div className="address-card__row-content">{this.props.data.no_npwp}</div>
+                </div>
+                <div className="address-card__row">
+                    <div className="address-card__row-title">SIUP</div>
+                    <div className="address-card__row-content">{this.props.data.no_siup}</div>
+                </div>
+                <div className="address-card__row">
                     <div className="address-card__row-title">Telepon</div>
                     <div className="address-card__row-content">{this.props.data.no_telp}</div>
                 </div>
@@ -104,10 +112,6 @@ export default class InfoCompanyCard extends Component{
                     <div className="address-card__row-title">E-mail</div>
                     <div className="address-card__row-content">{this.props.data.p_email}</div>
                 </div>
-                {/* <div className="address-card__row">
-                    <div className="address-card__row-title">Alamat</div>
-                    <div className="address-card__row-content">{this.props.data.alamat}{', '}{this.props.data.kelurahan}{', '}{this.props.data.kecamatan}{', '}{this.props.data.kota}{', '}{this.props.data.provinsi}</div>
-                </div> */}
                 {/* <div className="address-card__footer">
                     <div className="btn btn-primary btn-sm" onClick={this.toggleModalStatus}>Cek Status Perusahaan</div>
                 </div> */}

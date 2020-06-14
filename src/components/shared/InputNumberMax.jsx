@@ -5,7 +5,6 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-
 class InputNumber extends Component {
     // handleChange = (event) => {
     //     const { min, onChange } = this.props;
@@ -88,7 +87,7 @@ class InputNumber extends Component {
     }
 
     render() {
-       
+
         const {
             size,
             className,

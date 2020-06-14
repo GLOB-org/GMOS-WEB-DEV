@@ -30,6 +30,7 @@ class AccountPageDashboard extends Component {
         this.state = {
             data: [],
             listDistributor: [],
+            listAlamat: [],
             listDistributor_join: [],
             id_distributor: '',
             displaycatch: false,
@@ -117,7 +118,11 @@ class AccountPageDashboard extends Component {
 
     loadDataDistributor = () => {
         if (localStorage.getItem('Login') != null) {
-            let querydistributor = encrypt("SELECT b.id, b.nama_perusahaan, case when (a.status = 'A') then 'Diverifikasi' when (a.status = 'I') then 'Menunggu Verifikasi' when (a.status = 'R') then 'Verifikasi Ditolak' end as status FROM gcm_company_listing a inner join gcm_master_company b on a.seller_id=b.id where buyer_id = " + decrypt(localStorage.getItem("CompanyIDLogin")) + " order by a.status, b.nama_perusahaan asc")
+            let querydistributor = encrypt("SELECT b.id, b.nama_perusahaan, case when (a.status = 'A') then " +
+                "'Diverifikasi' when (a.status = 'I') then 'Menunggu Verifikasi' when (a.status = 'R') then " +
+                "'Verifikasi Ditolak' end as status FROM gcm_company_listing a inner join gcm_master_company b " +
+                "on a.seller_id=b.id where buyer_id = " + decrypt(localStorage.getItem("CompanyIDLogin")) + " order by a.status, b.nama_perusahaan asc")
+
             Axios.post(url.select, {
                 query: querydistributor
             }).then(data => {
@@ -127,18 +132,28 @@ class AccountPageDashboard extends Component {
                 }
 
                 let id_dist = "";
-
                 for (var i = 0; i < data.data.data.length; i++) {
                     id_dist = id_dist.concat(data.data.data[i].id.toString())
                     id_dist = id_dist.concat(',')
                 }
 
                 id_dist = id_dist.concat(decrypt(localStorage.getItem("CompanyIDLogin")))
-
                 this.setState({ id_distributor: id_dist });
-
                 document.getElementById('shimmerDistributor').style.display = 'none'
                 document.getElementById('contentShimmerDistributor').style.display = 'contents'
+            }).catch(err => {
+                this.setState({ displaycatch: true });
+                // console.log('error' + err);
+                // console.log(err);
+            })
+
+            let queryalamat = encrypt("select id from gcm_master_alamat where company_id = " + decrypt(localStorage.getItem("CompanyIDLogin")) +
+                " and flag_active = 'A'")
+
+            Axios.post(url.select, {
+                query: queryalamat
+            }).then(data => {
+                this.setState({ listAlamat: data.data.data });
             }).catch(err => {
                 this.setState({ displaycatch: true });
                 // console.log('error' + err);
@@ -154,22 +169,45 @@ class AccountPageDashboard extends Component {
             Toast.loading('loading . . .', () => {
             });
 
-            let query = "insert into gcm_company_listing (buyer_id, seller_id, buyer_number_mapping, seller_number_mapping,status,create_date,update_date, blacklist_by, is_blacklist, id_blacklist, notes_blacklist) values "
+            let query = "insert into gcm_company_listing (buyer_id, seller_id, buyer_number_mapping, " +
+                "seller_number_mapping,status,create_date,update_date, blacklist_by, is_blacklist, " +
+                "id_blacklist, notes_blacklist) values "
 
-            let loop = ""
-            let length = this.state.listDistributor_join.length;
-            for (var i = 0; i < length; i++) {
-                loop = loop + "(" + decrypt(localStorage.getItem("CompanyIDLogin")) + "," + this.state.listDistributor_join[i].id + ",null,null,'I',now(),now(),null,false,0,'')"
-                if (i < length - 1) {
-                    loop = loop.concat(",")
-                }
-                else {
-                    loop = loop.concat(";")
+            let loop_1 = ""
+            let loop_2 = ""
+            let length_dist = this.state.listDistributor_join.length;
+            let length_alamat = this.state.listAlamat.length;
+            for (var i = 0; i < length_dist; i++) {
+                loop_1 = loop_1 + "(" + decrypt(localStorage.getItem("CompanyIDLogin")) + "," + this.state.listDistributor_join[i].id + ",null,null,'I',now(),now(),null,false,0,'')"
+                if (i < length_dist - 1) {
+                    loop_1 = loop_1.concat(",")
                 }
             }
 
+            let query_result1 = query.concat(loop_1)
+
+            let query_list_alamat = "insert into gcm_listing_alamat (id_master_alamat, id_buyer, " +
+                "id_seller, kode_alamat_customer) values "
+
+            for (var i = 0; i < length_dist; i++) {
+                for (var j = 0; j < length_alamat; j++) {
+
+                    loop_2 = loop_2 + "(" + this.state.listAlamat[j].id + "," + decrypt(localStorage.getItem("CompanyIDLogin")) + "," + this.state.listDistributor_join[i].id + ",null)"
+                    if (j < length_alamat - 1) {
+                        loop_2 = loop_2.concat(",")
+                    }
+                }
+                if (i < length_dist - 1) {
+                    loop_2 = loop_2.concat(",")
+                }
+
+            }
+
+            let query_result2 = query_list_alamat.concat(loop_2)
+            let final_query = "with new_insert as (" + query_result1 + ")" + query_result2
+
             Axios.post(url.select, {
-                query: encrypt(query.concat(loop))
+                query: encrypt(final_query)
             }).then(data => {
                 this.loadDataDistributor()
                 Toast.hide()
@@ -273,7 +311,7 @@ class AccountPageDashboard extends Component {
                                 </div>
 
                                 <tr>
-                                    <td id='alertempty' style={{ display: 'none' }} colspan="4"><center><h6>- Tidak Ditemukan Data -</h6></center></td>
+                                    <td id='alertempty' style={{ display: 'none' }} colspan="4"><center>- Tidak Ditemukan Data -</center></td>
                                 </tr>
 
                             </tbody>

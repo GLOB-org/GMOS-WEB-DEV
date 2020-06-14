@@ -715,7 +715,7 @@ class AccountPageDashboard extends Component {
     componentDidMount() {
         if (localStorage.getItem('Login') != null) {
             let queryprofile = encrypt("SELECT nama_perusahaan, e.nama as nama_tipe_bisnis, " +
-                " a.email as p_email, no_telp," +
+                "a.no_npwp, a.no_siup, a.email as p_email, no_telp," +
                 "tipe_bisnis, b.nama as u_nama, no_ktp, username, b.email as u_email, no_hp, role, b.status as u_status, b.password " +
                 "FROM gcm_master_company a inner join gcm_master_user b on a.id=b.company_id " +
                 "inner join gcm_master_category e on a.tipe_bisnis=e.id " +
@@ -1164,7 +1164,7 @@ class AccountPageDashboard extends Component {
                     <DialogTitle id="responsive-dialog-title">Konfirmasi</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            Apakah Anda yakin akan menghapus alamat ?
+                            Apakah Anda yakin akan menghapus alamat yang Anda pilih ?
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
