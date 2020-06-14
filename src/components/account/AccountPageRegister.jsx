@@ -48,7 +48,7 @@ export default class AccountPageRegister extends Component {
             data_username: [],
             selectedPenjual: [],
             listTipeBisnis: [],
-            openListPenjual: false, openConfirmationUpload: false,
+            openListPenjual: false, openConfirmationUpload: false, openInfoBerkas: false,
             inputTipeRegister: '', empty_tiperegister: false,
             inputNamaPerusahaan: '', empty_namaperusahaan: false, KetTextNamaPerusahaan: '',
             inputTipeBisnis: '', empty_tipebisnis: false,
@@ -1111,7 +1111,8 @@ export default class AccountPageRegister extends Component {
             var name = document.getElementById('pilihfile');
             this.setState({
                 file_upload: name.files.item(0).name,
-                openConfirmationUpload: true
+                openConfirmationUpload: true,
+                openInfoBerkas: false
             });
         }
 
@@ -1553,11 +1554,12 @@ export default class AccountPageRegister extends Component {
 
                                         {this.state.status_upload == '' ?
                                             (<div>
-                                                <label style={{ fontSize: '13px', fontWeight: '400' }}>* Unggah kelengkapan berkas (bertipe rar/zip) </label><br />
-                                                <Grid container spacing={5}>
+                                                <label style={{ fontSize: '13px', fontWeight: '500', color: 'red' }}>* Unggah kelengkapan berkas (bertipe rar/zip) </label><br />
+                                                <Grid container spacing={2}>
                                                     <Grid item xs={10}>
-                                                        <label for="pilihfile" class="btn btn-primary ">Pilih Berkas</label>
-                                                        <input type="file" id="pilihfile" accept=".zip, .rar" style={{ display: 'none' }} onChange={this.handleTempDocument}></input>
+                                                        <label class="btn btn-primary btn-sm mt-1" onClick={() => this.setState({ openInfoBerkas: !this.state.openInfoBerkas })}>Pilih Berkas</label>
+                                                        {/* <label for="pilihfile" class="btn btn-primary btn-sm mt-1" >Pilih Berkas</label>
+                                                        <input type="file" id="pilihfile" accept=".zip, .rar" style={{ display: 'none' }} onChange={this.handleTempDocument}></input> */}
                                                     </Grid>
                                                 </Grid>
                                             </div>) :
@@ -1797,6 +1799,36 @@ export default class AccountPageRegister extends Component {
 
                             </div>
 
+                        </ModalBody>
+                    </Modal>
+
+                    <Modal isOpen={this.state.openInfoBerkas} size="md" centered>
+                        <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={()=> this.setState({openInfoBerkas: !this.state.openInfoBerkas})}>Informasi Kelengkapan Berkas</ModalHeader>
+                        <ModalBody>
+                            <div className="address-card__row-content" style={{ fontSize: '13px', fontWeight: '600'}}>Pelanggan Perorangan</div>
+                            <ul style={{ fontSize: '13px'}}>
+                                <li>E-KTP</li>
+                                <li>NPWP</li>
+                            </ul>
+                            <div className="address-card__row-content" style={{ fontSize: '13px', fontWeight: '600'}}>Pelanggan Perusahaan Pharma</div>
+                            <ul style={{ fontSize: '13px'}}>
+                                <li>NPWP atau SPPKP</li>
+                                <li>SIUP atau SIUI Farmasi yang masih berlaku</li>
+                                <li>Sertifikat GXP (jika disyaratkan)</li>
+                                <li>Note untuk pelanggan trader : dilengkapi juga data Surat Izin PBF yang masih berlaku</li>
+                            </ul>
+                            <div className="address-card__row-content" style={{ fontSize: '13px', fontWeight: '600'}}>Pelanggan Perusahaan non Pharma</div>
+                            <ul style={{ fontSize: '13px'}}>
+                                <li>NPWP atau SPPKP</li>
+                                <li>SIUP atau SIUI Farmasi yang masih berlaku</li>
+                            </ul>
+
+                        </ModalBody>
+                        <ModalBody>
+                            <div style={{ float: 'right' }} >
+                                <label for="pilihfile" class="btn btn-primary btn-sm mt-1" >Lanjut pilih Berkas</label>
+                                <input type="file" id="pilihfile" accept=".zip, .rar" style={{ display: 'none' }} onChange={this.handleTempDocument}></input>
+                            </div>
                         </ModalBody>
                     </Modal>
 

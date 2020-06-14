@@ -97,11 +97,11 @@ export default class InfoCompanyCard extends Component{
         "inner join gcm_master_transaction e on e.id_transaction = a.transaction_id "+
         "inner join gcm_limit_complain f on b.company_id = f.company_id "+
         "where gmc.id = b.company_id and transaction_id='" + id + "' "+ 
-        "and now() > e.date_received + ( f.limit_hari || ' days')::interval")
+        "and e.status = 'RECEIVED' and now() > e.date_received + ( f.limit_hari || ' days')::interval")
 
         let queryDetailReceived = encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.harga from gcm_transaction_detail a inner join "+
         "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id where transaction_id='"+id+"' order by c.category_id asc, c.nama asc");
-        
+
         Axios.post(url.select,{
             query: queryTimeLimitComplain
         }).then(data=>{

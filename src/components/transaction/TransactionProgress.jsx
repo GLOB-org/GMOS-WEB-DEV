@@ -242,15 +242,70 @@ export default class TransactionProgress extends Component {
     async LoadDataAll() {
         if (localStorage.getItem('Login') != null) {
 
-            let query_limit_time_bayar = "with new_update as ( " +
-                "update gcm_master_transaction set status ='CANCELED', update_date = now(), cancel_reason = 'melewati batas waktu pembayaran'" +
-                "where id_transaction in (select a.id_transaction from gcm_master_transaction a " +
+            let query_limit_time_bayar = encrypt("select string_agg(''''||a.id_transaction||''''  , ',') as id_transaction from gcm_master_transaction a " +
                 "inner join gcm_payment_listing b on a.payment_id = b.id " +
                 "inner join gcm_seller_payment_listing c on b.payment_id = c.id " +
                 "inner join gcm_master_payment d on c.payment_id = d.id " +
-                "where a.status = 'WAITING' and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and now() > a.create_date + interval '48 hours' and d.id = 2))"
+                "where a.status = 'WAITING' and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+                " and now() > a.create_date + interval '48 hours' and d.id = 2")
 
-            let query_transaction = " select a.id_transaction, status,  a.create_date, to_char(a.create_date, 'dd-MM-yyyy / HH24:MI') as create_date_edit, to_char(a.date_ongoing, 'dd-MM-yyyy / HH24:MI') as date_ongoing, " +
+            await Axios.post(url.select, {
+                query: query_limit_time_bayar
+            }).then(data => {
+                if (data.data.data[0].id_transaction != null) {
+                    let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='CANCELED', " +
+                        "date_canceled = now(), cancel_reason = 'melewati batas waktu pembayaran' where id_transaction in (" + data.data.data[0].id_transaction + ")")
+                    Axios.post(url.select, {
+                        query: query_update_limit_time_bayar
+                    }).then(data => {
+
+                    }).catch(err => {
+                        // console.log('error');
+                        // console.log(err);
+                    })
+                }
+            }).catch(err => {
+                // console.log('error');
+                // console.log(err);
+            })
+
+            let query_limit_time_complain = encrypt("select string_agg(''''||e.id_transaction||'''' , ',') as id_transaction " +
+                "from  gcm_master_company gmc ,gcm_transaction_detail a inner join " +
+                "gcm_list_barang b on a.barang_id=b.id " +
+                "inner join gcm_master_transaction e on e.id_transaction = a.transaction_id " +
+                "inner join gcm_limit_complain f on b.company_id = f.company_id " +
+                "where gmc.id = b.company_id and e.status = 'RECEIVED' " +
+                "and now() > e.date_received + ( f.limit_hari || ' days')::interval")
+
+            await Axios.post(url.select, {
+                query: query_limit_time_complain
+            }).then(data => {
+                if (data.data.data[0].id_transaction != null) {
+                    let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='FINISHED', " +
+                        "date_finished = now() where id_transaction in (" + data.data.data[0].id_transaction + ")")
+                    Axios.post(url.select, {
+                        query: query_update_limit_time_bayar
+                    }).then(data => {
+
+                    }).catch(err => {
+                        // console.log('error');
+                        // console.log(err);
+                    })
+                }
+            }).catch(err => {
+                // console.log('error');
+                // console.log(err);
+            })
+
+            // let query_limit_time_bayar = "with new_update as ( " +
+            //     "update gcm_master_transaction set status ='CANCELED', update_date = now(), cancel_reason = 'melewati batas waktu pembayaran'" +
+            //     "where id_transaction in (select a.id_transaction from gcm_master_transaction a " +
+            //     "inner join gcm_payment_listing b on a.payment_id = b.id " +
+            //     "inner join gcm_seller_payment_listing c on b.payment_id = c.id " +
+            //     "inner join gcm_master_payment d on c.payment_id = d.id " +
+            //     "where a.status = 'WAITING' and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and now() > a.create_date + interval '48 hours' and d.id = 2))"
+
+            let query_transaction = "select a.id_transaction, status,  a.create_date, to_char(a.create_date, 'dd-MM-yyyy / HH24:MI') as create_date_edit, to_char(a.date_ongoing, 'dd-MM-yyyy / HH24:MI') as date_ongoing, " +
                 "to_char (a.date_shipped, 'dd-MM-yyyy / HH24:MI') as date_shipped, to_char(a.date_received, 'dd-MM-yyyy / HH24:MI') as date_received, to_char(a.date_complained, 'dd-MM-yyyy / HH24:MI') as date_complained, " +
                 "to_char(a.date_finished, 'dd-MM-yyyy / HH24:MI') as date_finished, to_char(a.date_canceled, 'dd-MM-yyyy / HH24:MI') as date_canceled, sum(harga) as total, a.ongkos_kirim, " +
                 "case when a.ongkos_kirim is null then (sum(harga)) + 0  else (sum(harga)) + a.ongkos_kirim  end as totaltrx , " +
@@ -259,7 +314,8 @@ export default class TransactionProgress extends Component {
                 "sum(b.harga_final) + a.ongkos_kirim as totaltrx_final from gcm_master_transaction a inner join gcm_transaction_detail b on a.id_transaction=b.transaction_id where a.company_id= " + decrypt(localStorage.getItem('CompanyIDLogin')) + " group by a.id_transaction, status, " +
                 "a.create_date, a.date_ongoing, a.date_shipped, a.date_received, a.date_complained, a.date_finished, a.date_canceled, a.ongkos_kirim, a.ppn_seller order by a.create_date desc"
 
-            let final_query = encrypt(query_limit_time_bayar.concat(query_transaction))
+            // let final_query = encrypt(query_limit_time_bayar.concat(query_transaction))
+            let final_query = encrypt(query_transaction)
 
             await Axios.post(url.select, {
                 query: final_query
@@ -2173,7 +2229,7 @@ export default class TransactionProgress extends Component {
                                             <div id="contentShimmerTransactionReceived" style={{ display: 'none' }}>
                                                 {this.state.data_received.slice(this.state.sliceX_received, this.state.sliceY_received).map((value, index) => {
                                                     return (<TransactionReceived data={value} index={index} handleSelesaikanPesanan={this.toggleConfirmation.bind(this)} handleSubmitComplain={this.toggleConfirmationComplained.bind(this)}
-                                                        loadDataReceived={this.LoadDataReceived.bind(this)} loadDataComplained={this.LoadDataComplained.bind(this)} handleTimeLimitComplain={this.toggleTimeLimitComplained.bind(this)}/>)
+                                                        loadDataReceived={this.LoadDataReceived.bind(this)} loadDataComplained={this.LoadDataComplained.bind(this)} handleTimeLimitComplain={this.toggleTimeLimitComplained.bind(this)} />)
                                                 })
                                                 }
                                             </div>
@@ -2393,7 +2449,7 @@ export default class TransactionProgress extends Component {
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button color="primary" onClick={()=> {this.toggleTimeLimitComplained(); this.LoadDataAll() } }>
+                        <Button color="primary" onClick={() => { this.toggleTimeLimitComplained(); this.LoadDataAll() }}>
                             Perbarui data transaksi
                         </Button>
                     </DialogActions>
