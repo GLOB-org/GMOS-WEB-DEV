@@ -17,7 +17,7 @@ import {
     LogoSmallSvg
 } from '../../svg';
 import { mobileMenuOpen } from '../../store/mobile-menu';
-
+import { CartContext } from '../../context/cart';
 
 class MobileHeader extends Component {
     constructor(props) {
@@ -89,20 +89,22 @@ class MobileHeader extends Component {
                                 /> */}
 
                                 {checkLogin ?
-                                    (<Indicator
-                                        className="indicator--mobile"
-                                        url="/keranjang"
-                                        // value={cart.quantity}
-                                        icon={<Cart20Svg />}
-                                    />
+                                    (
+
+                                        <CartContext.Consumer>
+                                            {value => {
+                                                return (
+                                                    <Indicator
+                                                        className="indicator--mobile"
+                                                        url="/keranjang"
+                                                        value={value.cart.count_data_cart}
+                                                        icon={<Cart20Svg />}
+                                                    />
+                                                )
+                                            }}
+                                        </CartContext.Consumer>
                                     ) :
                                     (
-                                        // <Indicator
-                                        //     className="indicator--mobile"
-                                        //     url="/masuk"
-                                        //     // value={cart.quantity}
-                                        //     icon={<Cross20Svg />}
-                                        // />
                                         <NavLink to="/masuk">
                                             <button type="submit" id="btnLoginHeader" className="btn" >
                                                 Masuk

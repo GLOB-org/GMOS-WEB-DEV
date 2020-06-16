@@ -32,7 +32,6 @@ class FilterCheckbox extends Component {
                         </span>
                     </span>
                     <label className="filter-list__title">{item.nama_perusahaan}</label>
-                    {/* {count} */}
                 </label>
             );
         });

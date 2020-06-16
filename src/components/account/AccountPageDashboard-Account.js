@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Axios from 'axios';
 import { decrypt, encrypt, url } from '../../lib';
 
-import {Button, FormFeedback, Input, InputGroup, InputGroupAddon, InputGroupText, Modal ,ModalHeader } from 'reactstrap';
+import {Button, FormFeedback, Input, InputGroup, InputGroupAddon, InputGroupText, Modal, ModalHeader, ModalBody } from 'reactstrap';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -294,12 +294,30 @@ export default class InfoCompanyCard extends Component{
                     Toast.hide();
                     Toast.success('Berhasil menambah akun', 2000, () => {
                         });
+                    this.load_dataAkun()
                     this.toggleModalRegister()
                     this.setState({ openConfirmation: false }); 
                 }).catch(err => {
                     // console.log("eror : " + err);
                 })   
         }
+    }
+
+    load_dataAkun = () =>{
+        
+        let daftarakun = encrypt("select nama, username, no_hp, email, case when status like 'I' " +
+        "then 'Belum Aktif' when status like 'A' then 'Aktif' end as status  from gcm_master_user " +
+        "where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and role = 'user' order by nama")
+
+        Axios.post(url.select, {
+            query: daftarakun
+        }).then((data) => {
+            this.setState({ 
+                data_akun: data.data.data,
+            }); 
+        }).catch(err => {
+            // console.log("eror : " + err);
+        })   
     }
 
     toggleModalAkun = () =>{
@@ -809,7 +827,7 @@ export default class InfoCompanyCard extends Component{
                             </div>
                             <div className="col-3">
                                 <div className="product-card__buttons" style={{marginTop: '0px', float: 'right'}}>
-                                    <span data-toggle="tooltip" title="Edit data"> <div className="btn btn-light btn-xs " onClick={this.toggleModalEditAkun} ><i class="fas fa-pencil-alt"></i></div></span>
+                                    <span data-toggle="tooltip" title="Edit data"> <div className="btn btn-primary btn-xs " onClick={this.toggleModalEditAkun} ><i class="fas fa-pencil-alt"></i></div></span>
                                 </div>
                             </div>
                         </div>    
@@ -846,7 +864,7 @@ export default class InfoCompanyCard extends Component{
 
                         {this.props.data.role == 'admin' ?
                             (<div className="product-card__buttons" >
-                                <div className="btn btn-primary btn-sm" style={{whiteSpace: 'nowrap'}} onClick={this.toggleModalRegister} >  <span style={{ paddingRight: '5px' }}><i class="fas fa-plus"></i></span>Tambah Akun </div> 
+                                {/* <div className="btn btn-primary btn-sm" style={{whiteSpace: 'nowrap'}} onClick={this.toggleModalRegister} >  <span style={{ paddingRight: '5px' }}><i class="fas fa-plus"></i></span>Tambah Akun </div>  */}
                                 <div className="btn btn-light btn-sm" style={{whiteSpace: 'nowrap'}} onClick={this.toggleModalAkun} >  <span style={{ paddingRight: '5px' }}><i class="fas fa-user"></i></span>Lihat Daftar Akun </div>
                             </div>) :
                             (null)
@@ -874,7 +892,7 @@ export default class InfoCompanyCard extends Component{
                             <div className="col-md-12 "></div> */}
 
                         <Modal isOpen={this.state.modalEditAkun} centered size="md" backdrop="static" >
-                        <ModalHeader className="modalHeaderCustom" toggle={()=>this.setState({modalEditAkun: false})}>Edit Data Akun</ModalHeader>
+                        <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={()=>this.setState({modalEditAkun: false})}>Edit Data Akun</ModalHeader>
                         <div className="card-body">
                             <div className="row">
                                 <div className="col-md-12 ">
@@ -1147,6 +1165,13 @@ export default class InfoCompanyCard extends Component{
 
                 <Modal isOpen={this.state.modalOpenAkun} centered size="xl" backdrop="static" >
                     <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={()=>this.setState({modalOpenAkun: false})}>Daftar Akun</ModalHeader>
+                    <ModalBody>
+                        <div className="row">
+                            <div className="col-md-12">
+                                <div className="btn btn-primary btn-sm" style={{whiteSpace: 'nowrap', float: 'right'}} onClick={this.toggleModalRegister} >  <span style={{ paddingRight: '5px' }}><i class="fas fa-plus"></i></span>Tambah Akun </div> 
+                            </div>
+                        </div>
+                    </ModalBody>
                     <div className="card-table">
                         <div className="table-responsive-sm">
                             <table>

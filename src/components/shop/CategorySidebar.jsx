@@ -140,7 +140,9 @@ class CategorySidebar extends Component {
                         </button>
                     </div>
                     <div className="block-sidebar__item">
-                        <WidgetFilters title="Filter" filters={filters} offcanvas={offcanvas} seller={seller} daftarcategory={daftarcategory} shoppage_category={shoppage_category} filterDistributor={this.checkDistributor} filterCategory={this.filterCategory} search={this.search} />
+                        <WidgetFilters title="Filter" filters={filters} offcanvas={offcanvas} seller={seller} 
+                        daftarcategory={daftarcategory} shoppage_category={shoppage_category} 
+                        filterDistributor={this.checkDistributor} filterCategory={this.filterCategory} search={this.search} />
                     </div>
                     {offcanvas !== 'always' && (
                         <div className="block-sidebar__item d-none d-lg-block">

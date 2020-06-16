@@ -483,7 +483,7 @@ export default class AccountPageLogin extends Component {
                                             </div>
 
                                         </form>
-                                        <button onClick={this.ClickLogin} className="btn btn-primary mt-2 mt-md-3 mt-lg-4" >
+                                        <button onClick={this.ClickLogin} className="btn btn-primary mt-2 mt-md-3 mt-lg-4 float-right" >
                                             OK
                                         </button>
                                     </div>
@@ -495,7 +495,7 @@ export default class AccountPageLogin extends Component {
                     </div>
 
                     <Modal isOpen={this.state.openOTP} size="sm" centered>
-                        <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={() => this.setState({ openOTP: false })}>Aktivasi Pengguna</ModalHeader>
+                        <ModalHeader className="stickytopmodal" toggle={() => this.setState({ openOTP: false })}>Aktivasi Pengguna</ModalHeader>
                         <div className="card-body">
                             <div className="row">
                                 <div className="col-md-12 ">
