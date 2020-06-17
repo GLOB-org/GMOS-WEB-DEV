@@ -402,11 +402,17 @@ class ShopPageCheckout extends Component {
                 for (var k = 0; k < data.data.data.length; k++) {
                     if (this.state.data_penjual[j].id == data.data.data[k].seller_id) {
                         if (data.data.data[k].nego_count > 0 &&
-                            data.data.data[k].harga_final != null &&
+                            // data.data.data[k].harga_final != 0 &&
                             data.data.data[k].history_nego_id != 0 &&
                             data.data.data[k].status_time_respon != 'no'
                         ) {
-                            total_ppn_harganego = total_ppn_harganego + Math.ceil((Math.ceil(data.data.data[k].harga_final) * data.data.data[k].qty * data.data.data[k].berat) * Number(this.state.data_penjual[j].ppn_seller) / 100)
+                            if (data.data.data[k].harga_final != 0) {
+                                total_ppn_harganego = total_ppn_harganego + Math.ceil((Math.ceil(data.data.data[k].harga_final) * data.data.data[k].qty * data.data.data[k].berat) * Number(this.state.data_penjual[j].ppn_seller) / 100)
+                            }
+
+                            else if (data.data.data[k].harga_final == 0) {
+                                total_ppn_harganego = total_ppn_harganego + Math.ceil((Math.ceil(data.data.data[k].price * data.data.data[k].kurs) * data.data.data[k].qty * data.data.data[k].berat) * Number(this.state.data_penjual[j].ppn_seller) / 100)
+                            }
                         }
 
                         else if (data.data.data[k].nego_count == 0 ||
@@ -415,8 +421,8 @@ class ShopPageCheckout extends Component {
                         ) {
                             total_ppn_hargaasli = total_ppn_hargaasli + Math.ceil((Math.ceil(data.data.data[k].price * data.data.data[k].kurs) * data.data.data[k].qty * data.data.data[k].berat) * Number(this.state.data_penjual[j].ppn_seller) / 100)
                         }
-
                     }
+
                 }
             }
 
@@ -742,16 +748,18 @@ class ShopPageCheckout extends Component {
                 return filter.seller_id == this.state.data_penjual[i].id;
             });
 
+            console.log(grouping)
+
             grouping_idtransaksi = this.state.set_idtransaction.filter(filter => {
                 return filter.penjual == this.state.data_penjual[i].id;
             });
 
             for (var j = 0; j < grouping.length; j++) {
                 // check if nego
-                if (grouping[j].nego_count > 0 && grouping[j].harga_final != null && grouping[j].history_nego_id != 0) {
+                if (grouping[j].nego_count > 0 && grouping[j].harga_final != 0 && grouping[j].history_nego_id != 0 && grouping[j].status_time_respon != 'no') {
                     loopquery = loopquery + "(" + this.state.set_idtransaction[i].id + "," + grouping[j].barang_id.toString() + "," + grouping[j].qty.toString() + ", " + (grouping[j].harga_final * grouping[j].qty * grouping[j].berat) + ", " + decrypt(localStorage.getItem('UserIDLogin')) + ",now() ," + decrypt(localStorage.getItem('UserIDLogin')) + ", " + decrypt(localStorage.getItem('CompanyIDLogin')) + "," + Math.ceil(grouping[j].kurs * grouping[j].price) + "," + grouping[j].harga_final + ") "
                 }
-                else if (grouping[j].nego_count == 0 || (grouping[j].nego_count > 0 && grouping[j].harga_final == 0)) {
+                else if (grouping[j].nego_count == 0 || (grouping[j].nego_count > 0 && grouping[j].harga_final == 0) || (grouping[j].nego_count > 0 && grouping[j].harga_final != 0 && grouping[j].status_time_respon == 'no')) {
                     loopquery = loopquery + "(" + this.state.set_idtransaction[i].id + "," + grouping[j].barang_id.toString() + "," + grouping[j].qty.toString() + ", " + (Math.ceil(grouping[j].kurs * grouping[j].price) * grouping[j].qty * grouping[j].berat) + ", " + decrypt(localStorage.getItem('UserIDLogin')) + ",now() ," + decrypt(localStorage.getItem('UserIDLogin')) + ", " + decrypt(localStorage.getItem('CompanyIDLogin')) + "," + Math.ceil(grouping[j].kurs * grouping[j].price) + "," + Math.ceil(grouping[j].kurs * grouping[j].price) + ") "
                 }
 

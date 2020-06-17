@@ -160,16 +160,17 @@ export default class TransactionNego extends Component {
     }
 
     approve_nego = (id, harga_sales) => {
+
         this.setState({
-            namaBarangApproval: this.state.data[id].nama,
-            hargaBarangAwal: Math.ceil(this.state.data[id].price * this.state.data[id].kurs),
+            namaBarangApproval: this.state.data_paginationtetap_negoaktif[id].nama,
+            hargaBarangAwal: Math.ceil(this.state.data_paginationtetap_negoaktif[id].price * this.state.data_paginationtetap_negoaktif[id].kurs),
             hargaBarangApproval: harga_sales,
-            satuanBarangApproval: this.state.data[id].satuan,
-            negocountBarangApproval: this.state.data[id].nego_count,
-            historyidApproval: this.state.data[id].history_nego_id,
-            id_mastercartApproval: this.state.data[id].id_mastercart,
-            get_qty_approve: this.state.data[id].qty,
-            get_berat_approve: this.state.data[id].berat,
+            satuanBarangApproval: this.state.data_paginationtetap_negoaktif[id].satuan,
+            negocountBarangApproval: this.state.data_paginationtetap_negoaktif[id].nego_count,
+            historyidApproval: this.state.data_paginationtetap_negoaktif[id].history_nego_id,
+            id_mastercartApproval: this.state.data_paginationtetap_negoaktif[id].id_mastercart,
+            get_qty_approve: this.state.data_paginationtetap_negoaktif[id].qty,
+            get_berat_approve: this.state.data_paginationtetap_negoaktif[id].berat,
             openApprovalNego: true,
         });
     }
@@ -1321,6 +1322,8 @@ export default class TransactionNego extends Component {
                     // document.getElementById('rowTransactionNego').style.display = 'inset'
                     document.getElementById('alertemptyNego_Selesai').style.display = 'none'
                 }
+
+                console.log(this.state.data_tetap)
 
             }).catch(err => {
                 // console.log('error' + err);
