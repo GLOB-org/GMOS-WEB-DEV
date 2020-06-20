@@ -185,7 +185,6 @@ class AccountPageDashboard extends Component {
             }
 
             let query_result1 = query.concat(loop_1)
-
             let query_list_alamat = "insert into gcm_listing_alamat (id_master_alamat, id_buyer, " +
                 "id_seller, kode_alamat_customer) values "
 

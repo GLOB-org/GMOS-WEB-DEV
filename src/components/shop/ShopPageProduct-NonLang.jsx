@@ -211,9 +211,7 @@ class ShopPageProductNonLangganan extends Component {
                                                     <li className="product__meta-availability">
                                                     </li>
                                                 </ul>
-                                                <br />
-                                                {/* <h5 className="product__name"><shimmerNameProductDetail class="shine"></shimmerNameProductDetail></h5> */}
-
+                                                {/* <br />
                                                 <form className="product__options">
                                                     <div className="form-group product__option">
                                                         <div className="product__actions">
@@ -228,7 +226,7 @@ class ShopPageProductNonLangganan extends Component {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </form>
+                                                </form> */}
                                             </div>
 
                                         </div>

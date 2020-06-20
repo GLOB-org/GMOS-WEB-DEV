@@ -61,17 +61,62 @@ class Product extends Component {
         };
     }
 
-    handleChangeQuantity = (quantity) => {
-        this.setState({ quantity });
+    handleAddMouseDown = (kelipatan, source) => {
+        if (source == 'beli') {
+            var get_value = document.getElementById('product-quantity-beli').value.split('.').join("")
+        } else {
+            var get_value = document.getElementById('product-quantity-nego').value.split('.').join("")
+        }
+        var add_result = (Number(get_value) + Number(kelipatan))
 
-        if (quantity == undefined) {
-            this.setState({
-                disable_button: false
-            });
+        var reverse = add_result.toString().split('').reverse().join(''),
+            ribuan = reverse.match(/\d{1,3}/g);
+        ribuan = ribuan.join('.').split('').reverse().join('');
+
+        if (source == 'beli') {
+            document.getElementById('product-quantity-beli').value = ribuan
+        }
+        else {
+            document.getElementById('product-quantity-nego').value = ribuan
+        }
+    };
+
+    handleSubMouseDown = (kelipatan, jumlah_min_beli, source) => {
+        if (source == 'beli') {
+            var get_value = document.getElementById('product-quantity-beli').value.split('.').join("")
+        } else {
+            var get_value = document.getElementById('product-quantity-nego').value.split('.').join("")
+        } var add_result = (Number(get_value) - Number(kelipatan))
+
+        var reverse = add_result.toString().split('').reverse().join(''),
+            ribuan = reverse.match(/\d{1,3}/g);
+        ribuan = ribuan.join('.').split('').reverse().join('');
+
+        if (add_result < jumlah_min_beli) {
+            return
+        }
+        else {
+            if (source == 'beli') {
+                document.getElementById('product-quantity-beli').value = ribuan
+            }
+            else {
+                document.getElementById('product-quantity-nego').value = ribuan
+            }
         }
 
-        var get_value_input = document.getElementById("product-quantity-beli").value
+    };
+
+    handleChangeQuantity = () => {
+        var get_value_input = document.getElementById("product-quantity-beli").value.split('.').join("")
         var cek_kelipatan = Number(get_value_input) % Number(this.props.product.berat)
+
+        this.setState({ quantity : get_value_input });
+
+        // if (quantity == undefined) {
+        //     this.setState({
+        //         disable_button: false
+        //     });
+        // }
 
         if (get_value_input.length == 1) {
             if (get_value_input == '0') {
@@ -136,7 +181,7 @@ class Product extends Component {
             });
         }
 
-        var get_value_input = document.getElementById("product-quantity-nego").value
+        var get_value_input = document.getElementById("product-quantity-nego").value.split('.').join("")
         var cek_kelipatan = Number(get_value_input) % Number(this.props.product.berat)
 
         if (get_value_input.length == 1) {
@@ -616,6 +661,12 @@ class Product extends Component {
         const cek_login = localStorage.getItem('Login');
         const get_cart = cart
 
+        const classes = classNames('input-number', 'product__quantity');
+        const formControlClasses = classNames('form-control input-number__input', {
+            'form-control-sm': 'xl' === 'sm',
+            'form-control-lg': 'xl' === 'lg',
+        });
+
         if (this.state.status_cart != '') {
             return (
                 <div className={`product product--layout--${layout}`}>
@@ -707,8 +758,8 @@ class Product extends Component {
                                         <div className="form-group product__option">
                                             <label htmlFor="product-quantity" >Kuantitas ({product.satuan})</label>
                                             <div className="row">
-                                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8">
-                                                    <InputNumberMax
+                                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-7 pl-lg-3">
+                                                    {/* <InputNumberMax
                                                         id="product-quantity-beli"
                                                         aria-label="Quantity"
                                                         className="product__quantity"
@@ -717,14 +768,22 @@ class Product extends Component {
                                                         value={quantity}
                                                         kelipatan={product.berat}
                                                         onChange={this.handleChangeQuantity}
-                                                    />
+                                                    /> */}
+
+                                                    <div className={classes} style={{ width: '100%' }}>
+                                                        <NumberFormat id="product-quantity-beli" value={quantity} onChange={() => this.handleChangeQuantity()} spellCheck="false" autoComplete="off" allowNegative={false}
+                                                            className={formControlClasses} thousandSeparator={'.'} decimalSeparator={','} />
+                                                        <div className="input-number__add" onMouseDown={() => this.handleAddMouseDown(product.berat, 'beli')} />
+                                                        <div className="input-number__sub" onMouseDown={() => this.handleSubMouseDown(product.berat, product.jumlah_min_beli, 'beli')} />
+                                                    </div>
+
                                                 </div>
                                             </div>
                                             <div className="row">
-                                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+                                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-7">
                                                     <div className="row">
 
-                                                        <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8 mt-2">
+                                                        <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8 mt-2 pr-lg-1 pl-lg-3">
                                                             {cek_login == null || hide_harga == true ?
                                                                 (<AsyncAction
                                                                     render={({ run, loading }) => (
@@ -745,7 +804,7 @@ class Product extends Component {
                                                                                     type="button"
                                                                                     onClick={run}
                                                                                     disabled={this.state.disable_button}
-                                                                                    style={{ width: '100%' }}
+                                                                                    style={{ width: '100%', whiteSpace: 'nowrap' }}
                                                                                     className={classNames('btn btn-primary btn-md', {
                                                                                     })}
                                                                                 >
@@ -761,7 +820,7 @@ class Product extends Component {
                                                         </div>
 
                                                         {product.negotiable == 'yes' ? (
-                                                            <div className="col-xs-12 col-sm-12 col-md-12 col-lg-4 mt-2">
+                                                            <div className="col-xs-12 col-sm-12 col-md-6 col-lg-4 mt-2 pl-lg-1">
                                                                 {cek_login == null || hide_harga == true ?
                                                                     (<AsyncAction
                                                                         render={({ run, loading }) => (
@@ -822,7 +881,7 @@ class Product extends Component {
                                 <div id="form-nego" style={{ display: this.state.displayformnego }}>
                                     <div className="address-card__row">
                                         <center>
-                                            <label htmlFor="input-nego" style={{ fontSize: '13px', fontWeight: '550' }}>Kuantitas ({product.satuan}) : </label>
+                                            <label htmlFor="input-nego" style={{ fontSize: '13px', fontWeight: '550' }}>Kuantitas2 ({product.satuan}) : </label>
                                         </center>
                                         <InputNumberMax
                                             id="product-quantity-nego"
@@ -1014,8 +1073,8 @@ class Product extends Component {
                                         <div className="form-group product__option">
                                             <label htmlFor="product-quantity" >Kuantitas ({product.satuan})</label>
                                             <div className="row">
-                                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8">
-                                                    <InputNumberMax
+                                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-7">
+                                                    {/* <InputNumberMax
                                                         id="product-quantity-beli"
                                                         aria-label="Quantity"
                                                         className="product__quantity"
@@ -1024,13 +1083,21 @@ class Product extends Component {
                                                         value={quantity}
                                                         kelipatan={product.berat}
                                                         onChange={this.handleChangeQuantity}
-                                                    />
+                                                    /> */}
+
+                                                    <div className={classes} style={{ width: '100%' }}>
+                                                        <NumberFormat id="product-quantity-beli" value={quantity} onChange={() => this.handleChangeQuantity()} spellCheck="false" autoComplete="off" allowNegative={false}
+                                                            className={formControlClasses} thousandSeparator={'.'} decimalSeparator={','} />
+                                                        <div className="input-number__add" onMouseDown={() => this.handleAddMouseDown(product.berat, 'beli')} />
+                                                        <div className="input-number__sub" onMouseDown={() => this.handleSubMouseDown(product.berat, product.jumlah_min_beli, 'beli')} />
+                                                    </div>
+
                                                 </div>
                                             </div>
                                             <div className="row">
-                                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8">
+                                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-7">
                                                     <div className="row">
-                                                        <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8 mt-2">
+                                                        <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8 mt-2 pr-lg-1 pl-lg-3">
                                                             {cek_login == null || hide_harga == true ?
                                                                 (<AsyncAction
                                                                     render={({ run, loading }) => (
@@ -1051,7 +1118,7 @@ class Product extends Component {
                                                                                     type="button"
                                                                                     onClick={run}
                                                                                     disabled={this.state.disable_button}
-                                                                                    style={{ width: '100%' }}
+                                                                                    style={{ width: '100%', whiteSpace: 'nowrap' }}
                                                                                     className={classNames('btn btn-primary btn-md', {
                                                                                     })}
                                                                                 >
@@ -1067,7 +1134,7 @@ class Product extends Component {
                                                         </div>
 
                                                         {product.negotiable == 'yes' ? (
-                                                            <div className="col-xs-12 col-sm-12 col-md-12 col-lg-4 mt-2">
+                                                            <div className="col-xs-12 col-sm-12 col-md-12 col-lg-4 mt-2 pl-lg-1">
                                                                 {cek_login == null || hide_harga == true ?
                                                                     (<AsyncAction
                                                                         render={({ run, loading }) => (
@@ -1135,7 +1202,7 @@ class Product extends Component {
                                         <center>
                                             <label htmlFor="input-nego" style={{ fontSize: '13px', fontWeight: '550' }}>Kuantitas ({product.satuan}) : </label>
                                         </center>
-                                        <InputNumberMax
+                                        {/* <InputNumberMax
                                             id="product-quantity-nego"
                                             aria-label="Quantity"
                                             className="product__quantity"
@@ -1143,26 +1210,15 @@ class Product extends Component {
                                             value={this.state.quantity_nego}
                                             kelipatan={product.berat}
                                             onChange={this.handleChangeQuantityNego}
-                                        // setDisabled={this.state.disable_qtynego}
-                                        />
+                                        /> */}
+                                        <div className={classes} style={{ width: '100%' }}>
+                                            <NumberFormat id="product-quantity-nego" value={quantity} onChange={() => this.handleChangeQuantityNego()} spellCheck="false" autoComplete="off" allowNegative={false}
+                                                className={formControlClasses} thousandSeparator={'.'} decimalSeparator={','} />
+                                            <div className="input-number__add" onMouseDown={() => this.handleAddMouseDown(product.berat, 'nego')} />
+                                            <div className="input-number__sub" onMouseDown={() => this.handleSubMouseDown(product.berat, product.jumlah_min_nego, 'nego')} />
+                                        </div>
                                     </div>
                                 </div>
-
-                                {/* <div id="form-nego" style={{ display: this.state.displayformnego }}>
-                                    <div className="address-card__row">
-                                        <center><label htmlFor="input-nego">Kuantitas ({product.satuan}) : </label></center>
-                                        <InputNumberMax
-                                            // id="product-quantity"
-                                            // aria-label="Quantity"
-                                            // className="product__quantity"
-                                            min={parseInt(product.jumlah_min_nego)}
-                                            value={this.state.quantity_nego}
-                                            kelipatan={product.berat}
-                                            onChange={this.handleChangeQuantityNego}
-                                        />
-                                    </div>
-                                    <label style={{ fontSize: '11px', fontWeight: '550', color: 'red' }}> * Kuantitas belum memenuhi jumlah minimal nego </label>
-                                </div> */}
 
                                 <div className="address-card__row">
                                     <center><label htmlFor="input-nego" style={{ fontSize: '13px', fontWeight: '550' }}>Harga Nego : </label></center>

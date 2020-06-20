@@ -125,16 +125,16 @@ export default class InfoCompanyCard extends Component{
                     {this.props.status == "nego_aktif" ?
                         (   <div >
                                 <center>
-                        <button id={'btn-setuju'+this.props.index} type="button" class="btn btn-primary" onClick={()=>this.props.approve_nego(this.props.index, this.state.harga_sales)} style={{ width: '80px' }}>Setuju</button>
+                        <button id={'btn-setuju'+this.props.index} type="button" class="btn btn-primary btn-xs" onClick={()=>this.props.approve_nego(this.props.index, this.state.harga_sales)} style={{ width: '80px' }}>Setuju</button>
                                 </center>
                                 <center>
-                                    <button type="button" class="btn btn-secondary" onClick={()=>this.props.nego_detail(this.props.index, 'aktif')} style={{ marginTop: '5px', width: '80px' }}> Nego </button>
+                                    <button type="button" class="btn btn-secondary btn-xs" onClick={()=>this.props.nego_detail(this.props.index, 'aktif')} style={{ marginTop: '5px', width: '80px' }}> Nego </button>
                                 </center>
                             </div>
                         ) :
                         (   <div>
                                 <center>
-                                    <button type="button" class="btn btn-primary" onClick={()=>this.props.nego_detail(this.props.index, 'selesai')} style={{ marginTop: '5px', width: '80px' }}> Detail </button>
+                                    <button type="button" class="btn btn-primary btn-xs" onClick={()=>this.props.nego_detail(this.props.index, 'selesai')} style={{ marginTop: '5px', width: '80px' }}> Detail </button>
                                 </center>
                             </div>
                         )

@@ -58,7 +58,7 @@ class ShopPageProductLangganan extends Component {
                 product_detail_length: data.data.data.length,
             })
 
-            let getrelated_product = encrypt("SELECT a.nama, b.id, b.barang_id, b.kode_barang, d.alias as satuan, price, b.price_terendah,  b.jumlah_min_beli, b.jumlah_min_nego, foto, category_id, b.company_id, berat, b.deskripsi, c.nama_perusahaan, e.nominal as kurs " +
+            let getrelated_product = encrypt("SELECT a.nama, b.id, b.barang_id, b.kode_barang, d.alias as satuan, price, b.price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable,  b.jumlah_min_beli, b.jumlah_min_nego, foto, category_id, b.company_id, berat, b.deskripsi, c.nama_perusahaan, e.nominal as kurs " +
                 "FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a inner join gcm_list_barang b on a.id=b.barang_id " +
                 "inner join gcm_listing_kurs e on b.company_id = e.company_id inner join gcm_company_listing f on b.company_id = f.seller_id where b.status='A' and b.company_id = c.id and a.satuan = d.id " +
                 "and b.id not in(" + arraystring[0] + ") and f.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + "  and category_id=" + data.data.data[0].category_id + " and now() between e.tgl_start and e.tgl_end order by b.create_date desc, category_id asc, nama asc")
@@ -198,7 +198,7 @@ class ShopPageProductLangganan extends Component {
                                                     <li className="product__meta-availability">
                                                     </li>
                                                 </ul>
-                                                <br />
+                                                {/* <br />
                                                 <form className="product__options">
                                                     <div className="form-group product__option">
                                                         <div className="product__actions">
@@ -213,7 +213,7 @@ class ShopPageProductLangganan extends Component {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </form>
+                                                </form> */}
                                             </div>
 
                                         </div>

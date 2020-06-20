@@ -20,6 +20,7 @@
     height: $block-header-divider-size;
     background: $block-header-divider-color;
 }
+
 .block-header__groups-list {
     display: flex;
     list-style: none;
@@ -35,6 +36,11 @@
         }
     }
 }
+
+.block-header__groups-list::-webkit-scrollbar {
+    display: none;
+  }
+  
 .block-header__group {
     background: transparent;
     border: none;
@@ -163,6 +169,7 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
+
     .block-header__divider + .block-header__groups-list {
         @include direction {
             #{$margin-inline-start}: auto;

@@ -827,7 +827,7 @@ export default class InfoCompanyCard extends Component{
                             </div>
                             <div className="col-3">
                                 <div className="product-card__buttons" style={{marginTop: '0px', float: 'right'}}>
-                                    <span data-toggle="tooltip" title="Edit data"> <div className="btn btn-primary btn-xs " onClick={this.toggleModalEditAkun} ><i class="fas fa-pencil-alt"></i></div></span>
+                                    <span data-toggle="tooltip" title="Edit data"><div className="btn btn-light btn-xs " onClick={this.toggleModalEditAkun} ><i class="fas fa-pencil-alt"></i></div></span>
                                 </div>
                             </div>
                         </div>    
@@ -865,7 +865,7 @@ export default class InfoCompanyCard extends Component{
                         {this.props.data.role == 'admin' ?
                             (<div className="product-card__buttons" >
                                 {/* <div className="btn btn-primary btn-sm" style={{whiteSpace: 'nowrap'}} onClick={this.toggleModalRegister} >  <span style={{ paddingRight: '5px' }}><i class="fas fa-plus"></i></span>Tambah Akun </div>  */}
-                                <div className="btn btn-light btn-sm" style={{whiteSpace: 'nowrap'}} onClick={this.toggleModalAkun} >  <span style={{ paddingRight: '5px' }}><i class="fas fa-user"></i></span>Lihat Daftar Akun </div>
+                                <div className="btn btn-primary btn-sm" style={{whiteSpace: 'nowrap'}} onClick={this.toggleModalAkun} >  <span style={{ paddingRight: '5px' }}><i class="fas fa-user"></i></span>Lihat Daftar Akun </div>
                             </div>) :
                             (null)
                         }

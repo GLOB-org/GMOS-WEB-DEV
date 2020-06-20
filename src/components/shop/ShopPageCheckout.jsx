@@ -615,33 +615,38 @@ class ShopPageCheckout extends Component {
         Toast.loading('loading . . .', () => {
         });
 
-        var label_distributor = ""
-        let check_mapping_alamat = encrypt("select a.shipto_id, b.id_seller, c.nama_perusahaan, b.kode_alamat_customer from " +
-            "(select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
-            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A' )" +
-            "a inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat " +
-            "inner join gcm_master_company c on b.id_seller = c.id " +
-            "and a.company_id = b.id_buyer and a.seller_id = b.id_seller")
+        // let check_mapping_alamat = encrypt("select a.shipto_id, b.id_seller, c.nama_perusahaan, b.kode_alamat_customer from " +
+        //     "(select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
+        //     "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A' )" +
+        //     "a inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat " +
+        //     "inner join gcm_master_company c on b.id_seller = c.id " +
+        //     "and a.company_id = b.id_buyer and a.seller_id = b.id_seller")
+
+        let check_mapping_alamat = encrypt("select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan from "+
+        "(select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a "+
+        "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A' )a "+ 
+        "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat inner join gcm_master_company c "+
+        "on a.seller_id = c.id where b.kode_alamat_customer is null")
 
         await Axios.post(url.select, {
             query: check_mapping_alamat
         }).then(data => {
-            for (var i = 0; i < data.data.data.length; i++) {
-                if (data.data.data[i].kode_alamat_customer == null) {
-                    label_distributor = label_distributor.concat(data.data.data[i].nama_perusahaan)
-                    if (i < data.data.data.length - 1) {
-                        label_distributor = label_distributor.concat(', ')
-                    }
-                }
-            }
+            // for (var i = 0; i < data.data.data.length; i++) {
+            //     if (data.data.data[i].kode_alamat_customer == null) {
+            //         label_distributor = label_distributor.concat(data.data.data[i].nama_perusahaan)
+            //         if (i < data.data.data.length - 1) {
+            //             label_distributor = label_distributor.concat(', ')
+            //         }
+            //     }
+            // }
             this.setState({
-                label_distributor: label_distributor
+                label_distributor: data.data.data[0].nama_perusahaan
             });
         }).catch(err => {
             // console.log('error : ' + err);
         })
 
-        if (label_distributor != "") {
+        if (this.state.label_distributor != "") {
             Toast.hide()
             this.setState({
                 openresponalamat: true
@@ -1079,14 +1084,11 @@ class ShopPageCheckout extends Component {
                             </tr>
                             <tr>
                                 <td colSpan="5">
-                                    <div className="alert alert-secondary mt-3">
+                                    <div className="alert alert-secondary mt-3" >
                                         <span style={{ color: '#3d464d', fontSize: '14px', fontWeight: '500' }}>Informasi kurs : {' '}
                                             <NumberFormat value={Number(data.kurs)} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
                                         </span>
                                     </div>
-                                    {/* <label>Informasi Kurs : {' '}
-                                        <NumberFormat value={Number(data.kurs)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
-                                    </label> */}
                                 </td>
                             </tr>
                             <tbody>
@@ -1107,7 +1109,7 @@ class ShopPageCheckout extends Component {
                                                 <i class="fas fa-pencil-alt"></i>
                                             </button>
                                         </span> */}
-                                        <button type="submit" className="btn btn-secondary btn-xs mt-2" onClick={() => this.toggleModalDataPemesanan(data.id)} >Ubah data pemesanan</button>
+                                        <button type="submit" className="btn btn-light btn-xs mt-2" onClick={() => this.toggleModalDataPemesanan(data.id)} ><i class="fas fa-pencil-alt" style={{ marginRight: '5px' }}></i>data pemesanan</button>
                                     </div>
                                 </td>
                             </tr>
@@ -2024,7 +2026,7 @@ class ShopPageCheckout extends Component {
                 <div className="block block-empty">
                     <div className="container">
                         <div className="block-empty__body">
-                            <div className="block-empty__message">Sedang memuat...</div>
+                            <div className="block-empty__message loading">Sedang memuat</div>
                         </div>
                     </div>
                 </div>
@@ -2153,7 +2155,7 @@ class ShopPageCheckout extends Component {
                     <DialogTitle id="responsive-dialog-title">Transaksi Tidak Dapat Dilakukan !</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            Alamat yang Anda pilih tidak dapat digunakan untuk transaksi ke {this.state.label_distributor}. Silakan hubungi distributor hubungi distributor terkait.
+                            Alamat Pengiriman yang Anda pilih tidak dapat digunakan untuk transaksi ke {this.state.label_distributor}. Silakan ubah alamat pengiriman atau hubungi distributor terkait.
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>

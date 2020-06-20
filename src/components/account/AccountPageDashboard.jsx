@@ -30,6 +30,7 @@ class AccountPageDashboard extends Component {
         this.state = {
             data: [],
             data_cart: [],
+            data_company_listing: [],
             list_address: [],
             listProvince: [],
             listCity: [],
@@ -200,23 +201,23 @@ class AccountPageDashboard extends Component {
     }
 
     toggleModalSetALamat = (id) => {
-        if (this.state.modalSetAlamat == false) {
-            let check_kode_alamat = encrypt("")
+        // if (this.state.modalSetAlamat == false) {
+        //     let check_kode_alamat = encrypt("")
 
-            Toast.loading('loading . . .', () => {
-            });
-            Axios.post(url.select, {
-                query: check_kode_alamat
-            }).then(data => {
-                this.setState({
-                    data_cart: data.data.data
-                });
-                Toast.hide()
-            }).catch(err => {
-                // console.log('error' + err);
-                // console.log(err);
-            })
-        }
+        //     Toast.loading('loading . . .', () => {
+        //     });
+        //     Axios.post(url.select, {
+        //         query: check_kode_alamat
+        //     }).then(data => {
+        //         this.setState({
+        //             data_cart: data.data.data
+        //         });
+        //         Toast.hide()
+        //     }).catch(err => {
+        //         // console.log('error' + err);
+        //         // console.log(err);
+        //     })
+        // }
         this.setState({
             modalSetAlamat: !this.state.modalSetAlamat,
             selected_update: id
@@ -243,12 +244,32 @@ class AccountPageDashboard extends Component {
         }
     }
 
-    toggleModalTambahAlamat = () => {
+    toggleModalTambahAlamat = async () => {
         if (this.state.address_length == 3) {
             this.setState({ openConfirmationAddFalse: !this.state.openConfirmationAddFalse });
         }
         else {
-            this.setState({
+
+            if (this.state.modalTambahAlamat == false) {
+                Toast.loading('loading . . .', () => {
+                });
+
+                let company_listing = encrypt("select seller_id from gcm_company_listing where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'A'")
+
+                await Axios.post(url.select, {
+                    query: company_listing
+                }).then(data => {
+                    this.setState({
+                        data_company_listing: data.data.data
+                    });
+                    Toast.hide()
+                }).catch(err => {
+                    // console.log('error' + err);
+                    // console.log(err);
+                })
+            }
+
+            await this.setState({
                 modalTambahAlamat: !this.state.modalTambahAlamat,
                 inputAlamat: '', empty_alamat: false, KetTextAlamat: '',
                 inputProvinsi: '', empty_provinsi: false, KetTextProvinsi: '',
@@ -285,35 +306,42 @@ class AccountPageDashboard extends Component {
 
         if (count_cart == 0) {
             if (status == 'pengiriman') {
+                // var update_all = "with new_order as (update gcm_master_alamat set shipto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A')"
+                // var queryUpdate = "update gcm_master_alamat set shipto_active = 'Y', billto_active = 'N' where id = " + this.state.selected_update
+
                 var update_all = "with new_order as (update gcm_master_alamat set shipto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A')"
-                var queryUpdate = "update gcm_master_alamat set shipto_active = 'Y', billto_active = 'N' where id = " + this.state.selected_update
+                var queryUpdate = "update gcm_master_alamat set shipto_active = 'Y' where id = " + this.state.selected_update
             }
-            else if (status == 'penagihan') {
-                var update_all = "with new_order as (update gcm_master_alamat set billto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A')"
-                var queryUpdate = "update gcm_master_alamat set shipto_active = 'N', billto_active = 'Y' where id = " + this.state.selected_update
-            }
-            else if (status == 'pengiriman_penagihan') {
-                var update_all = "with new_order as (update gcm_master_alamat set shipto_active = 'N', billto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A')"
-                var queryUpdate = "update gcm_master_alamat set shipto_active = 'Y', billto_active = 'Y' where id = " + this.state.selected_update
-            }
+            // else if (status == 'penagihan') {
+            //     var update_all = "with new_order as (update gcm_master_alamat set billto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A')"
+            //     var queryUpdate = "update gcm_master_alamat set shipto_active = 'N', billto_active = 'Y' where id = " + this.state.selected_update
+            // }
+            // else if (status == 'pengiriman_penagihan') {
+            //     var update_all = "with new_order as (update gcm_master_alamat set shipto_active = 'N', billto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A')"
+            //     var queryUpdate = "update gcm_master_alamat set shipto_active = 'Y', billto_active = 'Y' where id = " + this.state.selected_update
+            // }
             set_query = encrypt(update_all.concat(queryUpdate))
         }
         else if (count_cart > 0) {
             if (status == 'pengiriman') {
+                // var update_all = "with new_order1 as (update gcm_master_alamat set shipto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A'),"
+                // var queryUpdate = " new_order2 as (update gcm_master_alamat set shipto_active = 'Y', billto_active = 'N' where id = " + this.state.selected_update + ")"
+                // var update_cart = "update gcm_master_cart set shipto_id = " + this.state.selected_update + " where status = 'A' and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and id in (" + this.state.data_cart[0].id + ")"
+
                 var update_all = "with new_order1 as (update gcm_master_alamat set shipto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A'),"
-                var queryUpdate = " new_order2 as (update gcm_master_alamat set shipto_active = 'Y', billto_active = 'N' where id = " + this.state.selected_update + ")"
+                var queryUpdate = " new_order2 as (update gcm_master_alamat set shipto_active = 'Y' where id = " + this.state.selected_update + ")"
                 var update_cart = "update gcm_master_cart set shipto_id = " + this.state.selected_update + " where status = 'A' and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and id in (" + this.state.data_cart[0].id + ")"
             }
-            else if (status == 'penagihan') {
-                var update_all = "with new_order1 as (update gcm_master_alamat set billto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A'),"
-                var queryUpdate = " new_order2 as (update gcm_master_alamat set shipto_active = 'N', billto_active = 'Y' where id = " + this.state.selected_update + ")"
-                var update_cart = "update gcm_master_cart set billto_id = " + this.state.selected_update + " where status = 'A' and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and id in (" + this.state.data_cart[0].id + ")"
-            }
-            else if (status == 'pengiriman_penagihan') {
-                var update_all = "with new_order1 as (update gcm_master_alamat set shipto_active = 'N', billto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A'),"
-                var queryUpdate = " new_order2 as (update gcm_master_alamat set shipto_active = 'Y', billto_active = 'Y' where id = " + this.state.selected_update + ")"
-                var update_cart = "update gcm_master_cart set billto_id = " + this.state.selected_update + ", shipto_id = " + this.state.selected_update + " where status = 'A' and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and id in (" + this.state.data_cart[0].id + ")"
-            }
+            // else if (status == 'penagihan') {
+            //     var update_all = "with new_order1 as (update gcm_master_alamat set billto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A'),"
+            //     var queryUpdate = " new_order2 as (update gcm_master_alamat set shipto_active = 'N', billto_active = 'Y' where id = " + this.state.selected_update + ")"
+            //     var update_cart = "update gcm_master_cart set billto_id = " + this.state.selected_update + " where status = 'A' and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and id in (" + this.state.data_cart[0].id + ")"
+            // }
+            // else if (status == 'pengiriman_penagihan') {
+            //     var update_all = "with new_order1 as (update gcm_master_alamat set shipto_active = 'N', billto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A'),"
+            //     var queryUpdate = " new_order2 as (update gcm_master_alamat set shipto_active = 'Y', billto_active = 'Y' where id = " + this.state.selected_update + ")"
+            //     var update_cart = "update gcm_master_cart set billto_id = " + this.state.selected_update + ", shipto_id = " + this.state.selected_update + " where status = 'A' and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and id in (" + this.state.data_cart[0].id + ")"
+            // }
             set_query = encrypt(update_all.concat(queryUpdate).concat(update_cart))
         }
 
@@ -339,10 +367,16 @@ class AccountPageDashboard extends Component {
     deleteAlamat = (id) => {
         Toast.loading('loading . . .', () => {
         });
-        let queryDelete = encrypt("update gcm_master_alamat set flag_active = 'I' where id = " + id)
+
+        let checkAlamat_onCart = "with new_query as (update gcm_master_cart set shipto_id = (select id from gcm_master_alamat gma where shipto_active = 'Y'" +
+            "and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and flag_active = 'A') " +
+            "where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'A' and shipto_id = " + id + ")"
+        let queryDelete = "update gcm_master_alamat set flag_active = 'I' where id = " + id
+
+        let final_query = encrypt(checkAlamat_onCart.concat(queryDelete))
 
         Axios.post(url.select, {
-            query: queryDelete
+            query: final_query
         }).then(data => {
             this.loadAlamat()
             this.setState({
@@ -668,8 +702,20 @@ class AccountPageDashboard extends Component {
             var querytalamat = "with new_insert as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) values (" +
                 this.state.inputKelurahan + "," + this.state.inputKecamatan + "," + this.state.inputKota + "," + this.state.inputProvinsi + "," + this.state.inputKodePOS + ", '" + this.state.inputNoTelp + "', 'N', 'N', " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", '" + this.state.inputAlamat + "', 'A') returning id ) "
 
-            querytalamat = querytalamat + "insert into gcm_listing_alamat (id_master_alamat, id_seller, kode_alamat_customer)" +
-                "values((select id from new_insert), " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", null)"
+            // querytalamat = querytalamat + "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_alamat_customer)" +
+            //     "values((select id from new_insert), " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", null)"
+
+            querytalamat = querytalamat + "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_alamat_customer) values "
+            var loop = ""
+            for (var i = 0; i < this.state.data_company_listing.length; i++) {
+                loop = loop + "((select id from new_insert)," + decrypt(localStorage.getItem('CompanyIDLogin')) + "," + this.state.data_company_listing[i].seller_id + ",null)"
+                if (i < this.state.data_company_listing.length - 1) {
+                    loop = loop.concat(",")
+                }
+            }
+
+            querytalamat = querytalamat + loop
+
         }
 
         else if (this.state.modalEditAlamat == true) {

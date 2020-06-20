@@ -6,15 +6,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 class InputNumber extends Component {
-    // handleChange = (event) => {
-    //     const { min, onChange } = this.props;
-
-    //     if (onChange) {
-    //         const value = parseFloat(event.target.value);
-
-    //         onChange(Number.isNaN(value) ? (min || 0) : value);
-    //     }
-    // };
 
     handleChange = (event) => {
 

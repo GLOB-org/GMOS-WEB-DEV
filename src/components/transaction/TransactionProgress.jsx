@@ -53,9 +53,11 @@ export default class TransactionProgress extends Component {
             data_canceledtetap: [],
             data_canceled: [],
             data_canceled_length: '',
+            count_id_canceled_by_time: '', label_id_canceled_by_time: '',
             checkTabPane: true,
             openConfirmation: false, openConfirmationReceived: false,
             openConfirmationComplained: false, openTimeLimitComplained: false,
+            openTimeLimitPaid: false,
             activeTab: 'waiting',
             page_waiting: 1,
             total_page_waiting: '',
@@ -242,23 +244,31 @@ export default class TransactionProgress extends Component {
     async LoadDataAll() {
         if (localStorage.getItem('Login') != null) {
 
-            let query_limit_time_bayar = encrypt("select string_agg(''''||a.id_transaction||''''  , ',') as id_transaction from gcm_master_transaction a " +
+            let query_limit_time_bayar = encrypt("select string_agg(''''||a.id_transaction||''''  , ',') as id_transaction, string_agg(''||a.id_transaction||''  , ', ') as id_transaction_edit, " +
+                "count (a.id_transaction) as jumlah from gcm_master_transaction a " +
                 "inner join gcm_payment_listing b on a.payment_id = b.id " +
                 "inner join gcm_seller_payment_listing c on b.payment_id = c.id " +
                 "inner join gcm_master_payment d on c.payment_id = d.id " +
                 "where a.status = 'WAITING' and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
-                " and now() > a.create_date + interval '48 hours' and d.id = 2")
+                " and now() > a.create_date + interval '48 hours' and d.id = 2 order by id_transaction")
 
             await Axios.post(url.select, {
                 query: query_limit_time_bayar
             }).then(data => {
                 if (data.data.data[0].id_transaction != null) {
+                    this.setState({
+                        count_id_canceled_by_time: data.data.data[0].jumlah,
+                        label_id_canceled_by_time: data.data.data[0].id_transaction_edit
+                    })
+
                     let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='CANCELED', " +
                         "date_canceled = now(), cancel_reason = 'melewati batas waktu pembayaran' where id_transaction in (" + data.data.data[0].id_transaction + ")")
                     Axios.post(url.select, {
                         query: query_update_limit_time_bayar
                     }).then(data => {
-
+                        if (this.state.count_id_canceled_by_time > 0) {
+                            this.setState({ openTimeLimitPaid: true })
+                        }
                     }).catch(err => {
                         // console.log('error');
                         // console.log(err);
@@ -480,6 +490,10 @@ export default class TransactionProgress extends Component {
                     document.getElementById('rowTransactionCanceled').style.display = 'inset'
                     document.getElementById('alertemptyCanceled').style.display = 'none'
                 }
+
+                // if (this.state.count_id_canceled_by_time > 0) {
+                //     this.setState({ openTimeLimitPaid: true })
+                // }
 
             }).catch(err => {
                 // this.setState({
@@ -1720,207 +1734,7 @@ export default class TransactionProgress extends Component {
     }
 
     async componentDidMount() {
-
         this.LoadDataAll()
-
-        // if (localStorage.getItem('Login') != null) {
-        //     let yx = await Axios.get('https://api.exchangeratesapi.io/latest?base=USD');
-        //     let kurs = yx.data.rates.IDR;
-        //     let query_waiting = encrypt("select a.id_transaction, status, a.create_date, a.update_date, sum(harga) as total from gcm_master_transaction a inner join gcm_transaction_detail b " +
-        //         "on a.id_transaction=b.transaction_id where a.company_id=" + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status='WAITING' group by a.id_transaction, status, a.create_date, a.update_date " +
-        //         "order by a.update_date desc;");
-        //     let query_ongoing = encrypt("select a.id_transaction, status, a.create_date, a.update_date, sum(harga) as total from gcm_master_transaction a inner join gcm_transaction_detail b " +
-        //         "on a.id_transaction=b.transaction_id where a.company_id=" + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status='ONGOING' group by a.id_transaction, status, a.create_date, a.update_date " +
-        //         "order by a.update_date desc;");
-        //     let query_received = encrypt("select a.id_transaction, status, a.create_date, a.update_date, sum(harga) as total from gcm_master_transaction a inner join gcm_transaction_detail b " +
-        //         "on a.id_transaction=b.transaction_id where a.company_id=" + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status='RECEIVED' group by a.id_transaction, status, a.create_date, a.update_date " +
-        //         "order by a.update_date desc;");
-        //     let query_complained = encrypt("select a.id_transaction, status, a.create_date, a.update_date, sum(harga) as total from gcm_master_transaction a inner join gcm_transaction_detail b " +
-        //         "on a.id_transaction=b.transaction_id where a.company_id=" + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status='COMPLAINED' group by a.id_transaction, status, a.create_date, a.update_date " +
-        //         "order by a.update_date desc;");
-        //     let query_finished = encrypt("select a.id_transaction, status, a.create_date, a.update_date, sum(harga) as total from gcm_master_transaction a inner join gcm_transaction_detail b " +
-        //         "on a.id_transaction=b.transaction_id where a.company_id=" + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status='FINISHED' group by a.id_transaction, status, a.create_date, a.update_date " +
-        //         "order by a.update_date desc ;");
-
-        //     Axios.post(url.select, {
-        //         query: query_waiting
-        //     }).then(data => {
-        //         console.log('waiting')
-        //         console.log(data.data.data)
-        //         this.setState({
-        //             data_waiting: data.data.data,
-        //             data_waitingtetap: data.data.data,
-        //             data_waiting_length: "(" + data.data.data.length + ")"
-        //         });
-        //         var total_pagination = Math.ceil(data.data.data.length / 10)
-        //         this.setState({
-        //             total_page_waiting: total_pagination
-        //         });
-        //         document.getElementById('shimmerTransactionWaiting').style.display = 'none'
-        //         document.getElementById('contentShimmerTransactionWaiting').style.display = 'contents'
-        //         if (data.data.data.length == 0) {
-        //             document.getElementById('alertemptyWaiting').style.display = 'table-cell'
-        //             document.getElementById('rowTransactionWaiting').style.display = 'none'
-        //         }
-        //         else {
-        //             document.getElementById('pagination-waiting').style.display = 'block'
-        //             document.getElementById('rowTransactionWaiting').style.display = 'inset'
-        //             document.getElementById('alertemptyWaiting').style.display = 'none'
-        //         }
-        //     }).catch(err => {
-        //         this.setState({
-        //             displaycatch: true,
-        //         });
-        //         console.log('error');
-        //         console.log(err);
-        //     })
-
-        //     Axios.post(url.select, {
-        //         query: query_ongoing
-        //     }).then(data => {
-        //         console.log('ongoing')
-        //         console.log(data.data.data)
-        //         this.setState({
-        //             data_ongoing: data.data.data,
-        //             data_ongoingtetap: data.data.data,
-        //             data_ongoing_length: "(" + data.data.data.length + ")"
-        //         });
-        //         var total_pagination = Math.ceil(data.data.data.length / 10)
-        //         this.setState({
-        //             total_page_ongoing: total_pagination
-        //         });
-        //         document.getElementById('shimmerTransactionOngoing').style.display = 'none'
-        //         document.getElementById('contentShimmerTransactionOngoing').style.display = 'contents'
-        //         if (data.data.data.length == 0) {
-        //             document.getElementById('alertemptyOngoing').style.display = 'table-cell'
-        //             document.getElementById('rowTransactionOngoing').style.display = 'none'
-        //             document.getElementById('pagination-ongoing').style.display = 'none'
-        //         }
-        //         else {
-        //             document.getElementById('pagination-ongoing').style.display = 'block'
-        //             document.getElementById('rowTransactionOngoing').style.display = 'inset'
-        //             document.getElementById('alertemptyOngoing').style.display = 'none'
-        //         }
-        //     }).catch(err => {
-        //         // this.setState({
-        //         //     displaycatch: true
-        //         // });
-        //         // alert('kene1')
-        //         console.log('error');
-        //         console.log(err);
-        //     })
-
-        //     Axios.post(url.select, {
-        //         query: query_received
-        //     }).then(data => {
-        //         console.log('received')
-        //         console.log(data.data.data)
-        //         this.setState({
-        //             data_received: data.data.data,
-        //             data_receivedtetap: data.data.data,
-        //             data_received_length: "(" + data.data.data.length + ")"
-        //         });
-        //         var total_pagination = Math.ceil(data.data.data.length / 10)
-        //         this.setState({
-        //             total_page_received: total_pagination
-        //         });
-
-        //         document.getElementById('shimmerTransactionReceived').style.display = 'none'
-        //         document.getElementById('contentShimmerTransactionReceived').style.display = 'contents'
-        //         if (data.data.data.length == 0) {
-        //             document.getElementById('alertemptyReceived').style.display = 'table-cell'
-        //             document.getElementById('rowTransactionReceived').style.display = 'none'
-        //         }
-        //         else {
-        //             document.getElementById('pagination-received').style.display = 'block'
-        //             document.getElementById('rowTransactionReceived').style.display = 'inset'
-        //             document.getElementById('alertemptyReceived').style.display = 'none'
-        //         }
-        //     }).catch(err => {
-        //         // this.setState({
-        //         //     displaycatch: true,
-        //         // });
-        //         // alert('kene2')
-        //         console.log('error');
-        //         console.log(err);
-        //     })
-
-        //     Axios.post(url.select, {
-        //         query: query_complained
-        //     }).then(data => {
-
-        //         console.log('complained')
-        //         console.log(data.data.data)
-        //         this.setState({
-        //             data_complained: data.data.data,
-        //             data_complainedtetap: data.data.data,
-        //             data_complained_length: "(" + data.data.data.length + ")"
-        //         });
-        //         var total_pagination = Math.ceil(data.data.data.length / 10)
-        //         this.setState({
-        //             total_page_complained: total_pagination
-        //         });
-        //         document.getElementById('shimmerTransactionComplained').style.display = 'none'
-        //         document.getElementById('contentShimmerTransactionComplained').style.display = 'contents'
-        //         if (data.data.data.length == 0) {
-        //             document.getElementById('alertemptyComplained').style.display = 'table-cell'
-        //             document.getElementById('rowTransactionComplained').style.display = 'none'
-        //         }
-        //         else {
-        //             document.getElementById('pagination-complained').style.display = 'block'
-        //             document.getElementById('rowTransactionComplained').style.display = 'inset'
-        //             document.getElementById('alertemptyComplained').style.display = 'none'
-        //         }
-        //     }).catch(err => {
-        //         // this.setState({
-        //         //     displaycatch: true,
-        //         // });
-        //         // alert('kene3')
-        //         console.log('error');
-        //         console.log(err);
-        //     })
-
-        //     Axios.post(url.select, {
-        //         query: query_finished
-        //     }).then(data => {
-        //         console.log('finished')
-        //         console.log(data.data.data)
-        //         this.setState({
-        //             data_finished: data.data.data,
-        //             data_finishedtetap: data.data.data,
-        //             data_finished_length: "(" + data.data.data.length + ")"
-        //         });
-
-        //         var total_pagination = Math.ceil(data.data.data.length / 10)
-        //         this.setState({
-        //             total_page_finished: total_pagination
-        //         });
-        //         document.getElementById('shimmerTransactionFinished').style.display = 'none'
-        //         document.getElementById('contentShimmerTransactionFinished').style.display = 'contents'
-        //         if (data.data.data.length == 0) {
-        //             document.getElementById('alertemptyFinished').style.display = 'table-cell'
-        //             document.getElementById('rowTransactionFinished').style.display = 'none'
-        //         }
-        //         else {
-        //             document.getElementById('pagination-finished').style.display = 'block'
-        //             document.getElementById('rowTransactionFinished').style.display = 'inset'
-        //             document.getElementById('alertemptyFinished').style.display = 'none'
-        //         }
-        //     }).catch(err => {
-        //         this.setState({
-        //             displaycatch: true,
-        //         });
-        //         console.log('error');
-        //         console.log(err);
-        //     })
-
-        //     this.setState({
-        //         showData: this.data.state.data_waitingtetap.length,
-        //         totalData: this.data.state.data_waitingtetap.length
-        //     });
-        //     this.forceUpdate()
-
-        // }
     }
 
     render() {
@@ -2451,6 +2265,24 @@ export default class TransactionProgress extends Component {
                     <DialogActions>
                         <Button color="primary" onClick={() => { this.toggleTimeLimitComplained(); this.LoadDataAll() }}>
                             Perbarui data transaksi
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={this.state.openTimeLimitPaid}
+                    aria-labelledby="responsive-dialog-title"
+                >
+                    <DialogTitle id="responsive-dialog-title">Transaksi Dibatalkan</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Maaf, <strong>{this.state.count_id_canceled_by_time}</strong> {' '} transaksi ( {this.state.label_id_canceled_by_time} ) <strong>dibatalkan</strong> {' '}
+                            karena telah melewati batas waktu pembayaran.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color="primary" onClick={() => { this.setState({ openTimeLimitPaid: false }) }}>
+                            Mengerti
                         </Button>
                     </DialogActions>
                 </Dialog>

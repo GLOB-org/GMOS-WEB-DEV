@@ -77,14 +77,68 @@ class ProductCard extends Component {
         this.setState({ quantity });
     };
 
-    handleChangeQuantityBeli = (quantity_beli) => {
+    handleAddMouseDown = (kelipatan, source) => {
+        if (source == 'beli') {
+            var get_value = document.getElementById('product-quantity-beli').value.split('.').join("")
+        } else {
+            var get_value = document.getElementById('product-quantity_nego').value.split('.').join("")
+        }
+        var add_result = (Number(get_value) + Number(kelipatan))
 
-        this.setState({ quantity_beli });
+        var reverse = add_result.toString().split('').reverse().join(''),
+            ribuan = reverse.match(/\d{1,3}/g);
+        ribuan = ribuan.join('.').split('').reverse().join('');
 
-        var get_value_input = document.getElementById("product-quantity-beli").value
+        if (source == 'beli') {
+            document.getElementById('product-quantity-beli').value = ribuan
+        }
+        else {
+
+            if (this.state.disable_qtynego == false) {
+                document.getElementById('product-quantity_nego').value = ribuan
+            }
+            else {
+                return;
+            }
+        }
+    };
+
+    handleSubMouseDown = (kelipatan, jumlah_min_beli, source) => {
+        if (source == 'beli') {
+            var get_value = document.getElementById('product-quantity-beli').value.split('.').join("")
+        } else {
+            var get_value = document.getElementById('product-quantity_nego').value.split('.').join("")
+        } var add_result = (Number(get_value) - Number(kelipatan))
+
+        var reverse = add_result.toString().split('').reverse().join(''),
+            ribuan = reverse.match(/\d{1,3}/g);
+        ribuan = ribuan.join('.').split('').reverse().join('');
+
+        if (add_result < jumlah_min_beli) {
+            return
+        }
+        else {
+            if (source == 'beli') {
+                document.getElementById('product-quantity-beli').value = ribuan
+            }
+            else {
+                if (this.state.disable_qtynego == false) {
+                    document.getElementById('product-quantity_nego').value = ribuan
+                }
+                else {
+                    return;
+                }
+            }
+        }
+
+    };
+
+    handleChangeQuantityBeli = () => {
+
+        var get_value_input = document.getElementById("product-quantity-beli").value.split('.').join("")
         var cek_kelipatan = Number(get_value_input) % Number(this.props.product.berat)
 
-        // document.getElementById("product-quantity-beli").value = get_value_input.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        this.setState({ quantity_beli: get_value_input });
 
         if (get_value_input.length == 1) {
             if (get_value_input == '0') {
@@ -103,6 +157,7 @@ class ProductCard extends Component {
                 disabletambahbarang: false
             });
         }
+
     };
 
     handleValueNego = () => {
@@ -120,13 +175,15 @@ class ProductCard extends Component {
         }
     }
 
-    handleChangeQuantityNego = (quantity_nego) => {
-        if (this.state.nego_ongoing == false) {
-            this.setState({ quantity_nego });
-        }
-
-        var get_value_input = document.getElementById("product-quantity_nego").value
+    handleChangeQuantityNego = () => {
+        var get_value_input = document.getElementById("product-quantity_nego").value.split('.').join("")
         var cek_kelipatan = Number(get_value_input) % Number(this.props.product.berat)
+
+        if (this.state.nego_ongoing == false) {
+            // this.setState({ quantity_nego });
+            this.setState({ quantity_nego: get_value_input });
+
+        }
 
         if (get_value_input.length == 1) {
             if (get_value_input == '0') {
@@ -145,20 +202,6 @@ class ProductCard extends Component {
                 disablekirimnego: false
             });
         }
-
-        // if (event.target.value != undefined) {
-        //     var cek_kelipatan = Number(event.target.value) % Number(this.props.product.berat)
-
-        //     if (Number(event.target.value) < Number(this.props.product.jumlah_min_nego) || cek_kelipatan != 0 || event.target.value.charAt(0) == 0) {
-        //         this.setState({
-        //             disablekirimnego: true
-        //         });
-        //     } else if (Number(event.target.value) >= Number(this.props.product.jumlah_min_nego) && cek_kelipatan == 0) {
-        //         this.setState({
-        //             disablekirimnego: false
-        //         });
-        //     }
-        // }
 
     };
 
@@ -346,6 +389,7 @@ class ProductCard extends Component {
             quantity_beli: parseInt(this.props.product.jumlah_min_beli),
             openqty: !this.state.openqty
         });
+
     }
 
     toggleModalnegomax = () => {
@@ -981,6 +1025,12 @@ class ProductCard extends Component {
             cek_login = true
         }
 
+        const classes = classNames('input-number', 'product__quantity');
+        const formControlClasses = classNames('form-control input-number__input', {
+            'form-control-sm': 'xl' === 'sm',
+            'form-control-lg': 'xl' === 'lg',
+        });
+
         return (
 
             <div className={containerClasses}>
@@ -1225,7 +1275,7 @@ class ProductCard extends Component {
                                 <center>
                                     <label htmlFor="input-nego" style={{ fontSize: '13px', fontWeight: '550' }}>Kuantitas ({product.satuan}) : </label>
                                 </center>
-                                <InputNumber
+                                {/* <InputNumber
                                     id="product-quantity_nego"
                                     aria-label="Quantity"
                                     className="product__quantity"
@@ -1234,7 +1284,14 @@ class ProductCard extends Component {
                                     kelipatan={product.berat}
                                     onChange={this.handleChangeQuantityNego}
                                     setDisabled={this.state.disable_qtynego}
-                                />
+                                /> */}
+
+                                <div className={classes} style={{ width: '100%' }}>
+                                    <NumberFormat id="product-quantity_nego" value={quantity_nego} onChange={() => this.handleChangeQuantityNego()} spellCheck="false" autoComplete="off" allowNegative={false} style={{ width: '100%' }}
+                                        className={formControlClasses} disabled={this.state.disable_qtynego} thousandSeparator={'.'} decimalSeparator={','} />
+                                    <div className="input-number__add" onMouseDown={() => this.handleAddMouseDown(product.berat, 'nego')} />
+                                    <div className="input-number__sub" onMouseDown={() => this.handleSubMouseDown(product.berat, product.jumlah_min_nego, 'nego')} />
+                                </div>
                             </div>
 
                             <div className="address-card__row">
@@ -1244,7 +1301,7 @@ class ProductCard extends Component {
                                 <InputGroupAddon addonType="append">
                                     <InputGroupText>Rp</InputGroupText>
                                 </InputGroupAddon>
-                                <NumberFormat id='inputNego' onChange={this.handleValueNego} spellCheck="false" autoComplete="off" allowNegative={false} style={{ width: '100%' }} className="form-control" thousandSeparator={'.'} decimalSeparator={','} />
+                                <NumberFormat id='inputNego' onChange={this.handleValueNego} spellCheck="false" autoComplete="off" disabled={this.state.disable_qtynego} allowNegative={false} style={{ width: '100%' }} className="form-control" thousandSeparator={'.'} decimalSeparator={','} />
                             </InputGroup>
                             <label style={{ fontSize: '11px', fontWeight: '550', color: 'red' }}> * Harga nego per {product.satuan} </label>
                         </div>
@@ -1373,7 +1430,8 @@ class ProductCard extends Component {
                             <div className="address-card__row">
                                 <center><label htmlFor="input-nego" style={{ fontSize: '13px', fontWeight: '550' }}>Kuantitas ({product.satuan}) : </label></center>
                                 <div>
-                                    <InputNumber
+
+                                    {/* <InputNumber
                                         id="product-quantity-beli"
                                         aria-label="Quantity"
                                         className="product__quantity"
@@ -1382,7 +1440,15 @@ class ProductCard extends Component {
                                         value={quantity_beli}
                                         kelipatan={product.berat}
                                         onChange={this.handleChangeQuantityBeli}
-                                    />
+                                    /> */}
+
+                                    <div className={classes} style={{ width: '100%' }}>
+                                        <NumberFormat id="product-quantity-beli" value={quantity_beli} onChange={() => this.handleChangeQuantityBeli()} spellCheck="false" autoComplete="off" allowNegative={false} style={{ width: '100%' }}
+                                            className={formControlClasses} thousandSeparator={'.'} decimalSeparator={','} />
+                                        <div className="input-number__add" onMouseDown={() => this.handleAddMouseDown(product.berat, 'beli')} />
+                                        <div className="input-number__sub" onMouseDown={() => this.handleSubMouseDown(product.berat, product.jumlah_min_beli, 'beli')} />
+                                    </div>
+
                                 </div>
                             </div>
 

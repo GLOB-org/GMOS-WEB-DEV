@@ -174,12 +174,12 @@ class IndicatorCart extends Component {
 
                         {(on_nego1 > 0 && on_nego3 == 0) || on_nego1 == 0 || time_respon == 'no' ?
                             (<div className="dropcart__product-meta">
-                                <span className="dropcart__product-quantity">{item.qty * item.berat}</span>
+                                <span className="dropcart__product-quantity"><NumberFormat value={item.qty * item.berat} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} /></span>
                                 {' '}{item.satuan}{' x '}
                                 <span className="dropcart__product-price"><NumberFormat value={Math.ceil(item.price * item.kurs)} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
                             </div>) :
                             (<div className="dropcart__product-meta">
-                                <span className="dropcart__product-quantity">{item.qty * item.berat}</span>
+                                <span className="dropcart__product-quantity"><NumberFormat value={item.qty * item.berat} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} /></span>
                                 {' '}{item.satuan}{' x '}
                                 <span className="dropcart__product-price"><NumberFormat value={Math.ceil(item.harga_final)} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
                             </div>)
@@ -345,12 +345,12 @@ class IndicatorCart extends Component {
 
                                             {(on_nego1 > 0 && on_nego3 == 0) || on_nego1 == 0 || time_respon == 'no' ?
                                                 (<div className="dropcart__product-meta">
-                                                    <span className="dropcart__product-quantity">{item.qty * item.berat}</span>
+                                                    <span className="dropcart__product-quantity"><NumberFormat value={item.qty * item.berat} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} /></span>
                                                     {' '}{item.satuan}{' x '}
                                                     <span className="dropcart__product-price"><NumberFormat value={Math.ceil(item.price * item.kurs)} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
                                                 </div>) :
                                                 (<div className="dropcart__product-meta">
-                                                    <span className="dropcart__product-quantity">{item.qty * item.berat}</span>
+                                                    <span className="dropcart__product-quantity"><NumberFormat value={item.qty * item.berat} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} /></span>
                                                     {' '}{item.satuan}{' x '}
                                                     <span className="dropcart__product-price"><NumberFormat value={Math.ceil(item.harga_final)} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
                                                 </div>)

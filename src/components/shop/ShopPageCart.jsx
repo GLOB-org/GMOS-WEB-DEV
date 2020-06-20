@@ -52,10 +52,12 @@ class ShopPageCart extends Component {
             kelipatan: '',
             total_harga: 0, total_harga_nego: 0, total_harga_asli: 0,
             openConfirmation: false, openQty: false,
+            open_alertcheckout: false,
             selected_delete: '', selected_qty: '',
             disablesimpanqty: false,
             checked: 'true',
-            load_datacart: ''
+            load_datacart: '',
+            data_nego_count: ''
         };
     }
 
@@ -83,6 +85,14 @@ class ShopPageCart extends Component {
         }
     }
 
+    checkCheckout() {
+        if (this.state.data_nego_count > 0) {
+            this.setState({ open_alertcheckout: true })
+        } else {
+            this.props.history.push('/checkout')
+        }
+    }
+
     checkPenjual(id) {
         let loop = this.state.array_groupbarang[id]
 
@@ -100,6 +110,9 @@ class ShopPageCart extends Component {
 
     deletebarang = async (get_param) => {
 
+        Toast.loading('loading . . .', () => {
+        });
+
         let query = encrypt("UPDATE gcm_master_cart SET status='I', update_date=now(), " +
             "update_by=" + decrypt(localStorage.getItem('UserIDLogin')) +
             " where company_id=" + decrypt(localStorage.getItem('CompanyIDLogin')) +
@@ -109,6 +122,7 @@ class ShopPageCart extends Component {
         await Axios.post(url.select, {
             query: query
         }).then(async (data) => {
+            Toast.hide();
             await this.setState({ openConfirmation: !this.state.openConfirmation })
             this.loadDataCart()
         }).catch(err => {
@@ -206,20 +220,26 @@ class ShopPageCart extends Component {
         });
     }
 
-    toggleKuantitas = async (get_param, index, jum_min_beli, berat, qty) => {
-        if (this.state.openQty == false) {
-            await this.setState({
-                selected_qty: get_param,
-                quantity: qty * berat,
-                jumlah_min_beli: jum_min_beli,
-                kelipatan: berat
+    toggleKuantitas = async (get_param, index, jum_min_beli, berat, qty, nego_count, harga_final, history_nego_id) => {
+        if (nego_count > 0 && harga_final == 0 && history_nego_id != 0) {
+            Toast.fail('Barang dalam negosiasi, kuantitas tidak dapat diubah', 2000, () => {
             });
         }
+        else {
+            if (this.state.openQty == false) {
+                await this.setState({
+                    selected_qty: get_param,
+                    quantity: qty * berat,
+                    jumlah_min_beli: jum_min_beli,
+                    kelipatan: berat
+                });
+            }
 
-        this.setState({
-            disablesimpanqty: false,
-            openQty: !this.state.openQty
-        });
+            this.setState({
+                disablesimpanqty: false,
+                openQty: !this.state.openQty
+            });
+        }
     }
 
     async loadDataCart() {
@@ -247,6 +267,14 @@ class ShopPageCart extends Component {
                 load_datacart: 'done'
             });
 
+            let nego_ongoing
+            nego_ongoing = data.data.data.filter(input => {
+                return (input.nego_count > 0 && input.harga_final == 0) || (input.nego_count > 0 && input.harga_final != 0 && input.status_time_respon == 'no');
+            });
+
+            this.setState({
+                data_nego_count: nego_ongoing.length
+            });
 
             let data_harganego
             data_harganego = data.data.data.filter(input => {
@@ -262,10 +290,6 @@ class ShopPageCart extends Component {
                 total_harga_nego: data_harganego.reduce((x, y) => x + (Math.ceil(y.harga_final) * y.qty * y.berat), 0),
                 total_harga_asli: data_hargaasli.reduce((x, y) => x + (Math.ceil(y.price * y.kurs) * y.qty * y.berat), 0)
             });
-
-            // this.setState({
-            //     total_harga: this.state.data_cart.reduce((x, y) => x + (Math.ceil(y.price * y.kurs) * y.qty * y.berat), 0)
-            // });
 
         }).catch(err => {
             this.setState({
@@ -462,9 +486,18 @@ class ShopPageCart extends Component {
                             <td className="cart-table__column cart-table__column--image" style={{ border: 'none' }}>
                                 <img src={item.foto} alt="" />
                             </td>
-                            <td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
+                            {/* <td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
                                 {item.nama}
-                            </td>
+                            </td> */}
+
+                            {item.nego_count > 0 && item.harga_final == 0 && item.history_nego_id != 0 ?
+                                (<td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
+                                    {item.nama} <span style={{ fontSize: '13px', fontWeight: '700' }}>( dalam proses negosiasi )</span>
+                                </td>) :
+                                (<td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
+                                    {item.nama}
+                                </td>)
+                            }
 
                             {item.nego_count > 0 && item.harga_final != null && item.harga_final != 0 && item.history_nego_id != 0 && item.status_time_respon != 'no' ?
                                 (<td className="cart-table__column cart-table__column--price" data-title="Harga" style={{ border: 'none' }}>
@@ -478,7 +511,7 @@ class ShopPageCart extends Component {
                             <td className="cart-table__column cart-table__column--total" data-title="Kuantitas" style={{ border: 'none' }}>
                                 {/* <div className="row" style={{ float: 'right' }}> */}
                                 {item.qty * item.berat}{' '}{item.satuan}
-                                <span data-toggle="tooltip" title="Ubah kuantitas" style={{ marginLeft: '10px', cursor: 'pointer' }} onClick={() => this.toggleKuantitas(item.id, index, item.jumlah_min_beli, item.berat, item.qty)}>
+                                <span data-toggle="tooltip" title="Ubah kuantitas" style={{ marginLeft: '10px', cursor: 'pointer' }} onClick={() => this.toggleKuantitas(item.id, index, item.jumlah_min_beli, item.berat, item.qty, item.nego_count, item.harga_final, item.history_nego_id)}>
                                     <i class="fas fa-pencil-alt fa-xs"></i>
                                 </span>
                                 {/* </div> */}
@@ -644,50 +677,45 @@ class ShopPageCart extends Component {
                             <div className="card ">
                                 <div id="stickybottom_shadow" className="card-body" style={{ padding: '15px' }}>
                                     <div className="row">
-                                        <div className="col-xs-12 col-sm-12  col-md-12 col-lg-8 " style={{ display: 'flex', alignItems: 'center' }}>
-                                            <span style={{ margin: '0px' }}>Total Belanja : {' '}
+                                        <div className="col-xs-6 col-sm-6  col-md-6 col-lg-10" style={{ display: 'flex', alignItems: 'center' }}>
+                                            <span style={{ margin: '0px' }}>Total Harga : {' '}
                                                 <strong>
                                                     <NumberFormat value={this.state.total_harga_asli + this.state.total_harga_nego} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
                                                 </strong>
                                             </span>
                                         </div>
-                                        <div className="col-xs-12 col-sm-12 col-md-12 col-lg-4" >
-                                            <Link to="/checkout" className="btn btn-primary btn-md btn-block " style={{ float: 'right' }}>
+                                        <div className="col-xs-6 col-sm-6 col-md-6 col-lg-2 mt-1 mt-sm-1 mt-md-1 mt-lg-1 mt-xl-1"  >
+                                            <button className="btn btn-primary btn-md btn-block" onClick={() => this.checkCheckout()} style={{ float: 'right' }}>
                                                 Lanjut Checkout
-                                            </Link>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    {/* <div className="row justify-content-end pt-md-5 pt-2 stickybottom">
-                        <div className="col-12 col-md-12 col-lg-12 col-xl-12 ">
-                            <div className="card ">
-                                <div className="card-body ">
-                                    <h5 className="card-title">Total Belanja</h5>
-                                    <hr />
-                                    <table className="cart__totals" style={{ marginBottom: '10px' }}>
-                                        <tfoot className="cart__totals-footer">
-                                            <tr>
-                                                <td style={{ fontSize: '17px', fontWeight: '500' }}>
-                                                    Total
-                                                 </td>
-                                                <td style={{ fontSize: '17px', fontWeight: '700' }}>
-                                                    <NumberFormat value={this.state.total_harga} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
-                                                </td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                    <Link to="/checkout" className="btn btn-primary btn-md btn-block ">
-                                        Lanjut Checkout
-                                     </Link>
-                                </div>
-                            </div>
-                        </div>
-                    </div> */}
                 </div>
+
+                <Dialog
+                    maxWidth="xs"
+                    open={this.state.open_alertcheckout}
+                    aria-labelledby="responsive-dialog-title">
+                    <DialogTitle id="responsive-dialog-title">Barang dalam Proses Negosiasi</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Anda memiliki <strong>{this.state.data_nego_count}</strong> barang yang masih dalam
+                            proses negosiasi. Melanjutkan ke Checkout berarti menyetujui harga terakhir yang kami berikan.
+                            Apakah Anda yakin ingin melanjutkan ke Checkout ?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Link className="btn btn-primary" to="/checkout" onClick={() => this.setState({ open_alertcheckout: false })}>Ya</Link>
+                        <Button color="light" onClick={() => this.setState({ open_alertcheckout: false })}>
+                            Batal
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
                 <Dialog
                     open={this.state.openConfirmation}
                     aria-labelledby="responsive-dialog-title">
@@ -782,7 +810,7 @@ class ShopPageCart extends Component {
                 <div className="block block-empty">
                     <div className="container">
                         <div className="block-empty__body">
-                            <div className="block-empty__message">Sedang memuat keranjang belanja...</div>
+                            <div className="block-empty__message loading">Sedang memuat</div>
                         </div>
                     </div>
                 </div>

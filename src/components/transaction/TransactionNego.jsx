@@ -36,6 +36,7 @@ export default class TransactionNego extends Component {
             history_nego: [],
             data_nego_length: '',
             display_negoform: 'none',
+            display_dealnego: 'none',
             displaydeal: 'none',
             id_history_nego: '',
             data_negoaktif_length: '',
@@ -100,7 +101,15 @@ export default class TransactionNego extends Component {
             data_negoselesai: [],
             data_negoselesai_length: '',
             data_pagination_negoselesai: [],
-            data_paginationtetap_negoselesai: []
+            data_paginationtetap_negoselesai: [],
+
+            negocurrent1_penjual: '',
+            negocurrent2_penjual: '',
+            negocurrent3_penjual: '',
+            negocurrent_penjual: '',
+
+            selected_id_nego: '',
+            selected_status_nego: ''
 
         };
     }
@@ -263,10 +272,10 @@ export default class TransactionNego extends Component {
 
         var param = ""
         if (status == 'aktif') {
-            param = this.state.data_negoaktif[id].history_nego_id
+            param = this.state.data_paginationtetap_negoaktif[id].history_nego_id
         }
         else {
-            param = this.state.data_negoselesai[id].history_nego_id
+            param = this.state.data_paginationtetap_negoselesai[id].history_nego_id
         }
 
         let history_nego = encrypt("SELECT a.id, b.barang_id, b.qty, d.berat,a.harga_nego, a.harga_sales, a.notes, a.created_by, a.created_date, a.updated_by, " +
@@ -277,7 +286,7 @@ export default class TransactionNego extends Component {
         Toast.loading('loading . . .', () => {
         });
 
-        Axios.post(url.select, {
+        await Axios.post(url.select, {
             query: history_nego
         }).then(async (data) => {
             this.setState({
@@ -297,8 +306,8 @@ export default class TransactionNego extends Component {
                 id_mastercart: data.data.data[0].id_mastercart,
                 notes: data.data.data[0].notes
             });
-            Toast.hide();
 
+            Toast.hide();
 
             var respon_sales = 'yes'
 
@@ -465,7 +474,16 @@ export default class TransactionNego extends Component {
                 });
             }
 
-            if (this.state.data[id].nego_count == 1) {
+
+            var get_nego_count = ""
+            if (status == 'aktif') {
+                get_nego_count = this.state.data_paginationtetap_negoaktif[id].nego_count
+            }
+            else {
+                get_nego_count = this.state.data_paginationtetap_negoselesai[id].nego_count
+            }
+
+            if (get_nego_count == 1) {
                 this.setState({
                     harganegocurrent_pembeli: data.data.data[0].harga_nego,
                     harganegocurrent_penjual: data.data.data[0].harga_sales
@@ -473,78 +491,131 @@ export default class TransactionNego extends Component {
 
                 //nego 1 belum ada respon dari seller
                 if (data.data.data[0].harga_sales_mastercart == null || time_to_respon == 'no') {
-                    document.getElementById('labelnegocurrent_penjual').style.display = 'none'
-                    document.getElementById('labelnegocurrent_penjualnull').style.display = 'block'
-                    document.getElementById('labelnego1_penjualnull').style.display = 'block'
-                    document.getElementById('labelnego1_penjual').style.display = 'none'
-                    document.getElementById('nego-form').style.display = 'none'
-                    document.getElementById('rowKesepakatanHarga').style.display = 'none'
                     respon_sales = 'no'
                     this.setState({
                         harganegocurrent_penjual: null,
-                        harga_final: 0
+                        negocurrent1_penjual: 'no',
+                        negocurrent_penjual: 'no',
+                        harga_final: 0,
+                        display_dealnego: 'none',
+                        display_negoform: 'none'
                     });
                 }
 
                 //nego 1 sudah ada respon
                 else if (data.data.data[0].harga_sales_mastercart != null) {
-                    document.getElementById('labelnegocurrent_penjual').style.display = 'block'
-                    document.getElementById('labelnegocurrent_penjualnull').style.display = 'none'
-                    document.getElementById('labelnego1_penjualnull').style.display = 'none'
-                    document.getElementById('labelnego1_penjual').style.display = 'block'
-                    document.getElementById('nego-form').style.display = 'block'
+
+                    this.setState({
+                        negocurrent1_penjual: 'yes',
+                        negocurrent_penjual: 'yes'
+                    });
+
+                    if (status == 'selesai') {
+                        this.setState({
+                            display_negoform: 'none',
+                            display_dealnego: 'flex'
+                        });
+                    }
+                    else if (status == 'aktif') {
+                        this.setState({
+                            display_negoform: 'block',
+                            display_dealnego: 'none'
+                        });
+                    }
                 }
                 else {
                     document.getElementById('labelnegocurrent_penjualnull').style.display = 'none'
                 }
+
             }
 
-            else if (this.state.data[id].nego_count == 2) {
+            else if (get_nego_count == 2) {
                 this.setState({
                     harganegocurrent_pembeli: data.data.data[0].harga_nego_2,
                     harganegocurrent_penjual: data.data.data[0].harga_sales_2
                 });
+
+                //nego 2 belum ada respon dari seller
                 if (data.data.data[0].harga_sales_2 == null || time_to_respon == 'no') {
-                    document.getElementById('labelnegocurrent_penjual').style.display = 'none'
-                    document.getElementById('labelnegocurrent_penjualnull').style.display = 'block'
-                    document.getElementById('labelnego2_penjual').style.display = 'none'
-                    document.getElementById('labelnego2_penjualnull').style.display = 'block'
-                    document.getElementById('nego-form').style.display = 'none'
-                    document.getElementById('rowKesepakatanHarga').style.display = 'none'
                     respon_sales = 'no'
                     this.setState({
                         harganegocurrent_penjual: null,
-                        harga_final: 0
+                        negocurrent2_penjual: 'no',
+                        negocurrent_penjual: 'no',
+                        harga_final: 0,
+                        display_dealnego: 'none',
+                        display_negoform: 'none'
                     });
+                }
+
+                //nego 2 sudah ada respon
+                else if (data.data.data[0].harga_sales_2 != null) {
+
+                    this.setState({
+                        negocurrent2_penjual: 'yes',
+                        negocurrent_penjual: 'yes'
+                    });
+
+                    if (status == 'selesai') {
+                        this.setState({
+                            display_negoform: 'none',
+                            display_dealnego: 'flex'
+                        });
+                    }
+                    else if (status == 'aktif') {
+                        this.setState({
+                            display_negoform: 'block',
+                            display_dealnego: 'none'
+                        });
+                    }
                 }
                 else {
                     document.getElementById('labelnegocurrent_penjualnull').style.display = 'none'
                 }
             }
 
-            else if (this.state.data[id].nego_count == 3) {
+            else if (get_nego_count == 3) {
+                alert('3')
                 this.setState({
                     harganegocurrent_pembeli: data.data.data[0].harga_nego_3,
                     harganegocurrent_penjual: data.data.data[0].harga_sales_3
                 });
+                //nego 3 belum ada respon dari seller
                 if (data.data.data[0].harga_sales_3 == null || time_to_respon == 'no') {
-                    document.getElementById('labelnegocurrent_penjual').style.display = 'none'
-                    document.getElementById('labelnegocurrent_penjualnull').style.display = 'block'
-                    document.getElementById('labelnego3_penjual').style.display = 'none'
-                    document.getElementById('labelnego3_penjualnull').style.display = 'block'
-                    document.getElementById('nego-form').style.display = 'none'
-                    document.getElementById('rowKesepakatanHarga').style.display = 'none'
                     respon_sales = 'no'
                     this.setState({
                         harganegocurrent_penjual: null,
-                        harga_final: 0
+                        negocurrent3_penjual: 'no',
+                        negocurrent_penjual: 'no',
+                        harga_final: 0,
+                        display_dealnego: 'none',
+                        display_negoform: 'none'
                     });
+                }
+
+                //nego 3 sudah ada respon
+                else if (data.data.data[0].harga_sales_3 != null) {
+
+                    this.setState({
+                        negocurrent3_penjual: 'yes',
+                        negocurrent_penjual: 'yes'
+                    });
+
+                    if (status == 'selesai') {
+                        this.setState({
+                            display_negoform: 'none',
+                            display_dealnego: 'flex'
+                        });
+                    }
+                    else if (status == 'aktif') {
+                        this.setState({
+                            display_negoform: 'none',
+                            display_dealnego: 'none'
+                        });
+                    }
                 }
                 else {
                     document.getElementById('labelnegocurrent_penjualnull').style.display = 'none'
-                }
-                if (data.data.data[0].harga_nego_3 != null && data.data.data[0].harga_sales_3 != null) {
-                    document.getElementById('nego-form').style.display = 'none'
                 }
             }
 
@@ -562,6 +633,8 @@ export default class TransactionNego extends Component {
                 document.getElementById('nego-form').style.display = 'none'
             }
 
+
+
         }).catch(err => {
             // this.setState({
             //     displaycatch: true
@@ -570,15 +643,46 @@ export default class TransactionNego extends Component {
             // console.log(err);
         })
 
-        this.setState({
-            id_history_nego: this.state.data[id].history_nego_id,
-            idBarang: this.state.data[id].barang_id,
-            namaBarang: this.state.data[id].nama,
-            satuanBarang: this.state.data[id].satuan,
-            hargaBarang: Math.ceil(this.state.data[id].price * this.state.data[id].kurs),
-            nego_countBarang: this.state.data[id].nego_count,
-            sizeModal: 'lg'
-        });
+        // alert(this.state.data_paginationtetap_negoselesai[id].history_nego_id)
+        // alert(this.state.data_paginationtetap_negoselesai[id].barang_id)
+        // alert(this.state.data_paginationtetap_negoselesai[id].nama)
+        // alert(this.state.data_paginationtetap_negoselesai[id].satuan)
+        // alert(this.state.data_paginationtetap_negoselesai[id].price)
+        // alert(this.state.data_paginationtetap_negoselesai[id].kurs)
+        // alert(this.state.data_paginationtetap_negoselesai[id].nego_count)
+
+        if (status == 'aktif') {
+            this.setState({
+                id_history_nego: this.state.data_paginationtetap_negoaktif[id].history_nego_id,
+                idBarang: this.state.data_paginationtetap_negoaktif[id].barang_id,
+                namaBarang: this.state.data_paginationtetap_negoaktif[id].nama,
+                satuanBarang: this.state.data_paginationtetap_negoaktif[id].satuan,
+                hargaBarang: Math.ceil(this.state.data_paginationtetap_negoaktif[id].price * this.state.data_paginationtetap_negoaktif[id].kurs),
+                nego_countBarang: this.state.data_paginationtetap_negoaktif[id].nego_count,
+                sizeModal: 'lg'
+            });
+        }
+        else {
+            this.setState({
+                id_history_nego: this.state.data_paginationtetap_negoselesai[id].history_nego_id,
+                idBarang: this.state.data_paginationtetap_negoselesai[id].barang_id,
+                namaBarang: this.state.data_paginationtetap_negoselesai[id].nama,
+                satuanBarang: this.state.data_paginationtetap_negoselesai[id].satuan,
+                hargaBarang: Math.ceil(this.state.data_paginationtetap_negoselesai[id].price * this.state.data_paginationtetap_negoselesai[id].kurs),
+                nego_countBarang: this.state.data_paginationtetap_negoselesai[id].nego_count,
+                sizeModal: 'lg'
+            });
+        }
+
+        // this.setState({
+        //     id_history_nego: this.state.data[id].history_nego_id,
+        //     idBarang: this.state.data[id].barang_id,
+        //     namaBarang: this.state.data[id].nama,
+        //     satuanBarang: this.state.data[id].satuan,
+        //     hargaBarang: Math.ceil(this.state.data[id].price * this.state.data[id].kurs),
+        //     nego_countBarang: this.state.data[id].nego_count,
+        //     sizeModal: 'lg'
+        // });
 
         if (this.state.data[id].harga_sales == null) {
             this.setState({
@@ -591,7 +695,7 @@ export default class TransactionNego extends Component {
             });
         }
         // this.forceUpdate();
-        this.toggleNego();
+        await this.toggleNego();
 
     }
 
@@ -802,79 +906,59 @@ export default class TransactionNego extends Component {
     // untuk nego ke 2 dan 3 
     kirimNego = () => {
 
-        Toast.loading('loading . . .', () => {
-        });
-
-        // var input_nego = document.getElementById('inputNego').value.split('.').join("")
-        // var user_id = decrypt(localStorage.getItem('UserIDLogin'))
-        // let nego2 = encrypt("update gcm_history_nego set harga_nego_2 = " + input_nego + ", updated_by_2 = " + user_id + " , updated_date_2 = now() where id=" + this.state.id_history_nego + " returning harga_nego_2 as harga_nego, updated_date_2 as updated_date")
-        // let nego3 = encrypt("update gcm_history_nego set harga_nego_3 = " + input_nego + ", updated_by_3 = " + user_id + " , updated_date_3 = now() where id=" + this.state.id_history_nego + " returning harga_nego_3 as harga_nego, updated_date_3 as updated_date")
-
-        // if (this.state.nego_countBarang == 1) {
-        //     var nego = nego2
-        // }
-        // else if (this.state.nego_countBarang == 2) {
-        //     var nego = nego3
-        // }
-        // Axios.post(url.select, {
-        //     query: nego
-        // }).then(data => {
-
-        //     //update master_cart
-        //     let update_mastercart = encrypt("update gcm_master_cart set nego_count = nego_count + 1 , harga_konsumen = " +
-        //         (data.data.data[0].harga_nego * this.state.get_qty * this.state.get_berat) + " , update_by = " + user_id +
-        //         ", update_date = '" + data.data.data[0].updated_date + "' where id = '" + this.state.id_mastercart + "'")
-
-        //     Axios.post(url.select, {
-        //         query: update_mastercart
-        //     }).then(data => {
-        //         document.getElementById('inputNego').value = ""
-        //         Toast.hide();
-        //         Toast.success('Berhasil mengirim nego', 2000, () => {
-        //         });
-        //     }).catch(err => {
-        //         console.log('error' + err);
-        //         console.log(err);
-        //     })
-        // }).catch(err => {
-        //     console.log('error' + err);
-        //     console.log(err);
-        // })
-
-
         var input_nego = document.getElementById('inputNego').value.split('.').join("")
         var user_id = decrypt(localStorage.getItem('UserIDLogin'))
 
-        let nego2 = "with new_update as (update gcm_history_nego set harga_nego_2 = " + input_nego + ", updated_by_2 = " + user_id +
-            " , updated_date_2 = now() where id=" + this.state.id_history_nego + " returning harga_nego_2 as harga_nego, updated_date_2 as updated_date) "
-
-        let nego3 = "with new_update as (update gcm_history_nego set harga_nego_3 = " + input_nego + ", updated_by_3 = " + user_id +
-            " , updated_date_3 = now() where id=" + this.state.id_history_nego + " returning harga_nego_3 as harga_nego, updated_date_3 as updated_date) "
-
-        if (this.state.nego_countBarang == 1) {
-            var nego = nego2
-        }
-        else if (this.state.nego_countBarang == 2) {
-            var nego = nego3
-        }
-
-        let update_mastercart = "update gcm_master_cart set nego_count = nego_count + 1 , harga_konsumen = " +
-            "(select harga_nego from new_update)" + " , update_by = " + user_id +
-            ", update_date = (select updated_date from new_update) where id = '" + this.state.id_mastercart + "'"
-
-        let final_query = encrypt(nego.concat(update_mastercart))
-
-        Axios.post(url.select, {
-            query: final_query
-        }).then(data => {
-            document.getElementById('inputNego').value = ""
-            Toast.hide();
-            Toast.success('Berhasil mengirim nego', 2000, () => {
+        if (input_nego == ""){
+            Toast.info('Silakan masukkan harga nego !', 2500, () => {
             });
-        }).catch(err => {
-            // console.log('error' + err);
-            // console.log(err);
-        })
+        }
+
+        else if (Number(input_nego) < Number(this.state.harganegocurrent_pembeli)) {
+            Toast.info('Harga nego harus lebih dari penawaran terakhir Anda', 2500, () => {
+            });
+        }
+        else if (Number(input_nego) > Number(this.state.hargaBarang)) {
+            Toast.info('Harga nego harus kurang dari harga barang', 2500, () => {
+            });
+        }
+
+        else {
+            Toast.loading('loading . . .', () => {
+            });
+
+            let nego2 = "with new_update as (update gcm_history_nego set harga_nego_2 = " + input_nego + ", updated_by_2 = " + user_id +
+                " , updated_date_2 = now() where id=" + this.state.id_history_nego + " returning harga_nego_2 as harga_nego, updated_date_2 as updated_date) "
+
+            let nego3 = "with new_update as (update gcm_history_nego set harga_nego_3 = " + input_nego + ", updated_by_3 = " + user_id +
+                " , updated_date_3 = now() where id=" + this.state.id_history_nego + " returning harga_nego_3 as harga_nego, updated_date_3 as updated_date) "
+
+            if (this.state.nego_countBarang == 1) {
+                var nego = nego2
+            }
+            else if (this.state.nego_countBarang == 2) {
+                var nego = nego3
+            }
+
+            let update_mastercart = "update gcm_master_cart set nego_count = nego_count + 1 , harga_konsumen = " +
+                "(select harga_nego from new_update)" + " , update_by = " + user_id +
+                ", update_date = (select updated_date from new_update) where id = '" + this.state.id_mastercart + "'"
+
+            let final_query = encrypt(nego.concat(update_mastercart))
+
+            Axios.post(url.select, {
+                query: final_query
+            }).then(data => {
+                document.getElementById('inputNego').value = ""
+                Toast.hide();
+                Toast.success('Berhasil mengirim nego', 2000, () => {
+                });
+                this.toggleNego()
+            }).catch(err => {
+                // console.log('error' + err);
+                // console.log(err);
+            })
+        }
     }
 
     kirimNotes = () => {
@@ -1323,8 +1407,6 @@ export default class TransactionNego extends Component {
                     document.getElementById('alertemptyNego_Selesai').style.display = 'none'
                 }
 
-                console.log(this.state.data_tetap)
-
             }).catch(err => {
                 // console.log('error' + err);
                 // console.log(err);
@@ -1663,7 +1745,7 @@ export default class TransactionNego extends Component {
                                 <div className="col-md-4" >
                                     <div id='nego1' className="dashboard__address card address-card address-card--featured" style={{ width: '100%' }} >
                                         {/* <label style={{ fontSize: '11px', fontWeight: '400', position: "absolute", paddingLeft: '3px' }}>update : {this.state.updatedate1}, by : {this.state.updateby1}</label> */}
-                                        <label style={{ fontSize: '11px', fontWeight: '400', position: "absolute", paddingLeft: '3px' }}>update : {this.state.updatedate1}</label>
+                                        <label style={{ fontSize: '11px', fontWeight: '400', position: "absolute", paddingLeft: '3px' }}>diperbarui : {this.state.updatedate1}</label>
                                         <div className="overlay" id="overlayNego1" style={{ display: 'none' }}><label style={{ color: 'white', fontSize: '16px', fontWeight: '600' }}>Nego 1</label></div>
                                         <div id="badgeNego1" className="address-card__badge" style={{ display: 'block' }}>Nego 1</div>
                                         <div className="address-card__body" >
@@ -1675,11 +1757,19 @@ export default class TransactionNego extends Component {
                                                             <td><label style={{ fontSize: '13px', fontWeight: '400' }}>Harga Nego</label></td><td style={{ textAlign: 'right' }}><span id='nego1-pembeli' style={{ fontSize: '15px', fontWeight: '600' }}><NumberFormat value={this.state.harganego1_pembeli} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span></td>
                                                         </tr>
                                                         <tr>
-                                                            <td><label style={{ fontSize: '13px', fontWeight: '400' }}>Harga Penjual</label></td><td style={{ textAlign: 'right' }}><span style={{ fontSize: '15px', fontWeight: '600' }}><span id='labelnego1_penjualnull' style={{ display: 'none' }}>Menunggu respon</span><span id='labelnego1_penjual'><NumberFormat value={this.state.harganego1_penjual} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span></span></td>
+                                                            <td><label style={{ fontSize: '13px', fontWeight: '400' }}>Harga Penjual</label></td><td style={{ textAlign: 'right' }}>
+                                                                <span style={{ fontSize: '15px', fontWeight: '600' }}>
+
+                                                                    {this.state.negocurrent1_penjual == 'no' ?
+                                                                        (<span>Menunggu respon</span>)
+                                                                        :
+                                                                        (<span><NumberFormat value={this.state.harganego1_penjual} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>)
+                                                                    }
+
+                                                                </span>
+                                                            </td>
                                                         </tr>
-                                                        {/* <tr>
-                                                            <td colspan='2'><label style={{ fontSize: '11px', fontWeight: '400' }}>Tayo</label></td>
-                                                        </tr> */}
+
                                                     </tbody>
                                                 </table>
 
@@ -1690,7 +1780,7 @@ export default class TransactionNego extends Component {
 
                                 <div className="col-md-4" >
                                     <div id='nego2' className="dashboard__address card address-card address-card--featured" style={{ width: '100%' }} >
-                                        <label id='labelupdateNego2' style={{ fontSize: '11px', fontWeight: '400', position: "absolute", paddingLeft: '3px' }}>update : {this.state.updatedate2}</label>
+                                        <label id='labelupdateNego2' style={{ fontSize: '11px', fontWeight: '400', position: "absolute", paddingLeft: '3px' }}>diperbarui : {this.state.updatedate2}</label>
                                         {/* <label id='labelupdateNego2' style={{ fontSize: '11px', fontWeight: '400', position: "absolute", paddingLeft: '3px' }}>update : {this.state.updatedate2}, by : {this.state.updateby2}</label> */}
                                         <div className="overlay" id="overlayNego2" style={{ display: 'none' }}><label style={{ color: 'white', fontSize: '16px', fontWeight: '600' }}>Nego 2 </label></div>
                                         <div id="badgeNego2" className="address-card__badge" style={{ display: 'block' }}>Nego 2</div>
@@ -1702,7 +1792,17 @@ export default class TransactionNego extends Component {
                                                             <td><label style={{ fontSize: '13px', fontWeight: '400' }}>Harga Nego</label></td><td style={{ textAlign: 'right' }}><label style={{ fontSize: '15px', fontWeight: '600' }}><NumberFormat value={this.state.harganego2_pembeli} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></label></td>
                                                         </tr>
                                                         <tr>
-                                                            <td><label style={{ fontSize: '13px', fontWeight: '400' }}>Harga Penjual</label></td><td style={{ textAlign: 'right' }}><label style={{ fontSize: '15px', fontWeight: '600' }}><span id='labelnego2_penjualnull' style={{ display: 'none' }}>Menunggu respon</span><span id='labelnego2_penjual'><NumberFormat value={this.state.harganego2_penjual} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span></label></td>
+                                                            <td><label style={{ fontSize: '13px', fontWeight: '400' }}>Harga Penjual</label></td><td style={{ textAlign: 'right' }}>
+                                                                <span style={{ fontSize: '15px', fontWeight: '600' }}>
+
+                                                                    {this.state.negocurrent2_penjual == 'no' ?
+                                                                        (<span>Menunggu respon</span>)
+                                                                        :
+                                                                        (<span><NumberFormat value={this.state.harganego2_penjual} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>)
+                                                                    }
+
+                                                                </span>
+                                                            </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -1714,7 +1814,7 @@ export default class TransactionNego extends Component {
                                 <div className="col-md-4" >
                                     <div id='nego3' className="dashboard__address card address-card address-card--featured" style={{ width: '100%' }} >
                                         {/* <label id='labelupdateNego3' style={{ fontSize: '11px', fontWeight: '400', position: "absolute", paddingLeft: '3px' }}>update : {this.state.updatedate3}, by : {this.state.updateby3}</label> */}
-                                        <label id='labelupdateNego3' style={{ fontSize: '11px', fontWeight: '400', position: "absolute", paddingLeft: '3px' }}>update : {this.state.updatedate3}</label>
+                                        <label id='labelupdateNego3' style={{ fontSize: '11px', fontWeight: '400', position: "absolute", paddingLeft: '3px' }}>diperbarui : {this.state.updatedate3}</label>
                                         <div className="overlay" id="overlayNego3" style={{ display: 'none' }}><label style={{ color: 'white', fontSize: '16px', fontWeight: '600' }}>Nego 3</label></div>
                                         <div id="badgeNego3" className="address-card__badge" style={{ display: 'block' }}>Nego 3</div>
                                         <div className="address-card__body" >
@@ -1725,7 +1825,17 @@ export default class TransactionNego extends Component {
                                                             <td><label style={{ fontSize: '13px', fontWeight: '400' }}>Harga Nego</label></td><td style={{ textAlign: 'right' }}><label style={{ fontSize: '15px', fontWeight: '600' }}><NumberFormat value={this.state.harganego3_pembeli} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></label></td>
                                                         </tr>
                                                         <tr>
-                                                            <td><label style={{ fontSize: '13px', fontWeight: '400' }}>Harga Penjual</label></td><td style={{ textAlign: 'right' }}><label style={{ fontSize: '15px', fontWeight: '600' }}><span id='labelnego3_penjualnull' style={{ display: 'none' }}>Menunggu respon</span><span id='labelnego3_penjual'><NumberFormat value={this.state.harganego3_penjual} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span></label></td>
+                                                            <td><label style={{ fontSize: '13px', fontWeight: '400' }}>Harga Penjual</label></td><td style={{ textAlign: 'right' }}>
+                                                                <span style={{ fontSize: '15px', fontWeight: '600' }}>
+
+                                                                    {this.state.negocurrent3_penjual == 'no' ?
+                                                                        (<span>Menunggu respon</span>)
+                                                                        :
+                                                                        (<span><NumberFormat value={this.state.harganego3_penjual} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>)
+                                                                    }
+
+                                                                </span>
+                                                            </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -1756,20 +1866,62 @@ export default class TransactionNego extends Component {
                                         <label style={{ fontSize: '13px', fontWeight: '400' }}>Penawaran terakhir Penjual</label>
                                     </div>
                                     <div className="col-5 col-md-5 col-sm-12" style={{ textAlign: 'right' }}>
-                                        <span style={{ fontSize: '15px', fontWeight: '600' }}><span id='labelnegocurrent_penjualnull' style={{ display: 'none' }}>Menunggu respon</span><span id='labelnegocurrent_penjual'><NumberFormat value={this.state.harganegocurrent_penjual} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span></span>
+                                        <span style={{ fontSize: '15px', fontWeight: '600' }}>
+                                            {this.state.negocurrent_penjual == 'no' ?
+                                                (<span>Menunggu respon</span>)
+                                                :
+                                                (<span><NumberFormat value={this.state.harganegocurrent_penjual} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>)
+                                            }
+
+                                            {/* <span id='labelnegocurrent_penjualnull' style={{ display: 'none' }}>Menunggu respon</span> */}
+                                            {/* <span id='labelnegocurrent_penjual'><NumberFormat value={this.state.harganegocurrent_penjual} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span> */}
+                                        </span>
                                     </div>
                                 </div>
 
-                                <div id='rowKesepakatanHarga' className="row" >
+                                {/* <div id='rowKesepakatanHarga' className="row" style={{ display: this.state.display_dealnego }} >
                                     <div className="col-7 col-md-7 col-sm-12">
                                         <label style={{ fontSize: '13px', fontWeight: '400' }}>Kesepakatan Harga Akhir</label>
                                     </div>
                                     <div className="col-5 col-md-5 col-sm-12" style={{ textAlign: 'right' }}>
                                         <span id='hargaKesepakatan' style={{ fontSize: '15px', fontWeight: '600' }}><NumberFormat value={this.state.harga_final} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
                                     </div>
+                                </div> */}
+
+                                <div className="row" style={{ display: this.state.display_dealnego }} >
+                                    <div className="col-7 col-md-7 col-sm-12">
+                                        <label style={{ fontSize: '13px', fontWeight: '400' }}>Kesepakatan Harga Akhir</label>
+                                    </div>
+                                    <div className="col-5 col-md-5 col-sm-12" style={{ textAlign: 'right' }}>
+                                        <span style={{ fontSize: '15px', fontWeight: '600' }}><NumberFormat value={this.state.harga_final} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
+                                    </div>
                                 </div>
 
-                                <div id="nego-form" style={{ display: this.state.display_negoform }}>
+                                {/* <div id="nego-form" style={{ display: this.state.display_negoform }}>
+                                    <div className="row" >
+                                        <div className="col-12">
+                                            <label style={{ fontSize: '13px', fontWeight: '400' }}>Masukkan Harga Nego</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="row" >
+                                        <div className="col-7 col-md-7 col-sm-12">
+                                            <InputGroup >
+                                                <InputGroupAddon addonType="prepend">
+                                                    <InputGroupText>Rp</InputGroupText>
+                                                </InputGroupAddon>
+                                                <NumberFormat id='inputNego' style={{ width: '100%' }} className="form-control" allowNegative={false} spellCheck="false" autoComplete="off" thousandSeparator={'.'} decimalSeparator={','} />
+                                            </InputGroup>
+                                        </div>
+                                        <div className="col-5 col-md-5 col-sm-12" style={{ textAlign: 'right' }}>
+                                            <button className="btn btn-primary " type="submit" onClick={this.kirimNego.bind(this)} style={{ float: 'right', width: '120px' }}>
+                                                <span id='spinner-nego' style={{ display: 'none' }}><i class="fa fa-spinner fa-spin"></i></span><span id='label-kirimnego'>Kirim Nego</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div> */}
+
+                                <div style={{ display: this.state.display_negoform }}>
                                     <div className="row" >
                                         <div className="col-12">
                                             <label style={{ fontSize: '13px', fontWeight: '400' }}>Masukkan Harga Nego</label>
