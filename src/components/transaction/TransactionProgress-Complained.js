@@ -39,7 +39,7 @@ export default class InfoCompanyCard extends Component{
         // "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id where gmc.id = b.company_id and c.satuan = d.id and transaction_id='"+id+"' order by c.category_id asc, c.nama asc")
 
         let queryDetailComplained = encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.qty_dipenuhi, a.harga, a.batch_number, "+
-        "a.harga_final, to_char(to_date(exp_date,'yyyy-MM-dd'), 'dd-MM-yyyy') as exp_date, b.id, c.berat, "+
+        "a.harga_final, case when exp_date != '-' and exp_date is not null then to_char(to_date(exp_date,'yyyy-MM-dd'), 'dd-MM-yyyy') else '-' end as exp_date, b.id, c.berat, "+
         "d.alias as satuan, b.company_id as penjual, gmc.nama_perusahaan as nama_penjual, e.jenis_complain, "+
         "e.notes_complain, f.ppn_seller from gcm_master_satuan d, gcm_master_company gmc, "+
         "gcm_transaction_detail a inner join gcm_list_barang b on a.barang_id=b.id "+

@@ -646,7 +646,7 @@ class ShopPageCheckout extends Component {
             // console.log('error : ' + err);
         })
 
-        if (this.state.label_distributor != "") {
+        if ( this.state.label_distributor != null) {
             Toast.hide()
             this.setState({
                 openresponalamat: true

@@ -261,8 +261,9 @@ export default class TransactionProgress extends Component {
                         label_id_canceled_by_time: data.data.data[0].id_transaction_edit
                     })
 
-                    let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='CANCELED', " +
+                    let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='CANCELED', id_cancel_reason = 2, " +
                         "date_canceled = now(), cancel_reason = 'melewati batas waktu pembayaran' where id_transaction in (" + data.data.data[0].id_transaction + ")")
+                                        
                     Axios.post(url.select, {
                         query: query_update_limit_time_bayar
                     }).then(data => {
