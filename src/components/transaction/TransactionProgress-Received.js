@@ -536,130 +536,97 @@ export default class InfoCompanyCard extends Component{
             </Modal>
 
             <Modal isOpen={this.state.openListBarang} size="md" centered>
-            <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.controlDialogBarang.bind(this)}>Komplain Pesanan</ModalHeader>
-            <ModalBody>
-              <label style={{fontSize:'14px',  fontWeight: '500', marginBottom: '15px'}}>Pilih barang yang ingin dikomplain :</label>
-                   
-                {this.state.temp.map((item, index) => (
+                <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.controlDialogBarang.bind(this)}>Komplain Pesanan</ModalHeader>
+                <ModalBody>
+                <label style={{fontSize:'14px',  fontWeight: '500', marginBottom: '15px'}}>Pilih barang yang ingin dikomplain :</label>
+                    
+                    {this.state.temp.map((item, index) => (
+                    
+                    <div className="row" style={{marginBottom: '10px'}}>
+                        <div className="col-md-1">
+                            <FormControlLabel 
+                                control={
+                                <Checkbox id={index} style={{color:'#8CC63E'}} onClick={() => this.checkBarang(index)}/>
+                                }
+                            />            
+                        </div>
+                        <img src={item.foto} className="detail-foto col-md-3"/>
+                        <div className="col-md-8">
+                        <label style={{fontSize:'13px',  fontWeight: '500'}}>{item.nama}</label>
+                        </div>
+                    </div> 
                 
-                <div className="row" style={{marginBottom: '10px'}}>
-                    <div className="col-md-1">
-                    <FormControlLabel 
-                        control={
-                          <Checkbox id={index} style={{color:'#8CC63E', paddingTop: '0px'}} onClick={() => this.checkBarang(index)}/>
-                        }
-                    />            
-                    </div>
-                    <img src={item.foto} className="detail-foto col-md-3"/>
-                    <div className="col-md-8">
-                    <label style={{fontSize:'13px',  fontWeight: '500'}}>{item.nama}</label>
-                    </div>
-                </div> 
-            
-                ))} 
-                
-                <button id='lanjutkomplain' className="btn btn-primary mt-2 mt-md-3 mt-lg-4" type="submit" onClick={this.controlDialogComplain.bind(this)} style={{float:'right', marginTop: '15px'}} >Lanjut</button>                           
-            </ModalBody>
+                    ))} 
+                    
+                    <button id='lanjutkomplain' className="btn btn-primary mt-2 mt-md-3 mt-lg-4" type="submit" onClick={this.controlDialogComplain.bind(this)} style={{float:'right', marginTop: '15px'}} >Lanjut</button>                           
+                </ModalBody>
             </Modal>
 
             {/* MODAL ISI KOMPLAIN */}
-            <Modal toggle={this.toggle} isOpen={this.state.openListComplain} size="lg" centered>
-            <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.controlDialogComplain.bind(this)}>Komplain Pesanan</ModalHeader>
-            <ModalBody>
-                {this.state.data_complain.map((item, index) => (
-                
-                <div className="row" style={{marginBottom: '20px'}}>
-                    <img src={item.foto} className="detail-foto col-3"/>
-                    <div className="col-md-9 col-sm-12 col-xs-12">
-                        <label style={{fontSize:'13px',  fontWeight: '500'}}>{item.nama}</label>
-                        <hr/>
-                        <label style={{fontSize:'13px',  fontWeight: '500'}}>Jenis Komplain : </label>
-                        
-                        <div className="filter-list">
-                            <div className="filter-list__list">
-                                <label
-                                    id={"RadBtnBarang" + index}
-                                    className={classNames('filter-list__item', {
-                                    })}
-                                >
-                                    <span className="filter-list__input input-radio">
-                                        <span className="input-radio__body">
-                                            <input className="input-radio__input" type="radio" name="rad"  
-                                            onClick={()=>this.clickRadBtnBarang("RadBtnBarang" + index)} />
-                                            <span className="input-radio__circle" />
+            <Modal toggle={this.toggle} isOpen={this.state.openListComplain} size="md" centered>
+                <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.controlDialogComplain.bind(this)}>Komplain Pesanan</ModalHeader>
+                <ModalBody>
+                    {this.state.data_complain.map((item, index) => (
+                    
+                    <div className="row" style={{marginBottom: '20px'}}>
+                        <img src={item.foto} style={{height: '30%'}} className="detail-foto col-3"/>
+                        <div className="col-md-9 col-sm-12 col-xs-12">
+                            <label style={{fontSize:'13px',  fontWeight: '500'}}>{item.nama}</label>
+                            <hr/>
+                            <label style={{fontSize:'13px',  fontWeight: '500'}}>Jenis Komplain : </label>
+                            
+                            <div className="filter-list">
+                                <div className="filter-list__list">
+                                    <label
+                                        id={"RadBtnBarang" + index}
+                                        className={classNames('filter-list__item', {
+                                        })}
+                                    >
+                                        <span className="filter-list__input input-radio">
+                                            <span className="input-radio__body">
+                                                <input className="input-radio__input" type="radio" name={"rad" + index}  
+                                                onClick={()=>this.clickRadBtnBarang("RadBtnBarang" + index)} />
+                                                <span className="input-radio__circle" />
+                                            </span>
                                         </span>
-                                    </span>
-                                    <label className="filter-list__title">Barang tidak sesuai</label>
-                                </label>
-                            </div>
-                            <div className="filter-list__list">
-                                <label
-                                    id={"RadBtnQty" + index}
-                                    className={classNames('filter-list__item', {
-                                    })}
-                                >
-                                    <span className="filter-list__input input-radio">
-                                        <span className="input-radio__body">
-                                            <input className="input-radio__input" type="radio" name="rad" 
-                                            onClick={()=>this.clickRadBtnQty("RadBtnQty" + index)}/>
-                                            <span className="input-radio__circle" />
+                                        <label className="filter-list__title">Barang tidak sesuai</label>
+                                    </label>
+                                </div>
+                                <div className="filter-list__list">
+                                    <label
+                                        id={"RadBtnQty" + index}
+                                        className={classNames('filter-list__item', {
+                                        })}
+                                    >
+                                        <span className="filter-list__input input-radio">
+                                            <span className="input-radio__body">
+                                                <input className="input-radio__input" type="radio" name={"rad" + index}
+                                                onClick={()=>this.clickRadBtnQty("RadBtnQty" + index)}/>
+                                                <span className="input-radio__circle" />
+                                            </span>
                                         </span>
-                                    </span>
-                                    <label className="filter-list__title">Kuantitas tidak sesuai</label>
-                                </label>
+                                        <label className="filter-list__title">Kuantitas tidak sesuai</label>
+                                    </label>
+                                </div>
                             </div>
+
+                            <label style={{fontSize:'13px',  fontWeight: '500', marginTop: '10px'}}>Jelaskan komplain Anda : </label>
+                            <div className="form-group">
+                                <textarea
+                                    id={"TxtKomplain" + index}
+                                    type="textarea"
+                                    spellCheck="false"
+                                    autoComplete="off"
+                                    className="form-control"
+                                />                     
+                            </div>  
                         </div>
-
-                        {/* <RadioGroup aria-label="position" name="position" >
-                            <FormControlLabel
-                                value="barangunchecked"
-                                control={<Radio id={"RadBtnBarang" + index} style={{color:'#8CC63E'}} />}
-                                label="Barang tidak sesuai"
-                                labelPlacement="end"
-                                onClick={()=>this.clickRadBtnBarang("RadBtnBarang" + index)}
-                            />
-                            <FormControlLabel
-                                value="qtyunchecked"
-                                control={<Radio id={"RadBtnQty" + index} style={{color:'#8CC63E'}} />}
-                                label="Kuantitas tidak sesuai"
-                                labelPlacement="end" 
-                                onClick={()=>this.clickRadBtnQty("RadBtnQty" + index)}
-                            /> 
-                        </RadioGroup> */}
-
-                        <label style={{fontSize:'13px',  fontWeight: '500', marginTop: '10px'}}>Jelaskan komplain Anda : </label>
-                        <div className="form-group">
-                            <textarea
-                                id={"TxtKomplain" + index}
-                                type="textarea"
-                                spellCheck="false"
-                                autoComplete="off"
-                                className="form-control"
-                            />                     
-                        </div>  
-
-                        {/* <InputGroup>
-                            <Input
-                                id="alamat"
-                                type="textarea"
-                                spellCheck="false"
-                                autoComplete="off"
-                                className="form-control"
-                                maxLength={100}
-                                invalid={this.state.empty_alamat}
-                                onChange={event => this.Alamat_validation(event)}
-                                value={this.state.inputAlamat}
-                            />
-                            <FormFeedback>{this.state.KetTextAlamat}</FormFeedback>
-                        </InputGroup> */}
-
-                    </div>
-                </div> 
-                
-                ))} 
-                                                                                             
-                <button className="btn btn-primary mt-1" type="submit" onClick={async () => {await this.setQueryComplain()}} style={{float:'right'}}>Kirim Komplain</button>                                                   
-            </ModalBody>
+                    </div> 
+                    
+                    ))} 
+                                                                                                
+                    <button className="btn btn-primary mt-1" type="submit" onClick={async () => {await this.setQueryComplain()}} style={{float:'right'}}>Kirim Komplain</button>                                                   
+                </ModalBody>
             </Modal>            
         </div>    
     )

@@ -68,7 +68,7 @@ class ShopPageCheckout extends Component {
             modalDaftarAlamat: false, modalDaftarAlamat_jenis: '',
             modalDataPemesanan: false,
             openresponkurs: false, view_alert_kurs: false,
-            openresponerror: false, openresponalamat: false,
+            openresponerror: false, openresponalamat: false, openrespontransaksi: false,
             selected_alamatpengiriman: '', selected_alamatpenagihan: '',
             selected_seller: '', selected_payment: '',
             selected_pilihtglkirim: false, value_pilihtglkirim: '',
@@ -77,6 +77,21 @@ class ShopPageCheckout extends Component {
             total_ongkir: '', total_ppn: '',
             transaction_status: '',
         };
+    }
+
+    cekTanggalKirim = () => {
+        for (var i = 0; i < this.state.data_penjual.length; i++) {
+            if (document.getElementById('tgl_kirim' + i).innerHTML == 'belum diatur') {
+                Toast.fail('Tanggal kirim belum diatur', 2000, () => {
+                });
+                break;
+            }
+            else {
+                this.setState({
+                    openrespontransaksi: true
+                })
+            }
+        }
     }
 
     handlePaymentChange = (event) => {
@@ -612,33 +627,32 @@ class ShopPageCheckout extends Component {
     }
 
     submitTransaksi = async () => {
+        // var check_tgl_kirim = ''
+
+        // for (var i = 0; i < this.state.data_penjual.length; i++) {
+        //     if (document.getElementById('tgl_kirim' + i).innerHTML == 'belum diatur') {
+        //         Toast.fail('Tanggal kirim belum diatur', 2000, () => {
+        //         });
+        //         check_tgl_kirim = 'false'
+        //         break;
+        //     }
+        //     else { check_tgl_kirim = 'true' }
+        // }
+
+        // if (check_tgl_kirim == 'true') {
+
         Toast.loading('loading . . .', () => {
         });
 
-        // let check_mapping_alamat = encrypt("select a.shipto_id, b.id_seller, c.nama_perusahaan, b.kode_alamat_customer from " +
-        //     "(select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
-        //     "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A' )" +
-        //     "a inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat " +
-        //     "inner join gcm_master_company c on b.id_seller = c.id " +
-        //     "and a.company_id = b.id_buyer and a.seller_id = b.id_seller")
-
-        let check_mapping_alamat = encrypt("select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan from "+
-        "(select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a "+
-        "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A' )a "+ 
-        "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat inner join gcm_master_company c "+
-        "on a.seller_id = c.id where b.kode_alamat_customer is null")
+        let check_mapping_alamat = encrypt("select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan from " +
+            "(select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
+            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A' )a " +
+            "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat inner join gcm_master_company c " +
+            "on a.seller_id = c.id where b.kode_alamat_customer is null")
 
         await Axios.post(url.select, {
             query: check_mapping_alamat
         }).then(data => {
-            // for (var i = 0; i < data.data.data.length; i++) {
-            //     if (data.data.data[i].kode_alamat_customer == null) {
-            //         label_distributor = label_distributor.concat(data.data.data[i].nama_perusahaan)
-            //         if (i < data.data.data.length - 1) {
-            //             label_distributor = label_distributor.concat(', ')
-            //         }
-            //     }
-            // }
             this.setState({
                 label_distributor: data.data.data[0].nama_perusahaan
             });
@@ -646,7 +660,7 @@ class ShopPageCheckout extends Component {
             // console.log('error : ' + err);
         })
 
-        if ( this.state.label_distributor != null) {
+        if (this.state.label_distributor != null) {
             Toast.hide()
             this.setState({
                 openresponalamat: true
@@ -737,6 +751,7 @@ class ShopPageCheckout extends Component {
                 await this.submitDetailTransaksi(query_transaction)
             }
         }
+        // }
     }
 
     submitDetailTransaksi = async (query_transaction) => {
@@ -752,8 +767,6 @@ class ShopPageCheckout extends Component {
             grouping = this.state.data_checkout.filter(filter => {
                 return filter.seller_id == this.state.data_penjual[i].id;
             });
-
-            console.log(grouping)
 
             grouping_idtransaksi = this.state.set_idtransaction.filter(filter => {
                 return filter.penjual == this.state.data_penjual[i].id;
@@ -801,7 +814,8 @@ class ShopPageCheckout extends Component {
 
             await Toast.hide()
             await this.setState({
-                transaction_status: 'success'
+                transaction_status: 'success',
+                openrespontransaksi: false
             });
             window.scrollTo(0, 0);
             this.forceUpdate()
@@ -1084,7 +1098,7 @@ class ShopPageCheckout extends Component {
                             </tr>
                             <tr>
                                 <td colSpan="5">
-                                    <div className="alert alert-secondary mt-3" >
+                                    <div className="alert mt-3" style={{backgroundColor: '#f0f0f0'}}>
                                         <span style={{ color: '#3d464d', fontSize: '14px', fontWeight: '500' }}>Informasi kurs : {' '}
                                             <NumberFormat value={Number(data.kurs)} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
                                         </span>
@@ -1109,7 +1123,7 @@ class ShopPageCheckout extends Component {
                                                 <i class="fas fa-pencil-alt"></i>
                                             </button>
                                         </span> */}
-                                        <button type="submit" className="btn btn-light btn-xs mt-2" onClick={() => this.toggleModalDataPemesanan(data.id)} ><i class="fas fa-pencil-alt" style={{ marginRight: '5px' }}></i>data pemesanan</button>
+                                        <button type="submit" className="btn btn-primary btn-sm mt-2" onClick={() => this.toggleModalDataPemesanan(data.id)} ><i class="fas fa-pencil-alt" style={{ marginRight: '5px' }}></i>data pemesanan</button>
                                     </div>
                                 </td>
                             </tr>
@@ -1160,8 +1174,8 @@ class ShopPageCheckout extends Component {
                                                         <span style={{ fontSize: '13px', fontWeight: '500' }}>
                                                             <div className="address-card__row-content">
                                                                 {filter_data_checkout_payment[0].tgl_permintaan_kirim_edit == null ?
-                                                                    (<span>belum diatur</span>) :
-                                                                    (<span>{filter_data_checkout_payment[0].tgl_permintaan_kirim_edit}</span>)
+                                                                    (<span id={"tgl_kirim" + index}>belum diatur</span>) :
+                                                                    (<span id={"tgl_kirim" + index}>{filter_data_checkout_payment[0].tgl_permintaan_kirim_edit}</span>)
                                                                 }
                                                             </div>
                                                         </span>
@@ -1816,19 +1830,6 @@ class ShopPageCheckout extends Component {
                         )
                     }
 
-                    // return (
-                    //     <Input
-                    //         style={{ fontSize: '13px', fontWeight: '500' }}
-                    //         id={"tgl_kirim_" + this.state.selected_seller}
-                    //         type="date"
-                    //         spellCheck="false"
-                    //         autoComplete="off"
-                    //         className="form-control mt-3"
-                    //         // value={document.getElementById("tgl_kirim_" + this.state.selected_seller).value}
-                    //         value={this.state.data_checkout[get_index].tgl_permintaan_kirim}
-                    //         onChange={event => this.HandlePilihTglKirim(event, "tgl_kirim_" + this.state.selected_seller)}
-                    //     />
-                    // )
                     break;
                 }
             }
@@ -1942,7 +1943,7 @@ class ShopPageCheckout extends Component {
                     <div className="block block-empty">
                         <div className="container">
                             <div className="block-empty__body">
-                                <div className="block-empty__message"><i class="fas fa-check-circle fa-2x mb-3" style={{ color: '#8CC63E' }}></i></div>
+                                <div className="block-empty__message"><i class="fas fa-check-circle fa-3x mb-3" style={{ color: '#8CC63E' }}></i></div>
                                 <div className="block-empty__message">Selamat! Anda berhasil melakukan transaksi</div>
                                 <div className="block-empty__message">
                                     dengan id : {' '}
@@ -1974,30 +1975,8 @@ class ShopPageCheckout extends Component {
                                     <div className="card mb-0 stickytop">
                                         <div className="card-body">
                                             <h5 className="card-title ">Ringkasan Pesanan</h5>
-
                                             {this.renderCart()}
-
-                                            {/* {this.state.data_penjual_length == 1 ?
-                                                (<div>
-                                                    Metode Pembayaran
-                                                    {this.renderPaymentsListSingleSeller()}
-                                                Pengiriman {'&'} Penagihan
-                                                    {this.renderAlamatPengiriman()}
-                                                    {this.renderAlamatPenagihan()}
-                                                </div>) :
-                                                (<div></div>)
-                                            } */}
-                                            {/* Metode Pembayaran
-                                        {this.renderPaymentsListSingleSeller()}
-                                        Pengiriman {'&'} Penagihan
-                                        {this.renderAlamatPengiriman()}
-                                        {this.renderAlamatPenagihan()} */}
-                                            <CartContext.Consumer>
-                                                {(value) => (
-                                                    <button type="submit" className="btn btn-primary btn-md btn-block mt-3" onClick={async () => { await this.submitTransaksi(); await value.loadDataCart(); }}>Buat Pesanan</button>
-                                                )}
-                                            </CartContext.Consumer>
-
+                                            <button type="submit" className="btn btn-primary btn-md btn-block mt-3" onClick={() => this.cekTanggalKirim()}>Buat Pesanan</button>
                                         </div>
                                     </div>
                                 </div>
@@ -2144,6 +2123,30 @@ class ShopPageCheckout extends Component {
                     <DialogActions>
                         <Button color="primary" onClick={() => this.loadDataCheckout()}>
                             Mengerti
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    maxWidth="xs"
+                    open={this.state.openrespontransaksi}
+                    aria-labelledby="responsive-dialog-title">
+                    <DialogTitle id="responsive-dialog-title">Konfirmasi Buat Pesanan</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Periksa kembali data pemesanan Anda! Tetap lanjutkan pemesanan ?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <CartContext.Consumer>
+                            {(value) => (
+                                <Button color="primary" onClick={async () => { await this.submitTransaksi(); await value.loadDataCart(); }}>
+                                    Lanjutkan
+                                </Button>
+                            )}
+                        </CartContext.Consumer>
+                        <Button color="light" onClick={() => this.setState({ openrespontransaksi: false })}>
+                            Kembali
                         </Button>
                     </DialogActions>
                 </Dialog>

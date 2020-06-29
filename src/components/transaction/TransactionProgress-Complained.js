@@ -294,10 +294,10 @@ export default class InfoCompanyCard extends Component{
                     <table className="cart__table cart-table mt-2" >
                         <thead className="cart-table__head">
                             <tr className="cart-table__row" style= {{fontSize: '12px'}}>
-                                    <th className="cart-table__column cart-table__column--image" style={{width: '10%'}}></th>
-                                    <th className="cart-table__column cart-table__column--product" style={{width: '30%'}}><strong>Nama Produk</strong></th>
-                                    <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong><center>Jenis Komplain</center></strong></th>
-                                    <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong><center>Catatan</center></strong></th>
+                                <th className="cart-table__column cart-table__column--image" style={{width: '10%'}}></th>
+                                <th className="cart-table__column cart-table__column--product" style={{width: '40%'}}><strong>Nama Produk</strong></th>
+                                <th className="cart-table__column cart-table__column--total" style={{width: '10%'}}><strong><center>Jenis Komplain</center></strong></th>
+                                <th className="cart-table__column cart-table__column--total" style={{width: '40%'}}><strong><center>Catatan</center></strong></th>
                             </tr>
                         </thead>
                         <tbody className="cart-table__body">
@@ -324,13 +324,13 @@ export default class InfoCompanyCard extends Component{
                     <table className="cart__table cart-table mt-2" >
                         <thead className="cart-table__head">
                             <tr className="cart-table__row" style= {{fontSize: '12px'}}>
-                                    <th className="cart-table__column cart-table__column--image" style={{width: '10%'}}></th>
-                                    <th className="cart-table__column cart-table__column--product" style={{width: '30%'}}><strong>Nama Produk</strong></th>
-                                    <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong><center>Batch Number</center></strong></th>
-                                    <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong><center>Expired Date</center></strong></th>
-                                    <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong><center>Kuantitas</center></strong></th>
-                                    <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong><center>Kuantitas Dipenuhi</center></strong></th>
-                                    <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong>Total Harga</strong></th>
+                                <th className="cart-table__column cart-table__column--image" style={{width: '10%'}}></th>
+                                <th className="cart-table__column cart-table__column--product" style={{width: '30%'}}><strong>Nama Produk</strong></th>
+                                <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong><center>Batch Number</center></strong></th>
+                                <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong><center>Expired Date</center></strong></th>
+                                <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong><center>Kuantitas</center></strong></th>
+                                <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong><center>Kuantitas Dipenuhi</center></strong></th>
+                                <th className="cart-table__column cart-table__column--total" style={{width: '12%'}}><strong>Total Harga</strong></th>
                             </tr>
                         </thead>
                         <tbody className="cart-table__body">

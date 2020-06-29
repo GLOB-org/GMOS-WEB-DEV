@@ -86,16 +86,18 @@ class ProductCard extends Component {
         var add_result = (Number(get_value) + Number(kelipatan))
 
         var reverse = add_result.toString().split('').reverse().join(''),
-            ribuan = reverse.match(/\d{1,3}/g);
-        ribuan = ribuan.join('.').split('').reverse().join('');
+            input_value = reverse.match(/\d{1,3}/g);
+        input_value = input_value.join('.').split('').reverse().join('');
 
         if (source == 'beli') {
-            document.getElementById('product-quantity-beli').value = ribuan
+            document.getElementById('product-quantity-beli').value = input_value
+            this.setState({ quantity_beli: input_value });
         }
         else {
 
             if (this.state.disable_qtynego == false) {
-                document.getElementById('product-quantity_nego').value = ribuan
+                document.getElementById('product-quantity_nego').value = input_value
+                this.setState({ quantity_nego: input_value });
             }
             else {
                 return;
@@ -111,19 +113,21 @@ class ProductCard extends Component {
         } var add_result = (Number(get_value) - Number(kelipatan))
 
         var reverse = add_result.toString().split('').reverse().join(''),
-            ribuan = reverse.match(/\d{1,3}/g);
-        ribuan = ribuan.join('.').split('').reverse().join('');
+            input_value = reverse.match(/\d{1,3}/g);
+        input_value = input_value.join('.').split('').reverse().join('');
 
         if (add_result < jumlah_min_beli) {
             return
         }
         else {
             if (source == 'beli') {
-                document.getElementById('product-quantity-beli').value = ribuan
+                document.getElementById('product-quantity-beli').value = input_value
+                this.setState({ quantity_beli: input_value });
             }
             else {
                 if (this.state.disable_qtynego == false) {
-                    document.getElementById('product-quantity_nego').value = ribuan
+                    document.getElementById('product-quantity_nego').value = input_value
+                    this.setState({ quantity_nego: input_value });
                 }
                 else {
                     return;
