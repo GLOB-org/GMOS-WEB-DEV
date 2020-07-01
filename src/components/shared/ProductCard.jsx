@@ -27,7 +27,6 @@ import { quickviewOpen } from '../../store/quickview';
 import { wishlistAddItem } from '../../store/wishlist';
 import NumberFormat from 'react-number-format';
 import Toast from 'light-toast';
-
 import { CartContext } from '../../context/cart';
 
 class ProductCard extends Component {
@@ -1459,6 +1458,10 @@ class ProductCard extends Component {
                         </div>
                         <CartContext.Consumer>
                             {(value) => (
+                                // <button type="submit" onClick={async () => { await submit_tocart(); await value.loadDataCart(); }}
+                                //     style={{ width: '100%' }} className="btn btn-primary " disabled={this.state.disabletambahbarang}>
+                                //     Tambahkan
+                                // </button>
                                 <button type="submit" onClick={async () => { await submit_tocart(); await value.loadDataCart(); }}
                                     style={{ width: '100%' }} className="btn btn-primary " disabled={this.state.disabletambahbarang}>
                                     Tambahkan

@@ -25,10 +25,18 @@ import HomePageTwo from './home/HomePageTwo';
 import AccountPageLogin from './account/AccountPageLogin';
 
 import CartContainer from '../context/cart';
-
+// import { CartContext } from '../context/cart';
 
 class Root extends Component {
+
     componentDidMount() {
+        //data category
+        // const count_category = this.context.category.data_category.length
+        // if (count_category == 0) {
+        //     const value = this.context;
+        //     value.loadDataCategory();
+        // }
+
         // preloader
         setTimeout(() => {
             const preloader = document.querySelector('.site-preloader');
@@ -39,15 +47,7 @@ class Root extends Component {
                 }
             });
             preloader.classList.add('site-preloader__fade');
-        }, 500);
-
-        // this is for demo only, you can delete it
-        const { localeChange: changeLocale } = this.props;
-        const direction = new URLSearchParams(window.location.search).get('dir');
-
-        if (direction !== null) {
-            changeLocale(direction === 'rtl' ? 'ar' : 'en');
-        }
+        }, 300);
     }
 
     render() {
@@ -63,7 +63,8 @@ class Root extends Component {
         // where a.company_id = 5 and a.status = 'A'
 
         return (
-            <CartContainer>
+            <div>
+                <CartContainer>
                 <IntlProvider locale={locale} messages={messages}>
                     <BrowserRouter basename={process.env.PUBLIC_URL}>
                         <HelmetProvider>
@@ -90,7 +91,8 @@ class Root extends Component {
                         </HelmetProvider>
                     </BrowserRouter>
                 </IntlProvider>
-            </CartContainer>
+                </CartContainer>
+            </div>
         );
     }
 }
