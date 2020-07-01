@@ -61,7 +61,7 @@ class Product extends Component {
         };
     }
 
-    handleAddMouseDown = (kelipatan, source) => {
+    handleAddMouseDown = async (kelipatan, source) => {
         if (source == 'beli') {
             var get_value = document.getElementById('product-quantity-beli').value.split('.').join("")
         } else {
@@ -70,14 +70,18 @@ class Product extends Component {
         var add_result = (Number(get_value) + Number(kelipatan))
 
         var reverse = add_result.toString().split('').reverse().join(''),
-            ribuan = reverse.match(/\d{1,3}/g);
-        ribuan = ribuan.join('.').split('').reverse().join('');
+            input_value = reverse.match(/\d{1,3}/g);
+        input_value = input_value.join('.').split('').reverse().join('');
+
+        var input_value_edit = input_value.split('.').join("")
 
         if (source == 'beli') {
-            document.getElementById('product-quantity-beli').value = ribuan
+            document.getElementById('product-quantity-beli').value = input_value
+            await this.setState({ quantity: input_value_edit });
         }
         else {
-            document.getElementById('product-quantity-nego').value = ribuan
+            document.getElementById('product-quantity-nego').value = input_value
+            await this.setState({ quantity_nego: input_value_edit });
         }
     };
 
@@ -89,18 +93,22 @@ class Product extends Component {
         } var add_result = (Number(get_value) - Number(kelipatan))
 
         var reverse = add_result.toString().split('').reverse().join(''),
-            ribuan = reverse.match(/\d{1,3}/g);
-        ribuan = ribuan.join('.').split('').reverse().join('');
+            input_value = reverse.match(/\d{1,3}/g);
+        input_value = input_value.join('.').split('').reverse().join('');
+
+        var input_value_edit = input_value.split('.').join("")
 
         if (add_result < jumlah_min_beli) {
             return
         }
         else {
             if (source == 'beli') {
-                document.getElementById('product-quantity-beli').value = ribuan
+                document.getElementById('product-quantity-beli').value = input_value
+                this.setState({ quantity: input_value_edit });
             }
             else {
-                document.getElementById('product-quantity-nego').value = ribuan
+                document.getElementById('product-quantity-nego').value = input_value
+                this.setState({ quantity_nego: input_value_edit });
             }
         }
 
@@ -110,13 +118,7 @@ class Product extends Component {
         var get_value_input = document.getElementById("product-quantity-beli").value.split('.').join("")
         var cek_kelipatan = Number(get_value_input) % Number(this.props.product.berat)
 
-        this.setState({ quantity : get_value_input });
-
-        // if (quantity == undefined) {
-        //     this.setState({
-        //         disable_button: false
-        //     });
-        // }
+        this.setState({ quantity: get_value_input });
 
         if (get_value_input.length == 1) {
             if (get_value_input == '0') {
@@ -334,6 +336,7 @@ class Product extends Component {
         }
 
         const submit_tocart = async () => {
+
             Toast.loading('loading . . .', () => {
             });
 
@@ -430,6 +433,8 @@ class Product extends Component {
                     query: cek_statuscart
                 }).then(async (data) => {
                     Toast.hide();
+                    Toast.info('kuantitas minimal nego : ' + product.jumlah_min_nego + ' ' + product.satuan, 2500, () => {
+                    });
                     if (data.data.data.length == 0) {
                         if (this.state.nego_auto == true) {
                             this.responNego()
@@ -881,9 +886,9 @@ class Product extends Component {
                                 <div id="form-nego" style={{ display: this.state.displayformnego }}>
                                     <div className="address-card__row">
                                         <center>
-                                            <label htmlFor="input-nego" style={{ fontSize: '13px', fontWeight: '550' }}>Kuantitas2 ({product.satuan}) : </label>
+                                            <label htmlFor="input-nego" style={{ fontSize: '13px', fontWeight: '550' }}>Kuantitas ({product.satuan}) : </label>
                                         </center>
-                                        <InputNumberMax
+                                        {/* <InputNumberMax
                                             id="product-quantity-nego"
                                             aria-label="Quantity"
                                             className="product__quantity"
@@ -892,7 +897,13 @@ class Product extends Component {
                                             kelipatan={product.berat}
                                             onChange={this.handleChangeQuantityNego}
                                         // setDisabled={this.state.disable_qtynego}
-                                        />
+                                        /> */}
+                                        <div className={classes} style={{ width: '100%' }}>
+                                            <NumberFormat id="product-quantity-nego" value={this.state.quantity_nego} onChange={() => this.handleChangeQuantityNego()} spellCheck="false" autoComplete="off" allowNegative={false} style={{ width: '100%' }}
+                                                className={formControlClasses} disabled={this.state.disable_qtynego} thousandSeparator={'.'} decimalSeparator={','} />
+                                            <div className="input-number__add" onMouseDown={() => this.handleAddMouseDown(product.berat, 'nego')} />
+                                            <div className="input-number__sub" onMouseDown={() => this.handleSubMouseDown(product.berat, product.jumlah_min_nego, 'nego')} />
+                                        </div>
                                     </div>
                                 </div>
 

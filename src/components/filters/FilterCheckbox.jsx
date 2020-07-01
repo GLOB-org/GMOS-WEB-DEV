@@ -36,13 +36,40 @@ class FilterCheckbox extends Component {
             );
         });
 
-        return (
-            <div className="filter-list">
-                <div className="filter-list__list">
-                    {itemsList}
+        if (seller.length > 0) {
+            return (
+                <div className="filter-list">
+                    <div className="filter-list__list">
+                        {itemsList}
+                    </div>
                 </div>
-            </div>
-        );
+            );
+        }
+
+        else if (seller == 0) {
+            return (
+                <div className="filter-list">
+                    <div className="filter-list__list">
+                        <label
+                            // key={item.id}
+                            className={classNames('filter-list__item', {
+                                'filter-list__item--disabled': false,
+                            })}
+                        >
+                            <span className="filter-list__input input-check">
+                                <span className="input-check__body">
+                                    <input className="input-check__input" type="checkbox" defaultChecked={true} disabled={false} />
+                                    <span className="input-check__box" />
+                                    <Check9x7Svg className="input-check__icon" />
+                                </span>
+                            </span>
+                            <label className="filter-list__title">semua distributor</label>
+                        </label>
+                    </div>
+                </div>
+            );
+        }
+
     }
 
 }

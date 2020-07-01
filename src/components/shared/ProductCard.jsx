@@ -88,15 +88,17 @@ class ProductCard extends Component {
             input_value = reverse.match(/\d{1,3}/g);
         input_value = input_value.join('.').split('').reverse().join('');
 
+        var input_value_edit = input_value.split('.').join("")
+
         if (source == 'beli') {
             document.getElementById('product-quantity-beli').value = input_value
-            this.setState({ quantity_beli: input_value });
+            this.setState({ quantity_beli: input_value_edit });
         }
         else {
 
             if (this.state.disable_qtynego == false) {
                 document.getElementById('product-quantity_nego').value = input_value
-                this.setState({ quantity_nego: input_value });
+                this.setState({ quantity_nego: input_value_edit });
             }
             else {
                 return;
@@ -115,18 +117,20 @@ class ProductCard extends Component {
             input_value = reverse.match(/\d{1,3}/g);
         input_value = input_value.join('.').split('').reverse().join('');
 
+        var input_value_edit = input_value.split('.').join("")
+
         if (add_result < jumlah_min_beli) {
             return
         }
         else {
             if (source == 'beli') {
                 document.getElementById('product-quantity-beli').value = input_value
-                this.setState({ quantity_beli: input_value });
+                this.setState({ quantity_beli: input_value_edit });
             }
             else {
                 if (this.state.disable_qtynego == false) {
                     document.getElementById('product-quantity_nego').value = input_value
-                    this.setState({ quantity_nego: input_value });
+                    this.setState({ quantity_nego: input_value_edit });
                 }
                 else {
                     return;
