@@ -11,7 +11,7 @@ export default function FooterContacts() {
             <h5 className="footer-contacts__title">Hubungi Kami</h5>
 
             <div className="footer-contacts__text">
-                GMOS
+                GLOB
             </div>
 
             <ul className="footer-contacts__contacts">

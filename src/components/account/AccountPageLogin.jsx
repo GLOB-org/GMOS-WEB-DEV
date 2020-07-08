@@ -255,7 +255,7 @@ export default class AccountPageLogin extends Component {
         dataReturned = {
             otptype: this.state.inputTipeOTP,
             nohp: this.state.inputNoTelp,
-            message: 'Yth. pelanggan GMOS di nomor ' + this.state.inputTipeOTP + '. Berikut OTP Anda: ' + x +
+            message: 'Yth. pelanggan GLOB di nomor ' + this.state.inputTipeOTP + '. Berikut OTP Anda: ' + x +
                 '. Gunakan OTP ini untuk aktivasi akun Anda. Terima kasih.',
             userid: 'GMOS001',
             key: 'z25k4at3jzob718iqceofgor6a1tbm'

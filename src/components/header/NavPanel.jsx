@@ -51,7 +51,7 @@ function NavPanel(props) {
         <div className="nav-panel">
             <div className="nav-panel__container container">
                 <div className="nav-panel__row">
-                    <h4>GMOS</h4>
+                    <h4>GLOB</h4>
                     {departments}
 
                     {checkLogin ? (

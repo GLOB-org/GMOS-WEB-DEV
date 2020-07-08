@@ -25,16 +25,34 @@ import HomePageTwo from './home/HomePageTwo';
 import AccountPageLogin from './account/AccountPageLogin';
 
 import CartContainer from '../context/cart';
-// import { CartContext } from '../context/cart';
+import { CartContext } from '../context/cart';
+
+// import { connect_socket } from "../response/index-response";
 
 class Root extends Component {
 
+    static contextType = CartContext;
+
     componentDidMount() {
+
+        console.log('root123test')
+
+        // console.log(this.props.context)
+        // console.log(this.context)
+
+        // connect_socket(message => {
+        //     console.log(message);
+        //     // this.setState({ label: message })
+        //     // if (this.state.label != '') {
+        //     alert('ada balasan nego dari sales')
+        //     // }
+        // });
+
         //data category
-        // const count_category = this.context.category.data_category.length
+        //const count_category = this.context.category.data_category.length
         // if (count_category == 0) {
-        //     const value = this.context;
-        //     value.loadDataCategory();
+        // const value = this.context;
+        // value.loadDataCart();
         // }
 
         // preloader
@@ -65,37 +83,39 @@ class Root extends Component {
         return (
             <div>
                 <CartContainer>
-                <IntlProvider locale={locale} messages={messages}>
-                    <BrowserRouter basename={process.env.PUBLIC_URL}>
-                        <HelmetProvider>
-                            <Helmet htmlAttributes={{ lang: locale, dir: direction }} />
-                            <ScrollContext>
-                                <Switch>
-
-                                    {/* <Route
-                                    // path="/home"
-                                    // render={(props) => (
-                                    //     <Layout {...props} headerLayout="default" homeComponent={HomePageOne} />
-                                    // )}
-                                /> */}
-
-                                    <Route
-                                        path="/"
-                                        render={(props) => (
-                                            <Layout {...props} headerLayout="compact" homeComponent={HomePageTwo} />
-                                        )}
-                                    />
-                                    <Redirect to="/" />
-                                </Switch>
-                            </ScrollContext>
-                        </HelmetProvider>
-                    </BrowserRouter>
-                </IntlProvider>
+                    <IntlProvider locale={locale} messages={messages}>
+                        <BrowserRouter basename={process.env.PUBLIC_URL}>
+                            <HelmetProvider>
+                                <Helmet htmlAttributes={{ lang: locale, dir: direction }} />
+                                <ScrollContext>
+                                    <Switch>
+                                        <Route
+                                            path="/"
+                                            render={(props) => (
+                                                <Layout {...props} headerLayout="compact" homeComponent={HomePageTwo} />
+                                            )}
+                                        />
+                                        <Redirect to="/" />
+                                    </Switch>
+                                </ScrollContext>
+                            </HelmetProvider>
+                        </BrowserRouter>
+                    </IntlProvider>
                 </CartContainer>
             </div>
         );
     }
 }
+
+// const MapElement = () => (
+//     <CartContext.Consumer>
+//         {value =>
+//             <Root context={value.cart.check_load} />
+//         }
+//     </CartContext.Consumer>
+// )
+
+// Root.contextType = CartContext
 
 Root.propTypes = {
     /** current locale */

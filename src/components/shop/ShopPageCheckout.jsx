@@ -727,7 +727,7 @@ class ShopPageCheckout extends Component {
                         get_tgl_permintaan_kirim = "'" + get_tgl_permintaan_kirim + "'"
                     }
 
-                    var get_idtransaction = "(select concat('GMOS','/W/', TO_CHAR((select id from gcm_company_listing gcl " +
+                    var get_idtransaction = "(select concat('GLOB','/W/', TO_CHAR((select id from gcm_company_listing gcl " +
                         "where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'A' and seller_id = " + this.state.data_penjual[i].id + "),'fm00000'), '/', TO_CHAR(NOW() :: DATE, 'yymm'), TO_CHAR(get_count+1,'fm0000'))  " +
                         "from (select count(id_transaction) as get_count from gcm_master_transaction gmt where id_transaction like " +
                         "TO_CHAR((select id from gcm_company_listing gcl where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'A' and seller_id = " + this.state.data_penjual[i].id + "),'%/fm00000/%') " +
