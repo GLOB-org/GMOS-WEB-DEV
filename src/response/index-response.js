@@ -1,19 +1,24 @@
 import openSocket from "socket.io-client";
-//const socket = openSocket("http://localhost:5000/");
-//const socket = openSocket("http://18.141.184.60/response/alert");
-const socket = openSocket("http://18.141.184.60/");
-//const socket = openSocket.connect('http://18.141.184.60', {path:'/response/alert'})
-
-//const socket = openSocket("http://18.141.184.60/socket.io/?EIO=3&transport=websocket");
-
-// ws://18.141.184.60/socket.io/?EIO=3&transport=polling&t=NCeb578
-// ws://<heroku app name>.herokuapp.com/socket.io/?EIO=4&transport=websocket
+const socket = openSocket("https://chats-front.herokuapp.com/");
 
 function connect_socket(cb) {
-    socket.on('GCM01', message => {
-        console.log(message);
-        cb(message);
-    });
+
+    // const room = `${buyer_id.toString()}-${seller_id.toString()}`
+
+    socket.emit("send_data_nego_to_admin", {
+        seller_id: 20,
+        buyer_id: 10,
+        room_id: "10-20"
+    })
+
+    socket.emit("join_room_nego", {
+        room_id: "10-20"
+    })
+
+    socket.on('nego_response', data => {
+        cb(data);
+    })
+
 }
 
 export {

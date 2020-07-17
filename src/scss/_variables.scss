@@ -295,7 +295,8 @@
    // -- .nav-panel, .mobile-header
    // ----------------------------------------
       $nav-panel-bg:           $accent-color                                                                   !default;
-      $nav-panel-shadow:       0 1px rgba(#000, .04), inset 0 -1px rgba(#000, .04)                             !default;
+      $nav-panel-shadow:       0 1px rgba(#000, .08), inset 0 -1px rgba(#000, .08)                         !default;
+      //$nav-panel-shadow:       0 1px rgba(#8CC63E, .5), inset 0 -1px rgba(#8CC63E, .5)                             !default;
       $nav-panel-stuck-shadow: 0 1px rgba(#000, .04), inset 0 -1px rgba(#000, .04), 0 1px 20px rgba(#000, .15) !default;
       $nav-panel-font-color:   $accent-opposite-color                                                          !default;
       $nav-panel-logo-color:   $nav-panel-font-color                                                           !default;
@@ -339,8 +340,11 @@
       // default
       $indicator-default-bg:                 $nav-links-item-default-bg            !default;
       $indicator-default-font-color:         $nav-links-item-default-shadow        !default;
-      $indicator-default-counter-bg:         $light-color                          !default;
-      $indicator-default-counter-font-color: $light-opposite-color                 !default;
+      // $indicator-default-counter-bg:         $light-color                          !default;
+      $indicator-default-counter-bg:          #8CC63E                            !default;
+      // $indicator-default-counter-font-color: $light-opposite-color                 !default;
+      $indicator-default-counter-font-color: white                               !default;
+
       // hover
       $indicator-hover-bg:                   $nav-links-item-hover-bg              !default;
       $indicator-hover-font-color:           $indicator-default-font-color         !default;

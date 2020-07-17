@@ -14,6 +14,7 @@ import {
     Heart20Svg,
     Cart20Svg,
     Cross20Svg,
+    LogoGLoBMobile,
     LogoSmallSvg
 } from '../../svg';
 import { mobileMenuOpen } from '../../store/mobile-menu';
@@ -61,8 +62,10 @@ class MobileHeader extends Component {
                             <button type="button" className="mobile-header__menu-button" onClick={openMobileMenu}>
                                 <Menu18x14Svg />
                             </button>
-                            <h5 className="mobile-header__logo">GLOB</h5>
+                            {/* <h5 className="mobile-header__logo">GLOB</h5> */}
                             {/* <Link to="/" className="mobile-header__logo"><LogoSmallSvg /></Link> */}
+                            <Link to="/" className="mobile-header__logo"><LogoGLoBMobile /></Link>
+                            
                             {/* <Search
                                 context="mobile-header"
                                 className={searchClasses}

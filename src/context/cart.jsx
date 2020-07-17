@@ -6,7 +6,7 @@ export const CartContext = React.createContext({
     cart: {
         data_cart: [],
         count_data_cart: 0,
-        check_load: 'no'
+        check_load: 'nottt'
     },
     loadDataCart: () => { },
 });

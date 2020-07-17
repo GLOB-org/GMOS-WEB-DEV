@@ -308,6 +308,30 @@ label .fa {
     box-shadow: 0 0 0 0.1rem rgba(140, 198, 62, 0.5);
 }
 
+.input-notes {
+    width: 100%;
+    font-size: 11px;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid #3D464D;
+    border-radius: 0px;
+    padding: 5.25px 0px;
+    resize: none;
+    overflow: hidden;
+}
+
+.input-notes::-webkit-resizer {
+    display: none;
+}
+
+.input-notes:focus {
+    box-shadow:none !important;
+}
+
+.notes_transaction{
+    font-size: 11px;
+}
+
 .modalHeaderCustom {
     background-color: #8CC63E;
     color: white;

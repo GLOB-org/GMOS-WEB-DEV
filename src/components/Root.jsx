@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { IntlProvider } from 'react-intl';
 import { ScrollContext } from 'react-router-scroll-4';
+import { decrypt, encrypt, url } from '../lib';
 
 // application
 import languages from '../i18n';
@@ -23,11 +24,13 @@ import Layout from './Layout';
 import HomePageOne from './home/HomePageOne';
 import HomePageTwo from './home/HomePageTwo';
 import AccountPageLogin from './account/AccountPageLogin';
+import Swal from 'sweetalert2'
+import { toast } from 'react-toastify';
 
 import CartContainer from '../context/cart';
 import { CartContext } from '../context/cart';
 
-// import { connect_socket } from "../response/index-response";
+import { connect_socket } from "../response/index-response";
 
 class Root extends Component {
 
@@ -35,21 +38,31 @@ class Root extends Component {
 
     componentDidMount() {
 
-        console.log('root123test')
+        connect_socket(data => {
 
-        // console.log(this.props.context)
-        // console.log(this.context)
+            const options = {
+                autoClose: false,
+                className: 'custom-toast',
+                position: 'bottom-right',
+                autoClose: 5000
+            };
 
-        // connect_socket(message => {
-        //     console.log(message);
-        //     // this.setState({ label: message })
-        //     // if (this.state.label != '') {
-        //     alert('ada balasan nego dari sales')
-        //     // }
-        // });
+            console.log(data);
+
+            if (data.source != 'buyer-direct_response') {
+                var timeout = 0
+                if(data.source == 'buyer-hold_response'){
+                     timeout = 3600000
+                }
+                setTimeout(function () {
+                    toast.success('💬 Ada balasan nego dari penjual', options);
+                }, timeout);
+            }
+        });
 
         //data category
         //const count_category = this.context.category.data_category.length
+        console.log(this.context.cart.check_load)
         // if (count_category == 0) {
         // const value = this.context;
         // value.loadDataCart();

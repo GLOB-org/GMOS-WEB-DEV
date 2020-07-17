@@ -41,7 +41,7 @@ export default class InfoCompanyCard extends Component{
         let queryDetailFinished = encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.qty_dipenuhi, a.harga, a.batch_number, "+
         "a.harga_final,case when exp_date != '-' and exp_date is not null then to_char(to_date(exp_date,'yyyy-MM-dd'), 'dd-MM-yyyy') else '-' end as exp_date , b.id, c.berat, d.alias as satuan, b.company_id as penjual, gmc.nama_perusahaan as nama_penjual, "+
         "case when e.tgl_permintaan_kirim is not null then to_char(e.tgl_permintaan_kirim, 'dd-MM-yyyy') else '-' end as tgl_permintaan_kirim, "+
-        "e.ppn_seller  from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
+        "e.ppn_seller, case when a.note is null then '-' else a.note end as note from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
         "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id "+
         "inner join gcm_master_transaction e on e.id_transaction = a.transaction_id "+
         "where gmc.id = b.company_id and c.satuan = d.id and transaction_id='" + id + "' order by c.category_id asc, c.nama asc")
@@ -307,6 +307,7 @@ export default class InfoCompanyCard extends Component{
                                 </td>
                                 <td className="cart-table__column cart-table__column--product">
                                     {item.nama}
+                                    <div className="address-card__row-content mt-2 notes_transaction"><strong>catatan</strong> : {item.note} </div>
                                 </td>
                                 <td className="cart-table__column cart-table__column--total" data-title="Batch Number">
                                     <center>{item.batch_number}</center>

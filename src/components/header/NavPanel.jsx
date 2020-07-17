@@ -13,8 +13,7 @@ import Departments from './Departments';
 import NavLinks from './NavLinks';
 import NavLinksnLogin from './NavLinksnLogin';
 import IndicatorSearch from './IndicatorSearch';
-import { LogoSmallSvg } from '../../svg';
-
+import { LogoSmallSvg, LogoGLoB } from '../../svg';
 
 function NavPanel(props) {
     const { layout, wishlist } = props;
@@ -27,7 +26,7 @@ function NavPanel(props) {
     if (layout === 'compact') {
         logo = (
             <div className="nav-panel__logo">
-                <Link to="/"><LogoSmallSvg /></Link>
+                <Link to="/"><LogoGLoB /></Link>
             </div>
         );
 
@@ -51,7 +50,9 @@ function NavPanel(props) {
         <div className="nav-panel">
             <div className="nav-panel__container container">
                 <div className="nav-panel__row">
-                    <h4>GLOB</h4>
+                    {/* <h4>GLOB</h4> */}
+                    {/* <img src={"/images/verified-60.png"} /> */}
+                    {logo}
                     {departments}
 
                     {checkLogin ? (
@@ -94,7 +95,7 @@ function NavPanel(props) {
                                     <NavLink to="/masuk">
                                         <button type="submit" id="btnLoginHeader" className="btn" >
                                             Masuk
-                                    </button>
+                                        </button>
                                     </NavLink>
                                 )
                             }
@@ -109,11 +110,6 @@ function NavPanel(props) {
                                 )
                             }
 
-                            {/* <NavLink to="/daftar">
-                                <button type="submit" id="btnRegisterHeader" className="btn">
-                                    Daftar
-                                </button>
-                            </NavLink> */}
                         </div>
                     </div>
                 </div>

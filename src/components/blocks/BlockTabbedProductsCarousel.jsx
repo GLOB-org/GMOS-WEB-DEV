@@ -148,20 +148,6 @@ export default class BlockTabbedProductsCarousel extends Component {
     componentDidMount() {
         this.getDataProduk(100)
 
-        // let query_kurs = encrypt("SELECT CURRENT_TIMESTAMP")
-
-        // Axios.post(url.select, {
-        //     query: query_kurs
-        // }).then(data => {
-        //     console.log('waktu')
-        //     console.log(data.data.data)
-        //     // this.setState({
-        //     //     kurs: data.data.data[0].nominal
-        //     // });
-        // }).catch(err => {
-        //     console.log('error' + err);
-        //     console.log(err);
-        // })
     }
 
     handleChangeGroup = (newCurrentGroup) => {

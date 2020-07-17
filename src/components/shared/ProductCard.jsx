@@ -29,6 +29,8 @@ import NumberFormat from 'react-number-format';
 import Toast from 'light-toast';
 import { CartContext } from '../../context/cart';
 
+import openSocket from "socket.io-client";
+
 class ProductCard extends Component {
     constructor(props) {
         super(props);
@@ -552,7 +554,16 @@ class ProductCard extends Component {
             );
         }
 
+
         const check_statusnego = async () => {
+
+            const socket = openSocket("https://chats-front.herokuapp.com/");
+
+            socket.emit('nego', {
+                room_id: "10-20",
+                harga_nego: "send nego",
+                source: "buyer-hold_response"
+            })
 
             Toast.loading('loading . . .', () => {
             });

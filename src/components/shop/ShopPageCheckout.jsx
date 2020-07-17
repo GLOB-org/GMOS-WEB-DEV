@@ -26,7 +26,6 @@ import { CartContext } from '../../context/cart';
 import payments from '../../data/shopPayments';
 import theme from '../../data/theme';
 
-
 class ShopPageCheckout extends Component {
     payments = payments;
 
@@ -142,11 +141,27 @@ class ShopPageCheckout extends Component {
             }
 
             else {
-                document.getElementById(id).value = event.target.value
-                this.setState({
-                    selected_pilihtglkirim: true,
-                    value_pilihtglkirim: event.target.value
-                });
+                var date1 = new Date(event.target.value);
+                var cek_libur = false;
+                for (var i = 0; i < this.state.hari_libur.length; i++) {
+                    var date2 = new Date(this.state.hari_libur[i].tanggal);
+                    if (date1.getTime() == date2.getTime()) {
+                        Toast.fail('Tanggal yang dipilih jatuh pada hari libur nasional', 2500, () => {
+                        });
+                        document.getElementById(id).value = ""
+                        cek_libur = true;
+                        break;
+                    }
+                }
+
+                if (cek_libur == false) {
+                    document.getElementById(id).value = event.target.value
+                    this.setState({
+                        selected_pilihtglkirim: true,
+                        value_pilihtglkirim: event.target.value
+                    });
+                }
+
             }
 
         }
@@ -332,20 +347,23 @@ class ShopPageCheckout extends Component {
     }
 
     async componentDidMount() {
-        // let yx = await Axios.get('https://api.exchangeratesapi.io/latest?base=USD');
-        // let kurs = yx.data.rates.IDR;
+        let queryHariLibur = encrypt("select id, tanggal::text, keterangan  from gcm_kalender_libur gkl where tanggal > now()")
+        await Axios.post(url.select, {
+            query: queryHariLibur
+        }).then(data => {
+            this.setState({
+                hari_libur: data.data.data,
+            });
+        }).catch(err => {
+            // console.log('error' + err);
+            // console.log(err);
+        })
+    }
 
-        // let get_hari_libur = await Axios.get('https://libur-bi.now.sh/api/v1')   
-        // console.log(get_hari_libur)
-
-        // let get_holiday = await Axios.get('https://raw.githubusercontent.com/guangrei/Json-Indonesia-holidays/master/calendar.json');
-        // await this.setState({
-        //     hari_libur: get_holiday
-        // })
-
-        // console.log(get_holiday.data)
-        // console.log('hari libur')
-        // console.log(this.state.hari_libur)
+    inputNote = (event, get_id_note) => {
+        var get_id = event.target.id
+        var get_count_char = document.getElementById(get_id).value.length
+        document.getElementById("countnote_" + get_id_note).innerHTML = get_count_char + "/100"
     }
 
     async loadDataCheckout() {
@@ -627,19 +645,6 @@ class ShopPageCheckout extends Component {
     }
 
     submitTransaksi = async () => {
-        // var check_tgl_kirim = ''
-
-        // for (var i = 0; i < this.state.data_penjual.length; i++) {
-        //     if (document.getElementById('tgl_kirim' + i).innerHTML == 'belum diatur') {
-        //         Toast.fail('Tanggal kirim belum diatur', 2000, () => {
-        //         });
-        //         check_tgl_kirim = 'false'
-        //         break;
-        //     }
-        //     else { check_tgl_kirim = 'true' }
-        // }
-
-        // if (check_tgl_kirim == 'true') {
 
         Toast.loading('loading . . .', () => {
         });
@@ -756,7 +761,7 @@ class ShopPageCheckout extends Component {
 
     submitDetailTransaksi = async (query_transaction) => {
 
-        let query_detailtransaction = " insert into gcm_transaction_detail (transaction_id, barang_id, qty, harga, create_by, create_date ,update_by, buyer_id, harga_asli, harga_kesepakatan) values "
+        let query_detailtransaction = " insert into gcm_transaction_detail (transaction_id, barang_id, qty, harga, create_by, create_date ,update_by, buyer_id, harga_asli, harga_kesepakatan, note) values "
         let count = 0;
         let grouping;
         let grouping_idtransaksi;
@@ -775,10 +780,14 @@ class ShopPageCheckout extends Component {
             for (var j = 0; j < grouping.length; j++) {
                 // check if nego
                 if (grouping[j].nego_count > 0 && grouping[j].harga_final != 0 && grouping[j].history_nego_id != 0 && grouping[j].status_time_respon != 'no') {
-                    loopquery = loopquery + "(" + this.state.set_idtransaction[i].id + "," + grouping[j].barang_id.toString() + "," + grouping[j].qty.toString() + ", " + (grouping[j].harga_final * grouping[j].qty * grouping[j].berat) + ", " + decrypt(localStorage.getItem('UserIDLogin')) + ",now() ," + decrypt(localStorage.getItem('UserIDLogin')) + ", " + decrypt(localStorage.getItem('CompanyIDLogin')) + "," + Math.ceil(grouping[j].kurs * grouping[j].price) + "," + grouping[j].harga_final + ") "
+                    loopquery = loopquery + "(" + this.state.set_idtransaction[i].id + "," + grouping[j].barang_id.toString() + "," + grouping[j].qty.toString() + ", " +
+                        (grouping[j].harga_final * grouping[j].qty * grouping[j].berat) + ", " + decrypt(localStorage.getItem('UserIDLogin')) + ",now() ," +
+                        decrypt(localStorage.getItem('UserIDLogin')) + ", " + decrypt(localStorage.getItem('CompanyIDLogin')) + "," + Math.ceil(grouping[j].kurs * grouping[j].price) + "," + grouping[j].harga_final + ",'" + document.getElementById('note_' + grouping[j].barang_id).value + "') "
                 }
                 else if (grouping[j].nego_count == 0 || (grouping[j].nego_count > 0 && grouping[j].harga_final == 0) || (grouping[j].nego_count > 0 && grouping[j].harga_final != 0 && grouping[j].status_time_respon == 'no')) {
-                    loopquery = loopquery + "(" + this.state.set_idtransaction[i].id + "," + grouping[j].barang_id.toString() + "," + grouping[j].qty.toString() + ", " + (Math.ceil(grouping[j].kurs * grouping[j].price) * grouping[j].qty * grouping[j].berat) + ", " + decrypt(localStorage.getItem('UserIDLogin')) + ",now() ," + decrypt(localStorage.getItem('UserIDLogin')) + ", " + decrypt(localStorage.getItem('CompanyIDLogin')) + "," + Math.ceil(grouping[j].kurs * grouping[j].price) + "," + Math.ceil(grouping[j].kurs * grouping[j].price) + ") "
+                    loopquery = loopquery + "(" + this.state.set_idtransaction[i].id + "," + grouping[j].barang_id.toString() + "," + grouping[j].qty.toString() + ", " +
+                        (Math.ceil(grouping[j].kurs * grouping[j].price) * grouping[j].qty * grouping[j].berat) + ", " + decrypt(localStorage.getItem('UserIDLogin')) + ",now() ," +
+                        decrypt(localStorage.getItem('UserIDLogin')) + ", " + decrypt(localStorage.getItem('CompanyIDLogin')) + "," + Math.ceil(grouping[j].kurs * grouping[j].price) + "," + Math.ceil(grouping[j].kurs * grouping[j].price) + ",'" + document.getElementById('note_' + grouping[j].barang_id).value + "') "
                 }
 
                 if (count < length_cart - 1) {
@@ -795,6 +804,7 @@ class ShopPageCheckout extends Component {
 
         var final_query = encrypt("with new_insert1 as (" + query_transaction + "  ), new_insert2 as (" + query_detail +
             " returning transaction_id) select distinct transaction_id from new_insert2")
+
 
         await Axios.post(url.select, {
             query: final_query
@@ -916,18 +926,20 @@ class ShopPageCheckout extends Component {
         return grouping.map((data, index) => {
             return (
                 <div style={{ display: 'contents' }}>
-
                     <tr className="cart-table__row" >
                         <td className="cart-table__column cart-table__column--image" style={{ border: 'none', padding: '0px', verticalAlign: 'middle' }}>
                             <img src={data.foto} alt="" />
                         </td>
                         <td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
-                            <tr><span style={{ color: '#3d464d', fontSize: '14px', fontWeight: '500' }}>{data.nama}</span></tr>
+                            <tr style={{ width: '100%' }}>
+                                <label style={{ color: '#3d464d', fontSize: '14px', fontWeight: '500' }}>{data.nama}</label>
+                            </tr>
                             <tr>
                                 <span style={{ color: '#3d464d', fontSize: '13px', fontWeight: '500' }}>kuantitas : {' '}
                                     <NumberFormat value={data.qty * data.berat} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} />
                                     {' '}{data.satuan}</span>
                             </tr>
+
                             {data.nego_count > 0 && data.harga_final != null && data.harga_final != 0 && data.history_nego_id != 0 && data.status_time_respon != 'no' ?
                                 (<tr>
                                     <span style={{ color: '#3d464d', fontSize: '13px', fontWeight: '600' }}><NumberFormat value={(Math.ceil(data.harga_final) * data.qty * data.berat)} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
@@ -936,8 +948,30 @@ class ShopPageCheckout extends Component {
                                     <span style={{ color: '#3d464d', fontSize: '13px', fontWeight: '600' }}><NumberFormat value={(Math.ceil(data.price * data.kurs) * data.qty * data.berat)} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
                                 </tr>)
                             }
+
+                            <Input
+                                id={"note_" + data.barang_id}
+                                type="textarea"
+                                rows="1"
+                                spellCheck="false"
+                                autoComplete="off"
+                                maxLength="100"
+                                className="form-control input-notes mt-3"
+                                placeholder="tulis catatan (opsional)"
+                                onChange={event => this.inputNote(event, data.barang_id)}
+                            />
+
+                            <label id={"countnote_" + data.barang_id} style={{ fontSize: '10px', float: 'right' }}>0/100</label>
+
                         </td>
                     </tr>
+                    {/* <tr className="cart-table__row" >
+                        <td colSpan="2" className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
+                            <tr>
+                                <span style={{ color: '#3d464d', fontSize: '13px', fontWeight: '500' }}>tambah catatan {' '}</span>
+                            </tr>
+                        </td>
+                    </tr> */}
                 </div>
             )
         })
@@ -1098,7 +1132,7 @@ class ShopPageCheckout extends Component {
                             </tr>
                             <tr>
                                 <td colSpan="5">
-                                    <div className="alert mt-3" style={{backgroundColor: '#f0f0f0'}}>
+                                    <div className="alert mt-3" style={{ backgroundColor: '#f0f0f0' }}>
                                         <span style={{ color: '#3d464d', fontSize: '14px', fontWeight: '500' }}>Informasi kurs : {' '}
                                             <NumberFormat value={Number(data.kurs)} displayType={'text'} allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
                                         </span>

@@ -11,7 +11,7 @@ export default class InfoCompanyCard extends Component{
         this.state={
             temp: [],
             ship_to_id:'',bill_to_id:'', payment_id: '', payment_name: '',
-            shipto_alamat: '', billto_alamat: '',
+            shipto_alamat: '', billto_alamat: '', ppn_seller: '',
             shipto_kelurahan: '', billto_kelurahan: '',
             shipto_kecamatan: '', billto_kecamatan: '',
             shipto_kota: '', billto_kota: '',
@@ -32,15 +32,22 @@ export default class InfoCompanyCard extends Component{
         Toast.loading('loading . . .', () => {
         }); 
 
-        let queryDetailCanceled=encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.harga, b.id, c.berat, d.alias as satuan, b.company_id as penjual, gmc.nama_perusahaan as nama_penjual from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
-        "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id where gmc.id = b.company_id and c.satuan = d.id and transaction_id='"+id+"' order by c.category_id asc, c.nama asc")
+        // let queryDetailCanceled=encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.harga, b.id, c.berat, d.alias as satuan, b.company_id as penjual, gmc.nama_perusahaan as nama_penjual from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
+        // "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id where gmc.id = b.company_id and c.satuan = d.id and transaction_id='"+id+"' order by c.category_id asc, c.nama asc")
+
+        let queryDetailCanceled = encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.harga, b.id, c.berat, d.alias as satuan, b.company_id as penjual, "+
+        "gmc.nama_perusahaan as nama_penjual, case when e.tgl_permintaan_kirim is not null then to_char(e.tgl_permintaan_kirim, 'dd-MM-yyyy') else '-' end as tgl_permintaan_kirim "+
+        ", e.ppn_seller, case when a.note is null then '-' else a.note end as note from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
+        "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_transaction e on "+
+        "e.id_transaction = a.transaction_id where gmc.id = b.company_id and c.satuan = d.id and transaction_id='" + id +"' order by c.category_id asc, c.nama asc")
 
         await Axios.post(url.select,{
             query: queryDetailCanceled
         }).then(data=>{
           this.setState({
             temp: data.data.data,
-            penjual: data.data.data[0].nama_penjual
+            penjual: data.data.data[0].nama_penjual,
+            ppn_seller: data.data.data[0].ppn_seller
         });
         }).catch(err=>{
             console.log('error');
@@ -146,7 +153,7 @@ export default class InfoCompanyCard extends Component{
             <td style={{textAlign: 'center'}}><strong><label id='idTransaction' onClick={()=>this.detailCanceled(this.props.data.id_transaction)}>{this.props.data.id_transaction}</label></strong></td>
             <td style={{textAlign: 'center'}}>{this.props.data.create_date_edit}</td>
             <td style={{textAlign: 'center'}}>{this.props.data.date_canceled}</td>
-            <td style={{textAlign: 'right'}}><NumberFormat value={Number(this.props.data.totaltrx)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></td>
+            <td style={{textAlign: 'right'}}><NumberFormat value={Number(this.props.data.totaltrx_tax)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></td>
         </tr> 
         
             <Modal isOpen={this.state.isOpen} size="lg">
@@ -273,6 +280,7 @@ export default class InfoCompanyCard extends Component{
                                 </td>
                                 <td className="cart-table__column cart-table__column--product">
                                     {item.nama}
+                                    <div className="address-card__row-content mt-2 notes_transaction"><strong>catatan</strong> : {item.note} </div>
                                 </td>
                                 <td className="cart-table__column cart-table__column--quantity" data-title="Kuantitas">
                                     <center>
@@ -333,6 +341,17 @@ export default class InfoCompanyCard extends Component{
                                     </div>
                                     <div className="row" style={{fontSize: '12px', fontWeight: '500'}}>
                                         <div className="col-6 col-sm-6 col-xs-6" style={{ display: 'flex', alignItems: 'center' }}>
+                                            <span>PPN {Number(this.state.ppn_seller)}%{' '}
+                                            </span>
+                                        </div>
+                                        <div className="col-6 col-sm-6 col-xs-6" style={{ display:'flex',  justifyContent: 'flex-end', padding: '0px', paddingRight: '15px' }}>
+                                           <strong>
+                                                <NumberFormat value={ Math.ceil(Number(this.props.data.total) * (Number(this.state.ppn_seller/100)) )} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
+                                           </strong>
+                                        </div>
+                                    </div>
+                                    <div className="row" style={{fontSize: '12px', fontWeight: '500'}}>
+                                        <div className="col-6 col-sm-6 col-xs-6" style={{ display: 'flex', alignItems: 'center' }}>
                                             <span >Ongkos Kirim{' '}
                                             </span>
                                         </div>
@@ -354,7 +373,7 @@ export default class InfoCompanyCard extends Component{
                                         </div>
                                         <div className="col-6 col-sm-6 col-xs-6" style={{ display:'flex',  justifyContent: 'flex-end', padding: '0px', paddingRight: '15px'}}>
                                            <strong>
-                                           <NumberFormat value={Number(this.props.data.totaltrx)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
+                                           <NumberFormat value={Number(this.props.data.totaltrx) + (Math.ceil(Number(this.props.data.total) * (Number(this.state.ppn_seller/100)))) } displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
                                            </strong>
                                         </div>
                                     </div>

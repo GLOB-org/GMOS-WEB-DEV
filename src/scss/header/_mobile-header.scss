@@ -13,7 +13,8 @@
     z-index: 10;
     // position: relative;
     position: fixed;
-    background: $nav-panel-bg;
+    //background: $nav-panel-bg;
+    background: white;
     box-shadow: $nav-panel-shadow;
     color: $nav-panel-font-color;
     width: 100%;
@@ -30,7 +31,8 @@
     height: 36px;
     border-radius: $mobile-header-menu-button-border-radius;
     background: $mobile-header-menu-button-default-bg;
-    fill: $mobile-header-menu-button-default-color;
+    // fill: $mobile-header-menu-button-default-color;
+    fill: #8CC63E;
     border: none;
     padding: 0;
     margin: 0;
@@ -47,7 +49,8 @@
     &:focus,
     &:hover {
         background: $mobile-header-menu-button-hover-bg;
-        fill: $mobile-header-menu-button-hover-color;
+        // fill: $mobile-header-menu-button-hover-color;
+        fill: #8CC63E;
     }
 }
 .mobile-header__indicators {

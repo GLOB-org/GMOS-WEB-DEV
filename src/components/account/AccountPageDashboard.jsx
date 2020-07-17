@@ -702,9 +702,6 @@ class AccountPageDashboard extends Component {
             var querytalamat = "with new_insert as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) values (" +
                 this.state.inputKelurahan + "," + this.state.inputKecamatan + "," + this.state.inputKota + "," + this.state.inputProvinsi + "," + this.state.inputKodePOS + ", '" + this.state.inputNoTelp + "', 'N', 'N', " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", '" + this.state.inputAlamat + "', 'A') returning id ) "
 
-            // querytalamat = querytalamat + "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_alamat_customer)" +
-            //     "values((select id from new_insert), " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", null)"
-
             querytalamat = querytalamat + "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_alamat_customer) values "
             var loop = ""
             for (var i = 0; i < this.state.data_company_listing.length; i++) {

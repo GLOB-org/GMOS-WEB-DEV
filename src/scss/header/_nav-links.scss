@@ -22,12 +22,13 @@ $item-padding: 14px;
 }
 .nav-links__item {
     height: 100%;
+    color : #3D464D;
 
     & > a {
         display: flex;
         align-items: center;
         height: 100%;
-        font-size: 15px;
+        font-size: 17px;
         line-height: 1;
         letter-spacing: .02em;
         font-weight: $nav-links-item-font-weight;
@@ -53,10 +54,12 @@ $item-padding: 14px;
         }
     }
     &:hover > a {
-        color: $nav-links-item-hover-font-color;
+        // color: $nav-links-item-hover-font-color;
+        color: white;
 
         span {
-            background: $nav-links-item-hover-bg;
+            //background: $nav-links-item-hover-bg;
+            background:rgba(#8CC63E, 1);   
             box-shadow: $nav-links-item-hover-shadow;
         }
 

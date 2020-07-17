@@ -8,7 +8,8 @@
 
 .nav-panel {
     height: $nav-panel-height;
-    background: $nav-panel-bg;
+    // background: $nav-panel-bg;
+    background: white;
     box-shadow: $nav-panel-shadow;
     color: $nav-panel-font-color;
     //edit 
@@ -69,28 +70,27 @@
 }
 
 #btnLoginHeader {
-    //background-color:white;
-    background-color: #8CC63E;
+    background-color: white;
     border-radius: 5px;
-    border: 1px solid white;
-    color: white;
+    border: 1px solid #8CC63E;
+    color: #8CC63E;
     margin-left: 5px;
     margin-right: 5px;
 }
 
 #btnLoginHeader:hover {
-    background-color: white;
-    color: #8CC63E;
-}
-
-#btnRegisterHeader {
     background-color: #8CC63E;
-    border-radius: 5px;
-    border: 1px solid white;
     color: white;
 }
 
-#btnRegisterHeader:hover {
+#btnRegisterHeader {
     background-color: white;
+    border-radius: 5px;
+    border: 1px solid #8CC63E;
     color: #8CC63E;
+}
+
+#btnRegisterHeader:hover {
+    background-color: #8CC63E;
+    color: white;
 }
