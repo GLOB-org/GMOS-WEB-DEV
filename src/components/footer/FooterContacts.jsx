@@ -10,9 +10,9 @@ export default function FooterContacts() {
         <div className="site-footer__widget footer-contacts">
             <h5 className="footer-contacts__title">Hubungi Kami</h5>
 
-            <div className="footer-contacts__text">
+            {/* <div className="footer-contacts__text">
                 GLOB
-            </div>
+            </div> */}
 
             <ul className="footer-contacts__contacts">
                 <li>

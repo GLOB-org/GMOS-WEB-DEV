@@ -30,6 +30,7 @@ import Toast from 'light-toast';
 import { CartContext } from '../../context/cart';
 
 import openSocket from "socket.io-client";
+import { toast } from 'react-toastify';
 
 class ProductCard extends Component {
     constructor(props) {
@@ -73,6 +74,8 @@ class ProductCard extends Component {
             query_done: ''
         }
     }
+
+    static contextType = CartContext
 
     handleChangeQuantity = (quantity) => {
         this.setState({ quantity });
@@ -423,6 +426,40 @@ class ProductCard extends Component {
 
     componentDidMount() {
 
+        //const socket = openSocket("https://chats-front.herokuapp.com/");
+
+        // socket.emit("send_data_nego_to_admin", {
+        //     seller_id: 20,
+        //     buyer_id: 10,
+        //     room_id: "10-20"
+        // })
+
+        // socket.emit("join_room_nego", {
+        //     room_id: "10-20"
+        // })
+
+        // socket.on('nego_response', data => {
+
+        //     const options = {
+        //         autoClose: false,
+        //         className: 'custom-toast',
+        //         position: 'bottom-right',
+        //         autoClose: 5000
+        //     };
+
+        //     if (data.source != 'buyer-direct_response') {
+        //         var timeout = 0
+        //         if (data.source == 'buyer-hold_response') {
+        //             // timeout = 3600000
+        //             timeout = 10000
+        //         }
+        //         setTimeout(function () {
+        //             toast.success('💬 Ada balasan nego dari penjual', options);
+        //         }, timeout);
+        //     }
+
+        // })
+
         if (localStorage.getItem('CompanyIDLogin') != null) {
             let query_alamat = encrypt(" select id, shipto_active, billto_active from gcm_master_alamat where company_id = '" + decrypt(localStorage.getItem('CompanyIDLogin')) + "' and flag_active = 'A' and ( shipto_active = 'Y' or billto_active = 'Y')")
             Axios.post(url.select, {
@@ -483,6 +520,7 @@ class ProductCard extends Component {
             ShopPageProduct
         } = this.props;
         const { quantity, quantity_beli, quantity_nego } = this.state;
+        const { user, setUser } = this.context;
 
         if (shoppage_category == 'langganan') {
             var param_link = 'daftarproduklangganan'
@@ -556,14 +594,6 @@ class ProductCard extends Component {
 
 
         const check_statusnego = async () => {
-
-            const socket = openSocket("https://chats-front.herokuapp.com/");
-
-            socket.emit('nego', {
-                room_id: "10-20",
-                harga_nego: "send nego",
-                source: "buyer-hold_response"
-            })
 
             Toast.loading('loading . . .', () => {
             });
@@ -759,6 +789,7 @@ class ProductCard extends Component {
                     // console.log(err);
                 })
             }
+
         }
 
         const submit_nego = async () => {
@@ -1326,7 +1357,10 @@ class ProductCard extends Component {
 
                         <CartContext.Consumer>
                             {(value) => (
-                                <button type="submit" onClick={async () => { await submit_nego(); await value.loadDataCart(); }} style={{ width: '100%' }} className="btn btn-primary" disabled={this.state.disablekirimnego}>
+                                <button type="submit" onClick={async () => {
+                                    await submit_nego(); await value.loadDataCart(); await value.loadDataNotif();
+                                    await value.sendNotif(product.company_id, 'send nego', this.state.nego_auto )
+                                }} style={{ width: '100%' }} className="btn btn-primary" disabled={this.state.disablekirimnego}>
                                     Kirim Nego
                                 </button>
                             )}
@@ -1473,10 +1507,6 @@ class ProductCard extends Component {
                         </div>
                         <CartContext.Consumer>
                             {(value) => (
-                                // <button type="submit" onClick={async () => { await submit_tocart(); await value.loadDataCart(); }}
-                                //     style={{ width: '100%' }} className="btn btn-primary " disabled={this.state.disabletambahbarang}>
-                                //     Tambahkan
-                                // </button>
                                 <button type="submit" onClick={async () => { await submit_tocart(); await value.loadDataCart(); }}
                                     style={{ width: '100%' }} className="btn btn-primary " disabled={this.state.disabletambahbarang}>
                                     Tambahkan

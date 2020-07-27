@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 
 // application
 import CartIndicator from './IndicatorCart';
+import NotifIndicator from './IndicatorNotification';
 import Departments from './Departments';
 import NavLinks from './NavLinks';
 import NavLinksnLogin from './NavLinksnLogin';
@@ -80,11 +81,14 @@ function NavPanel(props) {
                         {/* {searchIndicator} */}
 
                         {checkLogin ?
-                            (<CartIndicator />) :
-                            (<div style={{ display: 'none' }}><CartIndicator /></div>)
+                            (<NotifIndicator />) : null
                         }
 
-                        <div style={{ marginTop: '10px' }}>
+                        {checkLogin ?
+                            (<CartIndicator />) : null
+                        }
+
+                        <div style={{ marginTop: '16px' }}>
 
                             {checkLogin ? (
                                 <NavLink to="/">

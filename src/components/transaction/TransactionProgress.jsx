@@ -262,8 +262,8 @@ export default class TransactionProgress extends Component {
                     })
 
                     let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='CANCELED', id_cancel_reason = 2, " +
-                        "date_canceled = now(), cancel_reason = 'melewati batas waktu pembayaran' where id_transaction in (" + data.data.data[0].id_transaction + ")")
-                                        
+                        "date_canceled = create_date + interval '2 days', cancel_reason = 'melewati batas waktu pembayaran' where id_transaction in (" + data.data.data[0].id_transaction + ")")
+
                     Axios.post(url.select, {
                         query: query_update_limit_time_bayar
                     }).then(data => {
@@ -1695,6 +1695,18 @@ export default class TransactionProgress extends Component {
         this.forceUpdate()
     }
 
+    printDiv = (divName, fileName) => {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+        // var logoContent = document.getElementById("logo").outerHTML;
+        // document.body.innerHTML = logoContent + printContents;
+        document.body.innerHTML = printContents;
+        document.title = "Invoice-" + fileName
+        window.print();
+        window.location.reload();
+        // document.body.innerHTML = originalContents;
+    }
+
     toggleCloseConfirmation = () => {
         this.setState({
             openConfirmation: !this.state.openConfirmation
@@ -1853,7 +1865,7 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionWaiting" style={{ display: 'none' }}>
                                                 {this.state.data_waiting.slice(this.state.sliceX_waiting, this.state.sliceY_waiting).map((value) => {
-                                                    return (<TransactionWaiting data={value} status='Waiting' />)
+                                                    return (<TransactionWaiting data={value} status='Waiting' printInvoice={this.printDiv}/>)
                                                 })
                                                 }
                                             </div>
@@ -1912,7 +1924,8 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionOngoing" style={{ display: 'none' }}>
                                                 {this.state.data_ongoing.slice(this.state.sliceX_ongoing, this.state.sliceY_ongoing).map((value) => {
-                                                    return (<TransactionOngoing data={value} />)
+                                                    return (<TransactionOngoing data={value} printInvoice={this.printDiv}
+                                                        />)
                                                 })
                                                 }
                                             </div>
@@ -1975,7 +1988,7 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionShipped" style={{ display: 'none' }}>
                                                 {this.state.data_shipped.slice(this.state.sliceX_shipped, this.state.sliceY_shipped).map((value) => {
-                                                    return (<TransactionShipped data={value} handleTerimaPesanan={this.toggleConfirmationReceived.bind(this)} />)
+                                                    return (<TransactionShipped data={value} printInvoice={this.printDiv} handleTerimaPesanan={this.toggleConfirmationReceived.bind(this)} />)
                                                 })
                                                 }
                                             </div>
@@ -2043,7 +2056,7 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionReceived" style={{ display: 'none' }}>
                                                 {this.state.data_received.slice(this.state.sliceX_received, this.state.sliceY_received).map((value, index) => {
-                                                    return (<TransactionReceived data={value} index={index} handleSelesaikanPesanan={this.toggleConfirmation.bind(this)} handleSubmitComplain={this.toggleConfirmationComplained.bind(this)}
+                                                    return (<TransactionReceived data={value} index={index} printInvoice={this.printDiv} handleSelesaikanPesanan={this.toggleConfirmation.bind(this)} handleSubmitComplain={this.toggleConfirmationComplained.bind(this)}
                                                         loadDataReceived={this.LoadDataReceived.bind(this)} loadDataComplained={this.LoadDataComplained.bind(this)} handleTimeLimitComplain={this.toggleTimeLimitComplained.bind(this)} />)
                                                 })
                                                 }
@@ -2108,7 +2121,7 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionComplained" style={{ display: 'none' }}>
                                                 {this.state.data_complained.slice(this.state.sliceX_complained, this.state.sliceY_complained).map((value) => {
-                                                    return (<TransactionComplained data={value} handleSelesaikanPesanan={this.toggleConfirmation.bind(this)} />)
+                                                    return (<TransactionComplained data={value} printInvoice={this.printDiv} handleSelesaikanPesanan={this.toggleConfirmation.bind(this)} />)
                                                 })
                                                 }
                                             </div>
@@ -2168,7 +2181,7 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionFinished" style={{ display: 'none' }}>
                                                 {this.state.data_finished.slice(this.state.sliceX_finished, this.state.sliceY_finished).map((value) => {
-                                                    return (<TransactionFinished data={value} />)
+                                                    return (<TransactionFinished data={value} printInvoice={this.printDiv}/>)
                                                 })
                                                 }
                                             </div>
@@ -2228,7 +2241,7 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionCanceled" style={{ display: 'none' }}>
                                                 {this.state.data_canceled.slice(this.state.sliceX_canceled, this.state.sliceY_canceled).map((value) => {
-                                                    return (<TransactionCanceled data={value} />)
+                                                    return (<TransactionCanceled data={value} printInvoice={this.printDiv}/>)
                                                 })
                                                 }
                                             </div>

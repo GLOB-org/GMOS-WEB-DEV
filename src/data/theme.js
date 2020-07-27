@@ -7,7 +7,7 @@ export default {
         profile_url: 'https://themeforest.net/user/kos9',
     },
     contacts: {
-        address: 'Pulo Lentut 12',
+        address: 'Jakarta',
         email: 'GLOB@gmail.com',
         phone: '(+62) 89602384999'
     },

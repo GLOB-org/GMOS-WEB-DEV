@@ -191,7 +191,7 @@ export default class InfoCompanyCard extends Component{
                 <ModalBody style={{padding:'30px', paddingTop: '10px'}}>
                     <div className="row">
                         <div className="col-md-12">
-                            <button type="button" style={{float: 'right'}} className="btn btn-secondary btn-xs" onClick={()=>this.setState({display_timeline: 'block'})}>Timeline Transaksi</button>
+                            <button type="button" style={{float: 'right'}} className="btn btn-secondary btn-xs d-print-none" onClick={()=>this.setState({display_timeline: 'block'})}>Timeline Transaksi</button>
                         </div>
                     </div>
 
@@ -371,7 +371,14 @@ export default class InfoCompanyCard extends Component{
                         </tbody>
                     </table>
                     <div className="row justify-content-end pt-3 pt-md-3">
-                        {/* <div className="col-4 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"> */}
+                        <div className="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <button type="button" className="btn btn-primary btn-sm d-print-none mb-3" onClick={()=>this.props.printInvoice("modal-transaksi", this.props.data.id_transaction)}>
+                                <i class="fas fa-print" style={{ marginRight: '5px' }}></i>
+                                Cetak Invoice
+                            </button>
+                        </div>
+                        <div className="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                        </div>
                         <div className="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
                             <div >
                                 <div style={{ padding : '0px' }}>

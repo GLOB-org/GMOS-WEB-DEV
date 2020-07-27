@@ -39,11 +39,13 @@ class AccountPageDashboard extends Component {
             listKelurahan: [],
             address_length: '',
             modalStatusCompany: false,
+            billToActive: false, shipToActive: false,
             checkTabPane: true,
             modalEdit: false,
             modalSetAlamat: false,
             modalTambahAlamat: false,
             modalEditAlamat: false,
+            labelModalEditTambah: '',
             inputHPakun: '',
             inputEmailakun: '',
             inputPassword: '',
@@ -224,17 +226,36 @@ class AccountPageDashboard extends Component {
         });
     }
 
-    toggleModalEditAlamat = (id, index) => {
+    toggleModalEditAlamat = (id, index, shipto_active, billto_active) => {
         if (index >= 0) {
             Toast.loading('loading . . .', () => {
             });
+
+            if (billto_active == 'Y') {
+                var billto = true
+                this.getCompanyListing()
+            }
+            else {
+                var billto = false
+            }
+
+            if (shipto_active == 'Y') {
+                var shipto = true
+            }
+            else {
+                var shipto = false
+            }
+
             this.setState({
                 selected_update: id,
                 inputAlamat: this.state.list_address[index].alamat,
                 inputProvinsi: this.state.list_address[index].id_provinsi,
                 inputKodePOS: this.state.list_address[index].kodepos,
                 inputNoTelp: this.state.list_address[index].no_telp,
+                billToActive: billto,
+                shipToActive: shipto
             });
+
             this.getListCityEdit(this.state.list_address[index].id_provinsi, this.state.list_address[index].id_kota, this.state.list_address[index].id_kecamatan, this.state.list_address[index].id_kelurahan)
         }
         if (this.state.modalEditAlamat == true) {
@@ -242,6 +263,21 @@ class AccountPageDashboard extends Component {
                 modalEditAlamat: false
             });
         }
+    }
+
+    getCompanyListing = async () => {
+        let company_listing = encrypt("select seller_id from gcm_company_listing where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'A'")
+
+        await Axios.post(url.select, {
+            query: company_listing
+        }).then(data => {
+            this.setState({
+                data_company_listing: data.data.data
+            });
+        }).catch(err => {
+            // console.log('error' + err);
+            // console.log(err);
+        })
     }
 
     toggleModalTambahAlamat = async () => {
@@ -253,20 +289,8 @@ class AccountPageDashboard extends Component {
             if (this.state.modalTambahAlamat == false) {
                 Toast.loading('loading . . .', () => {
                 });
-
-                let company_listing = encrypt("select seller_id from gcm_company_listing where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'A'")
-
-                await Axios.post(url.select, {
-                    query: company_listing
-                }).then(data => {
-                    this.setState({
-                        data_company_listing: data.data.data
-                    });
-                    Toast.hide()
-                }).catch(err => {
-                    // console.log('error' + err);
-                    // console.log(err);
-                })
+                this.getCompanyListing()
+                Toast.hide()
             }
 
             await this.setState({
@@ -688,7 +712,16 @@ class AccountPageDashboard extends Component {
         }
         if (this.state.inputAlamat != "" && this.state.inputProvinsi != "" && this.state.inputKota != "" &&
             this.state.inputKecamatan != "" && this.state.inputKelurahan != "" && this.state.inputKodePOS != "" && this.state.inputNoTelp != "" && this.state.inputKodePOS.length == 5) {
-            this.setState({ openConfirmationSave: true });
+            if (this.state.modalEditAlamat == true) {
+                var label = 'menyimpan pengubahan alamat'
+            }
+            else {
+                var label = 'menambahkan alamat baru'
+            }
+            this.setState({
+                openConfirmationSave: true,
+                labelModalEditTambah: label
+            });
         }
     }
 
@@ -710,19 +743,51 @@ class AccountPageDashboard extends Component {
                     loop = loop.concat(",")
                 }
             }
-
             querytalamat = querytalamat + loop
 
         }
 
         else if (this.state.modalEditAlamat == true) {
-            var querytalamat = "update gcm_master_alamat set alamat = '" + this.state.inputAlamat + "', kelurahan = " + this.state.inputKelurahan + ", kecamatan = " + this.state.inputKecamatan +
-                ", kota = " + this.state.inputKota + ", provinsi = " + this.state.inputProvinsi + ", kodepos = " + this.state.inputKodePOS + ", no_telp = '" + this.state.inputNoTelp + "' where id = " + this.state.selected_update
+            if (this.state.billToActive == true) {
+                if (this.state.shipToActive == true) {
+                    var shipto = 'Y'
+                }
+                else {
+                    var shipto = 'N'
+                }
+
+                var queryalamat = "with new_update as (update gcm_master_alamat set shipto_active = 'N', billto_active = 'N', flag_active = 'I' where id = " + this.state.selected_update + " ), " +
+                "new_insert as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) values (" +
+                    this.state.inputKelurahan + "," + this.state.inputKecamatan + "," + this.state.inputKota + "," + this.state.inputProvinsi + "," + this.state.inputKodePOS + ", '" + this.state.inputNoTelp + "', '" + shipto +
+                    "', 'Y', " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", '" + this.state.inputAlamat + "', 'A') returning id ) "
+
+                queryalamat = queryalamat + "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_alamat_customer) values "
+                var loop = ""
+
+                for (var i = 0; i < this.state.data_company_listing.length; i++) {
+                    loop = loop + "((select id from new_insert)," + decrypt(localStorage.getItem('CompanyIDLogin')) + "," + this.state.data_company_listing[i].seller_id + ",null)"
+                    if (i < this.state.data_company_listing.length - 1) {
+                        loop = loop.concat(",")
+                    }
+                }
+
+                queryalamat = queryalamat + loop
+
+            }
+            else {
+                var queryalamat = "update gcm_master_alamat set alamat = '" + this.state.inputAlamat + "', kelurahan = " +
+                    this.state.inputKelurahan + ", kecamatan = " + this.state.inputKecamatan + ", kota = " + this.state.inputKota +
+                    ", provinsi = " + this.state.inputProvinsi + ", kodepos = " + this.state.inputKodePOS + ", no_telp = '" +
+                    this.state.inputNoTelp + "' where id = " + this.state.selected_update
+            }
         }
 
+        // console.log(queryalamat)
+
         Axios.post(url.select, {
-            query: encrypt(querytalamat)
+            query: encrypt(queryalamat)
         }).then(data => {
+
             Toast.hide();
             if (this.state.modalEditAlamat == false) {
                 Toast.success('Berhasil menambahkan alamat', 2000, () => {
@@ -995,7 +1060,7 @@ class AccountPageDashboard extends Component {
                     <div className="card-body">
                         <center>Tetapkan alamat sebagai : </center>
                         <button type="submit" style={{ width: '100%', height: '100%' }} className="btn btn-primary mt-4" onClick={() => this.setAlamat('pengiriman')}>
-                            <i class="fas fa-shipping-fast"></i> <span style={{ display: 'block' }}>Alamat Pengiriman </span>
+                            <i class="fas fa-shipping-fast"></i> <span style={{ display: 'block' }}>Alamat Pengiriman Utama</span>
                         </button>
                         {/* <button type="submit" style={{ width: '100%', height: '100%' }} className="btn btn-primary mt-4" onClick={() => this.setAlamat('penagihan')}>
                             <i class="fas fa-receipt"></i> <span style={{ display: 'block' }}>Alamat Penagihan </span>
@@ -1188,7 +1253,7 @@ class AccountPageDashboard extends Component {
                     <DialogTitle id="responsive-dialog-title">Konfirmasi</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            Apakah Anda yakin akan menambahkan alamat baru ?
+                            Apakah Anda yakin akan {this.state.labelModalEditTambah} ?
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>

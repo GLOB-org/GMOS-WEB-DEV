@@ -260,6 +260,14 @@ export default class InfoCompanyCard extends Component{
                     </table>
                     <div className="row justify-content-end pt-3 pt-md-3">
                         <div className="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <button type="button" className="btn btn-primary btn-sm d-print-none mb-3" onClick={()=>this.props.printInvoice("modal-transaksi", this.props.data.id_transaction)}>
+                                <i class="fas fa-print" style={{ marginRight: '5px' }}></i>
+                                Cetak Invoice
+                            </button>
+                        </div>
+                        <div className="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                        </div>
+                        <div className="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
                                 <div style={{ padding : '0px' }}>
                                     <div className="row" style={{fontSize: '12px', fontWeight: '500'}}>
                                         <div className="col-6 col-sm-6 col-xs-6" style={{ display: 'flex', alignItems: 'center' }}>

@@ -48,7 +48,8 @@ class ShopPageCheckout extends Component {
             array_ongkir_seller: [],
             id_transaction: [],
             label_id_transaction: '',
-            label_distributor: '',
+            label_distributor_shipto: '',
+            label_distributor_billto: '',
             data_alamat: [],
             set_idtransaction: [],
             data_kurs_cart: [],
@@ -347,7 +348,7 @@ class ShopPageCheckout extends Component {
     }
 
     async componentDidMount() {
-        let queryHariLibur = encrypt("select id, tanggal::text, keterangan  from gcm_kalender_libur gkl where tanggal > now()")
+        let queryHariLibur = encrypt("select id, tanggal::text, keterangan  from gcm_kalender_libur gkl where tanggal > now() - interval '1 days'")
         await Axios.post(url.select, {
             query: queryHariLibur
         }).then(data => {
@@ -488,9 +489,6 @@ class ShopPageCheckout extends Component {
             "from (select distinct a.shipto_id, b.company_id from gcm_master_cart a inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A') as a inner join gcm_master_alamat b on  a.shipto_id = b.id " +
             "left join gcm_ongkos_kirim c on c.tujuan_kota = b.kota and a.company_id = c.id_company inner join gcm_master_company d on d.id = a.company_id")
 
-        // let get_ongkir = encrypt("select distinct a.company_id as buyer_id, b.id_company as seller_id, c.nama_perusahaan as seller_nama, a.kota as shipto, b.harga as ongkir from gcm_master_alamat a inner join gcm_ongkos_kirim b  on a.kota::int = b.tujuan_kota " +
-        //     "inner join gcm_master_company c on b.id_company = c.id where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and b.id_company in (" + this.state.id_penjual_string + ") and a.flag_active = 'A' and a.shipto_active = 'Y' order by b.id_company")
-
         await Axios.post(url.select, {
             query: get_ongkir
         }).then(async (data) => {
@@ -504,12 +502,14 @@ class ShopPageCheckout extends Component {
 
             for (var j = 0; j < this.state.array_berat_seller.length; j++) {
                 var ongkir = 0;
+                var ongkir_satuan = 0;
                 var ongkir_null = false
                 for (var i = 0; i < data.data.data.length; i++) {
                     if (data.data.data[i].seller_id == this.state.array_berat_seller[j].id_seller) {
                         if (data.data.data[i].ongkir != null) {
                             ongkir = ongkir + (this.state.array_berat_seller[j].total * data.data.data[i].ongkir)
                             ongkir_all = ongkir_all + (this.state.array_berat_seller[j].total * data.data.data[i].ongkir)
+                            ongkir_satuan = data.data.data[i].ongkir
                         }
                         else if (data.data.data[i].ongkir == null) {
                             ongkir_null = true
@@ -523,13 +523,15 @@ class ShopPageCheckout extends Component {
                 }
                 else {
                     ongkir = ongkir
+                    ongkir_satuan = ongkir_satuan
                 }
 
                 await this.setState(prevState => ({
                     array_ongkir_seller: [...prevState.array_ongkir_seller, {
                         id_seller: this.state.array_berat_seller[j].id_seller,
                         nama_seller: this.state.data_ongkir[j].seller_nama,
-                        ongkir: ongkir
+                        ongkir: ongkir,
+                        ongkir_satuan: ongkir_satuan,
                     }]
                 }))
             }
@@ -649,23 +651,35 @@ class ShopPageCheckout extends Component {
         Toast.loading('loading . . .', () => {
         });
 
-        let check_mapping_alamat = encrypt("select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan from " +
+        // let check_mapping_alamat = encrypt("select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan from " +
+        //     "(select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
+        //     "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A' )a " +
+        //     "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat inner join gcm_master_company c " +
+        //     "on a.seller_id = c.id where b.kode_alamat_customer is null")
+
+        let check_mapping_alamat = encrypt("select * from (select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan_shipto from " +
             "(select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
-            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A' )a " +
+            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = 5 and a.status = 'A')a " +
             "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat inner join gcm_master_company c " +
-            "on a.seller_id = c.id where b.kode_alamat_customer is null")
+            "on a.seller_id = c.id where b.kode_alamat_customer is null " +
+            ") shipto, (select string_agg(distinct ''||c.nama_perusahaan||'' , ', ') as nama_perusahaan_billto from " +
+            "(select distinct a.billto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
+            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = 5 and a.status = 'A')a " +
+            "inner join gcm_listing_alamat b on a.billto_id = b.id_master_alamat inner join gcm_master_company c " +
+            "on a.seller_id = c.id where b.kode_alamat_customer is null )billto")
 
         await Axios.post(url.select, {
             query: check_mapping_alamat
         }).then(data => {
             this.setState({
-                label_distributor: data.data.data[0].nama_perusahaan
+                label_distributor_shipto: data.data.data[0].nama_perusahaan_shipto,
+                label_distributor_billto: data.data.data[0].nama_perusahaan_billto
             });
         }).catch(err => {
             // console.log('error : ' + err);
         })
 
-        if (this.state.label_distributor != null) {
+        if (this.state.label_distributor_shipto != null || this.state.label_distributor_billto != null) {
             Toast.hide()
             this.setState({
                 openresponalamat: true
@@ -708,7 +722,7 @@ class ShopPageCheckout extends Component {
             }
 
             else if (this.state.data_kurs_cart.length > 0 && this.state.view_alert_kurs == true || this.state.data_kurs_cart.length == 0) {
-                let query = "insert into gcm_master_transaction (id_transaction, company_id, status, create_by, create_date, update_by, update_date ,kurs_rate, shipto_id, billto_id, payment_id, id_sales, ongkos_kirim, tgl_permintaan_kirim, ppn_seller) VALUES "
+                let query = "insert into gcm_master_transaction (id_transaction, company_id, status, create_by, create_date, update_by, update_date ,kurs_rate, shipto_id, billto_id, payment_id, id_sales, ongkos_kirim,  ongkos_kirim_satuan, tgl_permintaan_kirim, ppn_seller) VALUES "
                 let loop = ""
                 let length = this.state.data_penjual_length;
                 let filter_data_checkout;
@@ -742,7 +756,8 @@ class ShopPageCheckout extends Component {
                         "where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and seller_id = " + this.state.data_penjual[i].id + " and status = 'A' )"
 
                     loop = loop + "(" + get_idtransaction + "," + decrypt(localStorage.getItem('CompanyIDLogin')) + ", 'WAITING', " + decrypt(localStorage.getItem('UserIDLogin')) + ", now()," + decrypt(localStorage.getItem('UserIDLogin')) +
-                        ", now(), " + filter_data_checkout[0].kurs + ", " + filter_data_checkout[0].shipto_id + ", " + filter_data_checkout[0].billto_id + ", " + filter_data_checkout[0].payment_id + ", " + get_sales + ", " + filter_ongkir[0].ongkir + ", " + get_tgl_permintaan_kirim + ", " + filter_data_checkout[0].ppn_seller + ")"
+                        ", now(), " + filter_data_checkout[0].kurs + ", " + filter_data_checkout[0].shipto_id + ", " + filter_data_checkout[0].billto_id + ", " + filter_data_checkout[0].payment_id + ", " + get_sales + ", " +
+                        filter_ongkir[0].ongkir + ", " + filter_ongkir[0].ongkir_satuan + ", " + get_tgl_permintaan_kirim + ", " + filter_data_checkout[0].ppn_seller + ")"
 
                     await this.setState(prevState => ({
                         set_idtransaction: [...prevState.set_idtransaction, { id: get_idtransaction, penjual: this.state.data_penjual[i].id }]
@@ -2192,11 +2207,29 @@ class ShopPageCheckout extends Component {
                     <DialogTitle id="responsive-dialog-title">Transaksi Tidak Dapat Dilakukan !</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            Alamat Pengiriman yang Anda pilih tidak dapat digunakan untuk transaksi ke {this.state.label_distributor}. Silakan ubah alamat pengiriman atau hubungi distributor terkait.
+                            {this.state.label_distributor_shipto != null ?
+                                (
+                                    <p>
+                                        <strong>Alamat Pengiriman</strong> yang Anda pilih tidak dapat digunakan untuk transaksi ke {this.state.label_distributor_shipto}.
+                                    </p>
+                                ) :
+                                (null)
+                            }
+
+                            {this.state.label_distributor_billto != null ?
+                                (
+                                    <p>
+                                        <strong>Alamat Penagihan</strong> yang Anda pilih tidak dapat digunakan untuk transaksi ke {this.state.label_distributor_billto}.
+                                    </p>
+                                ) :
+                                (null)
+                            }
+
+                            Silakan ubah alamat atau hubungi distributor terkait.
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button color="primary" onClick={() => this.setState({ openresponalamat: false })}>
+                        <Button color="primary" onClick={() => this.setState({ openresponalamat: false, openrespontransaksi: false })}>
                             Mengerti
                         </Button>
                     </DialogActions>
@@ -2222,7 +2255,7 @@ class ShopPageCheckout extends Component {
                     </DialogActions>
                 </Dialog>
 
-            </React.Fragment>
+            </React.Fragment >
         );
     }
 }

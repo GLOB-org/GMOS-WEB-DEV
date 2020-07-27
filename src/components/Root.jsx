@@ -30,7 +30,8 @@ import { toast } from 'react-toastify';
 import CartContainer from '../context/cart';
 import { CartContext } from '../context/cart';
 
-import { connect_socket } from "../response/index-response";
+//import { connect_socket } from "../response/index-response";
+import openSocket from "socket.io-client";
 
 class Root extends Component {
 
@@ -38,31 +39,64 @@ class Root extends Component {
 
     componentDidMount() {
 
-        connect_socket(data => {
+        // const socket = openSocket("https://chats-front.herokuapp.com/");
 
-            const options = {
-                autoClose: false,
-                className: 'custom-toast',
-                position: 'bottom-right',
-                autoClose: 5000
-            };
+        // socket.emit("send_data_nego_to_admin", {
+        //     seller_id: 20,
+        //     buyer_id: 10,
+        //     room_id: "10-20"
+        // })
 
-            console.log(data);
+        // socket.emit("join_room_nego", {
+        //     room_id: "10-20"
+        // })
 
-            if (data.source != 'buyer-direct_response') {
-                var timeout = 0
-                if(data.source == 'buyer-hold_response'){
-                     timeout = 3600000
-                }
-                setTimeout(function () {
-                    toast.success('💬 Ada balasan nego dari penjual', options);
-                }, timeout);
-            }
-        });
+        // socket.on('nego_response', data => {
+
+        //     console.log(data)
+
+        //     const options = {
+        //         autoClose: false,
+        //         className: 'custom-toast',
+        //         position: 'bottom-right',
+        //         autoClose: 5000
+        //     };
+
+        //     if (data.source != 'buyer-direct_response') {
+        //         var timeout = 0
+        //         if (data.source == 'buyer-hold_response') {
+        //             // timeout = 3600000
+        //             timeout = 3000
+        //         }
+        //         setTimeout(function () {
+        //             toast.success('💬 Ada balasan nego dari penjual', options);
+        //         }, timeout);
+        //     }
+
+        //     console.log(this.props.value)
+        // })
+
+        // connect_socket(data => {
+        //     const options = {
+        //         autoClose: false,
+        //         className: 'custom-toast',
+        //         position: 'bottom-right',
+        //         autoClose: 5000
+        //     };
+
+        //     if (data.source != 'buyer-direct_response') {
+        //         var timeout = 0
+        //         if (data.source == 'buyer-hold_response') {
+        //             timeout = 3600000
+        //         }
+        //         setTimeout(function () {
+        //             toast.success('💬 Ada balasan nego dari penjual', options);
+        //         }, timeout);
+        //     }
+        // });
 
         //data category
         //const count_category = this.context.category.data_category.length
-        console.log(this.context.cart.check_load)
         // if (count_category == 0) {
         // const value = this.context;
         // value.loadDataCart();
@@ -79,19 +113,12 @@ class Root extends Component {
             });
             preloader.classList.add('site-preloader__fade');
         }, 300);
+
     }
 
     render() {
         const { locale } = this.props;
         const { messages, direction } = languages[locale];
-        // const checkLogin = localStorage.getItem('Login');
-        // setInterval(function () { alert("Hello"); }, 10000);
-
-        // select a.barang_id as id_listing, c.barang_id, d.nama, b.time_respon from gcm_master_cart a 
-        // inner join gcm_history_nego b on a.history_nego_id = b.id 
-        // inner join gcm_list_barang c on a.barang_id = c.id
-        // inner join gcm_master_barang d on c.barang_id = d.id 
-        // where a.company_id = 5 and a.status = 'A'
 
         return (
             <div>
@@ -120,13 +147,23 @@ class Root extends Component {
     }
 }
 
-// const MapElement = () => (
-//     <CartContext.Consumer>
-//         {value =>
-//             <Root context={value.cart.check_load} />
-//         }
-//     </CartContext.Consumer>
-// )
+// const CartContext = React.createContext({});
+
+// const WithContext = (WrappedComponent) => {
+//     return () => (
+//         <CartContext.Consumer>
+//             {value => <Root />}
+//         </CartContext.Consumer>
+//     )
+// }
+
+const WithContext = (WrappedComponent) => (
+    (props) => (
+        <CartContext.Consumer>
+            {(value) => <WrappedComponent {...props} value={value.cart.count_data_cart} />}
+        </CartContext.Consumer>
+    )
+);
 
 // Root.contextType = CartContext
 
@@ -143,4 +180,4 @@ const mapDispatchToProps = {
     localeChange,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Root);
+export default connect(mapStateToProps, mapDispatchToProps)(WithContext(Root));

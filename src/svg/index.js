@@ -27,9 +27,10 @@ export { ReactComponent as LayoutGridWithDetails16x16Svg } from './layout-grid-w
 export { ReactComponent as LayoutList16x16Svg } from './layout-list-16x16.svg';
 export { ReactComponent as LogoSvg } from './logo.svg';
 export { ReactComponent as LogoGLoBMobile } from './glob-v2-5.svg';
-export { ReactComponent as LogoGLoB } from './glob-v2-6.svg';
+export { ReactComponent as LogoGLoB } from './glob-v3-19.svg';
 export { ReactComponent as LogoSmallSvg } from './logo-small.svg';
 export { ReactComponent as Menu18x14Svg } from './menu-18x14.svg';
+export { ReactComponent as Notif20Svg } from './notif20.svg';
 export { ReactComponent as Quickview16Svg } from './quickview-16.svg';
 export { ReactComponent as Rating13x12Svg } from './rating-13x12.svg';
 export { ReactComponent as Search20Svg } from './search-20.svg';

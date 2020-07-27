@@ -433,8 +433,8 @@ class Product extends Component {
                     query: cek_statuscart
                 }).then(async (data) => {
                     Toast.hide();
-                    Toast.info('kuantitas minimal nego : ' + product.jumlah_min_nego + ' ' + product.satuan, 2500, () => {
-                    });
+                    // Toast.info('kuantitas minimal nego : ' + product.jumlah_min_nego + ' ' + product.satuan, 2500, () => {
+                    // });
                     if (data.data.data.length == 0) {
                         if (this.state.nego_auto == true) {
                             this.responNego()
@@ -871,7 +871,7 @@ class Product extends Component {
                     </div>
 
                     <Modal isOpen={this.state.modalOpen} centered size="sm" backdrop="static">
-                        <ModalHeader className="modalHeaderCustom" toggle={this.toggle}>Nego Harga </ModalHeader>
+                        <ModalHeader className="modalHeaderCustom" toggle={this.toggle}>Nego Harga</ModalHeader>
                         <div className="card-body">
                             <div className="form-group">
                                 <div className="address-card__row" style={{ margin: '0px' }}>
@@ -904,6 +904,7 @@ class Product extends Component {
                                             <div className="input-number__add" onMouseDown={() => this.handleAddMouseDown(product.berat, 'nego')} />
                                             <div className="input-number__sub" onMouseDown={() => this.handleSubMouseDown(product.berat, product.jumlah_min_nego, 'nego')} />
                                         </div>
+                                        <label style={{ fontSize: '11px', fontWeight: '550', color: 'red' }}> * Kuantitas minimal nego : {product.jumlah_min_nego} {product.satuan} </label>
                                     </div>
                                 </div>
 
@@ -1195,7 +1196,7 @@ class Product extends Component {
                     </div>
 
                     <Modal isOpen={this.state.modalOpen} centered size="sm" backdrop="static">
-                        <ModalHeader className="modalHeaderCustom" toggle={this.toggle}>Nego Harga </ModalHeader>
+                        <ModalHeader className="modalHeaderCustom" toggle={this.toggle}>Nego Harga</ModalHeader>
                         <div className="card-body">
                             <div className="form-group">
                                 <div className="address-card__row" style={{ margin: '0px' }}>
@@ -1223,11 +1224,12 @@ class Product extends Component {
                                             onChange={this.handleChangeQuantityNego}
                                         /> */}
                                         <div className={classes} style={{ width: '100%' }}>
-                                            <NumberFormat id="product-quantity-nego" value={quantity} onChange={() => this.handleChangeQuantityNego()} spellCheck="false" autoComplete="off" allowNegative={false}
+                                            <NumberFormat id="product-quantity-nego" value={this.state.quantity_nego} onChange={() => this.handleChangeQuantityNego()} spellCheck="false" autoComplete="off" allowNegative={false}
                                                 className={formControlClasses} thousandSeparator={'.'} decimalSeparator={','} />
                                             <div className="input-number__add" onMouseDown={() => this.handleAddMouseDown(product.berat, 'nego')} />
                                             <div className="input-number__sub" onMouseDown={() => this.handleSubMouseDown(product.berat, product.jumlah_min_nego, 'nego')} />
                                         </div>
+                                        <label style={{ fontSize: '11px', fontWeight: '550', color: 'red' }}> * Kuantitas minimal nego : {product.jumlah_min_nego} {product.satuan} </label>
                                     </div>
                                 </div>
 

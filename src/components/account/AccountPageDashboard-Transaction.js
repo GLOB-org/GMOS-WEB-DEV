@@ -32,9 +32,9 @@ export default class InfoCompanyCard extends Component{
                         </div>
                     </td>) :
                     ( <td>
-                        <div className="buttonAction">
+                        {/* <div className="buttonAction">
                             <center><i class="fas fa-times-circle fa-lg " style={{color: '#8CC63E'}}></i></center>
-                        </div>
+                        </div> */}
                     </td>)
                 }
 
@@ -45,17 +45,17 @@ export default class InfoCompanyCard extends Component{
                         </div>
                     </td>) :
                     ( <td>
-                        <div className="buttonAction">
+                        {/* <div className="buttonAction">
                         <center><i class="fas fa-times-circle fa-lg " style={{color: '#8CC63E'}}></i></center>
-                        </div>
+                        </div> */}
                     </td>)
                 }
 
                 <td >
                     <div className="product-card__buttons"  style={{float:'right'}}>
-                        <button type="button" class="btn btn-primary btn-xs" style={{whiteSpace: 'nowrap'}} onClick={()=>this.props.setAlamat(this.props.data.id)}>Set Alamat</button>
+                        <button type="button" class="btn btn-primary btn-xs" style={{whiteSpace: 'nowrap'}} onClick={()=>this.props.setAlamat(this.props.data.id)}>Set alamat utama</button>
                         <button type="button" class="btn btn-light btn-xs"  onClick={()=>this.props.hapusAlamat(this.props.data.id, this.props.index)}>Hapus</button>
-                        <button type="button" class="btn btn-light btn-xs" onClick={()=>this.props.editAlamat(this.props.data.id, this.props.index)}>Edit</button>
+                        <button type="button" class="btn btn-light btn-xs" onClick={()=>this.props.editAlamat(this.props.data.id, this.props.index, this.props.data.shipto_active ,this.props.data.billto_active)}>Edit</button>
                     </div>
                 </td>
             </tr>
