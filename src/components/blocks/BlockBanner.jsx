@@ -24,9 +24,9 @@ export default function BlockBanner() {
                         Hand Tools */}
                         {/* <label style={{ color : 'red'}}>Raw Material Store</label> */}
                     </div>
-                    <div className="block-banner__text">
+                    {/* <div className="block-banner__text">
                         <label>Pharmaceutical, Food and Beverages , Cosmetic and Toiletries, Veterinary</label>
-                    </div>
+                    </div> */}
                     <div className="block-banner__button">
                         <span className="btn btn-sm btn-primary">Belanja Sekarang</span>
                     </div>

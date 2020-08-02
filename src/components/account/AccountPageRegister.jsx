@@ -63,7 +63,7 @@ export default class AccountPageRegister extends Component {
             inputKodePOS: '', empty_kodepos: false, KetTextKodePos: '',
             inputEmail: '', empty_email: false, KetTextEmail: '',
             inputNoTelp: '', empty_notelp: false, KetTextNoTelp: '',
-            inputCheckPPN: '',
+            inputCheckPPN: '0',
             inputNamaLengkap: '', empty_namalengkap: false, KetTextNamaLengkap: '',
             inputNoKTP: '', empty_ktp: false, KetTextKTP: '',
             inputEmailAkun: '', empty_emailakun: false, KetEmailAkun: '',
@@ -421,6 +421,8 @@ export default class AccountPageRegister extends Component {
             var insert_company = encrypt(registrasi_perusahaan.concat(alamat_perusahaan).concat(registrasi_akun_seller))
         }
 
+        console.log(decrypt(insert_company))
+
         Axios.post(url.select, {
             query: insert_company
         }).then(data => {
@@ -430,78 +432,6 @@ export default class AccountPageRegister extends Component {
                 openListPenjual: false,
                 isSuksesRegister: true
             });
-
-            // if (this.state.inputTipeRegister == 'B') {
-
-            //     let listing_company = "INSERT INTO gcm_company_listing (buyer_id, seller_id, buyer_number_mapping, seller_number_mapping, blacklist_by, notes_blacklist) VALUES "
-            //     let loop = ""
-            //     let length = this.state.selectedPenjual.length;
-            //     for (var i = 0; i < length; i++) {
-
-            //         loop = loop + "(" + data.data.data[0].id + "," + this.state.selectedPenjual[i].id + ", null, null, null, '')"
-            //         if (i < length - 1) {
-            //             loop = loop.concat(",")
-            //         }
-            //         else {
-            //             loop = loop.concat(" returning buyer_id ;")
-            //         }
-            //     }
-
-            //     var queryListingCompany = encrypt(listing_company.concat(loop))
-
-            //     Axios.post(url.select, {
-            //         query: queryListingCompany
-            //     }).then(data => {
-            //         let registrasi_akun = encrypt("INSERT INTO gcm_master_user " +
-            //             "(nama, no_ktp, email, no_hp, username, password, status, role, company_id, create_by, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, blacklist_by, id_blacklist, is_blacklist, notes_blacklist) " +
-            //             "VALUES ('" + this.state.inputNamaLengkap + "'," +
-            //             "'" + this.state.inputNoKTP + "'," +
-            //             "'" + this.state.inputEmailAkun + "'," +
-            //             "'" + this.state.inputNoHP + "'," +
-            //             "'" + this.state.inputUsername + "'," +
-            //             "'" + encrypt(this.state.inputPassword) + "'," +
-            //             "'" + this.state.inputStatus + "'," +
-            //             "'" + this.state.inputRole + "'," +
-            //             + data.data.data[0].buyer_id +
-            //             ",0,0, null, null, null, false, true,null,0,false,'')")
-            //         console.log(decrypt(registrasi_akun))
-
-            //         // insert akun
-            //         Axios.post(url.select, {
-            //             query: registrasi_akun
-            //         }).then(data => {
-            //             this.alert_success()
-            //         }).catch(err => {
-            //             console.log(err);
-            //         })
-            //     }).catch(err => {
-            //         console.log(err);
-            //     })
-
-            // }
-
-            // else {
-            //     let registrasi_akun = encrypt("INSERT INTO gcm_master_user " +
-            //         "(nama, no_ktp, email, no_hp, username, password, status, role, company_id, create_by, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, blacklist_by, id_blacklist, is_blacklist, notes_blacklist) " +
-            //         "VALUES ('" + this.state.inputNamaLengkap + "'," +
-            //         "'" + this.state.inputNoKTP + "'," +
-            //         "'" + this.state.inputEmailAkun + "'," +
-            //         "'" + this.state.inputNoHP + "'," +
-            //         "'" + this.state.inputUsername + "'," +
-            //         "'" + encrypt(this.state.inputPassword) + "'," +
-            //         "'" + this.state.inputStatus + "'," +
-            //         "'" + this.state.inputRole + "'," +
-            //         + data.data.data[0].id +
-            //         ",0,0, null, null, null, false, true,null,0,false,'')")
-            //     console.log(decrypt(registrasi_akun))
-            //     Axios.post(url.select, {
-            //         query: registrasi_akun
-            //     }).then(data => {
-            //         this.alert_success()
-            //     }).catch(err => {
-            //         console.log(err);
-            //     })
-            // }
 
         }).catch(err => {
             // console.log(err);
@@ -1803,22 +1733,22 @@ export default class AccountPageRegister extends Component {
                     </Modal>
 
                     <Modal isOpen={this.state.openInfoBerkas} size="md" centered>
-                        <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={()=> this.setState({openInfoBerkas: !this.state.openInfoBerkas})}>Informasi Kelengkapan Berkas</ModalHeader>
+                        <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={() => this.setState({ openInfoBerkas: !this.state.openInfoBerkas })}>Informasi Kelengkapan Berkas</ModalHeader>
                         <ModalBody>
-                            <div className="address-card__row-content" style={{ fontSize: '13px', fontWeight: '600'}}>Pelanggan Perorangan</div>
-                            <ul style={{ fontSize: '13px'}}>
+                            <div className="address-card__row-content" style={{ fontSize: '13px', fontWeight: '600' }}>Pelanggan Perorangan</div>
+                            <ul style={{ fontSize: '13px' }}>
                                 <li>E-KTP</li>
                                 <li>NPWP</li>
                             </ul>
-                            <div className="address-card__row-content" style={{ fontSize: '13px', fontWeight: '600'}}>Pelanggan Perusahaan Pharma</div>
-                            <ul style={{ fontSize: '13px'}}>
+                            <div className="address-card__row-content" style={{ fontSize: '13px', fontWeight: '600' }}>Pelanggan Perusahaan Pharma</div>
+                            <ul style={{ fontSize: '13px' }}>
                                 <li>NPWP atau SPPKP</li>
                                 <li>SIUP atau SIUI Farmasi yang masih berlaku</li>
                                 <li>Sertifikat GXP (jika disyaratkan)</li>
                                 <li>Note untuk pelanggan trader : dilengkapi juga data Surat Izin PBF yang masih berlaku</li>
                             </ul>
-                            <div className="address-card__row-content" style={{ fontSize: '13px', fontWeight: '600'}}>Pelanggan Perusahaan non Pharma</div>
-                            <ul style={{ fontSize: '13px'}}>
+                            <div className="address-card__row-content" style={{ fontSize: '13px', fontWeight: '600' }}>Pelanggan Perusahaan non Pharma</div>
+                            <ul style={{ fontSize: '13px' }}>
                                 <li>NPWP atau SPPKP</li>
                                 <li>SIUP atau SIUI Farmasi yang masih berlaku</li>
                             </ul>
@@ -1874,7 +1804,10 @@ export default class AccountPageRegister extends Component {
                                     <i class="fas fa-check-circle fa-3x mb-4" style={{ color: '#8CC63E' }}></i>
                                 </center>
                                 <DialogContentText>
-                                    <center>Harap menunggu proses aktivasi oleh admin</center>
+                                    <center>
+                                        <label>Harap menunggu proses aktivasi oleh admin.</label>
+                                        <label>Informasi aktivasi akan dikirim melalui e-mail.</label>
+                                    </center>
                                 </DialogContentText>
                                 <center>
                                     <Link to="/" className="btn btn-primary mt-4 mb-3" >ok</Link>

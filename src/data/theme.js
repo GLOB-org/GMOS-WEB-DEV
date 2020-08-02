@@ -7,8 +7,10 @@ export default {
         profile_url: 'https://themeforest.net/user/kos9',
     },
     contacts: {
-        address: 'Jakarta',
-        email: 'GLOB@gmail.com',
-        phone: '(+62) 89602384999'
+        address1: 'Jl. Pulogadung no 23, Kavling no II G.5.',
+        address2: 'Kawasan Industri Pulogadung, Lantai 4 Unit A, ',
+        address3: 'Jakarta Timur 13930',
+        email: 'glob@gcm.co.id',
+        phone: '(021) 80604230 '
     },
 };

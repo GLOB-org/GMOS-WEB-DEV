@@ -17,7 +17,9 @@ export default function FooterContacts() {
             <ul className="footer-contacts__contacts">
                 <li>
                     <i className="footer-contacts__icon fas fa-globe-americas" />
-                    {theme.contacts.address}
+                    <label>{theme.contacts.address1}</label>
+                    <label style={{marginLeft: '24px'}}>{theme.contacts.address2}</label>
+                    <label style={{marginLeft: '24px'}}>{theme.contacts.address3}</label>
                 </li>
                 <li>
                     <i className="footer-contacts__icon far fa-envelope" />
@@ -27,10 +29,10 @@ export default function FooterContacts() {
                     <i className="footer-contacts__icon fas fa-mobile-alt" />
                     {`${theme.contacts.phone}`}
                 </li>
-                <li>
+                {/* <li>
                     <i className="footer-contacts__icon far fa-clock" />
                     Mon-Fri 10:00am - 7:00pm
-                </li>
+                </li> */}
             </ul>
         </div>
     );

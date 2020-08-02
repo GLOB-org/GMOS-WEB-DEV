@@ -80,9 +80,9 @@ function NavPanel(props) {
                     <div className="nav-panel__indicators">
                         {/* {searchIndicator} */}
 
-                        {checkLogin ?
+                        {/* {checkLogin ?
                             (<NotifIndicator />) : null
-                        }
+                        } */}
 
                         {checkLogin ?
                             (<CartIndicator />) : null

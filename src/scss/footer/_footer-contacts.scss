@@ -51,12 +51,10 @@
     }
 }
 
-
-
 @media (max-width: breakpoint(sm-end)) {
-    .footer-contacts {
-        text-align: center;
-    }
+    // .footer-contacts {
+    //     text-align: center;
+    // }
     .footer-contacts__title {
         font-size: 28px;
         margin-bottom: 16px;

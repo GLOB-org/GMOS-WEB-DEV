@@ -831,7 +831,7 @@ class ProductCard extends Component {
                             let query = encrypt("INSERT INTO gcm_master_cart (company_id, barang_id, qty, harga_konsumen, harga_sales, create_by, update_by, shipto_id, billto_id, payment_id) VALUES " +
                                 "(" + decrypt(localStorage.getItem('CompanyIDLogin')) + "," +
                                 product.id + "," +
-                                (this.state.quantity_nego / product.berat) + "," +
+                                (this.state.quanti0ty_nego / product.berat) + "," +
                                 (document.getElementById("inputNego").value.split('.').join("") * this.state.quantity_nego) + "," +
                                 (Math.ceil(this.state.respons_nego * product.kurs) * this.state.quantity_nego) + "," +
                                 decrypt(localStorage.getItem('UserIDLogin')) + "," +
@@ -839,6 +839,7 @@ class ProductCard extends Component {
                                 this.state.data_alamat_shipto + "," +
                                 this.state.data_alamat_billto + "," +
                                 payment_id + ") returning id");
+                                
                             Toast.loading('loading . . .', () => {
                             });
                             await Axios.post(url.select, {

@@ -651,35 +651,44 @@ class ShopPageCheckout extends Component {
         Toast.loading('loading . . .', () => {
         });
 
-        // let check_mapping_alamat = encrypt("select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan from " +
-        //     "(select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
-        //     "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A' )a " +
-        //     "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat inner join gcm_master_company c " +
-        //     "on a.seller_id = c.id where b.kode_alamat_customer is null")
+        // let check_mapping_alamat = encrypt("select * from ( " +
+        //     "select c.nama_perusahaan as nama_perusahaan_billto from (select distinct a.billto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
+        //     "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id =  " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A')a " +
+        //     "inner join gcm_listing_alamat b on a.billto_id = b.id_master_alamat and a.company_id = b.id_buyer " +
+        //     "and a.seller_id = b.id_seller inner join gcm_master_company c on b.id_seller = c.id and b.kode_alamat_customer is null " +
+        //     ") billto, ( " +
+        //     "select c.nama_perusahaan as nama_perusahaan_shipto from (select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
+        //     "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id =  " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A')a " +
+        //     "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat and a.company_id = b.id_buyer " +
+        //     "and a.seller_id = b.id_seller inner join gcm_master_company c on b.id_seller = c.id and b.kode_alamat_customer is null " +
+        //     ") shipto")
 
-        let check_mapping_alamat = encrypt("select * from (select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan_shipto from " +
-            "(select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
-            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = 5 and a.status = 'A')a " +
-            "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat inner join gcm_master_company c " +
-            "on a.seller_id = c.id where b.kode_alamat_customer is null " +
-            ") shipto, (select string_agg(distinct ''||c.nama_perusahaan||'' , ', ') as nama_perusahaan_billto from " +
-            "(select distinct a.billto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
-            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = 5 and a.status = 'A')a " +
-            "inner join gcm_listing_alamat b on a.billto_id = b.id_master_alamat inner join gcm_master_company c " +
-            "on a.seller_id = c.id where b.kode_alamat_customer is null )billto")
+        let check_mapping_alamat = encrypt("select shipto.nama_perusahaan_shipto, billto.nama_perusahaan_billto  from ( "+
+            "select   string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan_billto from (select distinct a.billto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a "+ 
+            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A')a "+
+            "inner join gcm_listing_alamat b on a.billto_id = b.id_master_alamat and a.company_id = b.id_buyer "+
+            "and a.seller_id = b.id_seller inner join gcm_master_company c on b.id_seller = c.id and b.kode_alamat_customer is null "+
+            ") billto, ( "+
+            "select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan_shipto from (select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a "+
+            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A')a "+
+            "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat and a.company_id = b.id_buyer "+
+            "and a.seller_id = b.id_seller inner join gcm_master_company c on b.id_seller = c.id and b.kode_alamat_customer is null "+
+            ") shipto")
 
         await Axios.post(url.select, {
             query: check_mapping_alamat
         }).then(data => {
-            this.setState({
-                label_distributor_shipto: data.data.data[0].nama_perusahaan_shipto,
-                label_distributor_billto: data.data.data[0].nama_perusahaan_billto
-            });
+            if (data.data.data.length > 0) {
+                this.setState({
+                    label_distributor_shipto: data.data.data[0].nama_perusahaan_shipto,
+                    label_distributor_billto: data.data.data[0].nama_perusahaan_billto
+                });
+            }
         }).catch(err => {
             // console.log('error : ' + err);
         })
 
-        if (this.state.label_distributor_shipto != null || this.state.label_distributor_billto != null) {
+        if (this.state.label_distributor_shipto != '' || this.state.label_distributor_billto != '') {
             Toast.hide()
             this.setState({
                 openresponalamat: true

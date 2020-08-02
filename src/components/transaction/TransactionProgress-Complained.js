@@ -41,7 +41,7 @@ export default class InfoCompanyCard extends Component{
         let queryDetailComplained = encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.qty_dipenuhi, a.harga, a.batch_number, "+
         "a.harga_final, case when exp_date != '-' and exp_date is not null then to_char(to_date(exp_date,'yyyy-MM-dd'), 'dd-MM-yyyy') else '-' end as exp_date, b.id, c.berat, "+
         "d.alias as satuan, b.company_id as penjual, gmc.nama_perusahaan as nama_penjual, e.jenis_complain, "+
-        "e.notes_complain, f.ppn_seller, case when a.note is null then '-' else a.note end as note from gcm_master_satuan d, gcm_master_company gmc, "+
+        "e.notes_complain, f.ppn_seller, case when a.note is null or a.note = '' then '-' else a.note end as note from gcm_master_satuan d, gcm_master_company gmc, "+
         "gcm_transaction_detail a inner join gcm_list_barang b on a.barang_id=b.id "+
         "inner join gcm_master_barang c on b.barang_id=c.id left join gcm_transaction_complain e on a.id = e.detail_transaction_id "+
         "inner join gcm_master_transaction f on f.id_transaction = a.transaction_id "+
@@ -188,7 +188,7 @@ export default class InfoCompanyCard extends Component{
         
             <Modal isOpen={this.state.isOpen} size="xl">
                 <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.controlModal.bind(this)}>Detail Transaksi</ModalHeader>
-                <ModalBody style={{padding:'30px', paddingTop: '10px'}}>
+                <ModalBody id="modal-transaksi" style={{padding:'30px', paddingTop: '10px'}}>
                     <div className="row">
                         <div className="col-md-12">
                             <button type="button" style={{float: 'right'}} className="btn btn-secondary btn-xs d-print-none" onClick={()=>this.setState({display_timeline: 'block'})}>Timeline Transaksi</button>
@@ -372,7 +372,7 @@ export default class InfoCompanyCard extends Component{
                     </table>
                     <div className="row justify-content-end pt-3 pt-md-3">
                         <div className="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                            <button type="button" className="btn btn-primary btn-sm d-print-none mb-3" onClick={()=>this.props.printInvoice("modal-transaksi", this.props.data.id_transaction)}>
+                            <button type="button" className="btn btn-primary btn-xs d-print-none mb-3" onClick={()=>this.props.printInvoice("modal-transaksi", this.props.data.id_transaction)}>
                                 <i class="fas fa-print" style={{ marginRight: '5px' }}></i>
                                 Cetak Invoice
                             </button>
