@@ -205,14 +205,14 @@ export default class InfoCompanyCard extends Component{
                                 </span>
                             </div> 
                         </div>
-                        <div className="col-md-4">
-                            <div className="address-card__row">
+                        <div className="col-md-4 d-print-none">
+                            <div className="address-card__row ">
                                 <div className="address-card__row-title">Status</div>
                                 <span style={{fontSize: '14px', fontWeight: '500'}}>
                                     <div className="address-card__row-content"><strong>Dibatalkan</strong></div>
                                 </span>
                                 <span style={{fontSize: '12px', fontWeight: '500'}}>
-                            <div className="address-card__row-content">Keterangan : {this.state.cancel_reason}</div>
+                                <div className="address-card__row-content">Keterangan : {this.state.cancel_reason}</div>
                                 </span>
                             </div> 
                         </div>

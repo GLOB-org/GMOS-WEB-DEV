@@ -28,25 +28,26 @@ class MobileHeader extends Component {
 
         this.state = {
             searchOpen: false,
-            data_cart_count: ''
+            data_cart_count: '0'
         };
         this.searchInput = React.createRef();
     }
 
-    componentDidMount() {
-        let query = encrypt("select count(*) as count_cart from gcm_master_cart " +
-            "where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'A'");
-
-        Axios.post(url.select, {
-            query: query
-        }).then(data => {
-            this.setState({
-                data_cart_count: data.data.data[0].count_cart
-            });
-        }).catch(err => {
-            console.log('error' + err);
-            console.log(err);
-        })
+    async componentDidMount() {
+        if (localStorage.getItem('Login') != null) {
+            let query = encrypt("select count(*) as count_cart from gcm_master_cart " +
+                "where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'A'");
+            await Axios.post(url.select, {
+                query: query
+            }).then(async (data)  => {
+                await this.setState({
+                    data_cart_count: data.data.data[0].count_cart
+                });
+            }).catch(err => {
+                console.log('error' + err);
+                console.log(err);
+            })
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -88,21 +89,21 @@ class MobileHeader extends Component {
                                     (
                                         <CartContext.Consumer>
                                             {value => {
-                                                // const load = value.cart.check_load
-                                                // var value_cart_count = 0
-                                                // if (load == 'no') {
-                                                //     value_cart_count = this.state.data_cart_count
-                                                // }
-                                                // else if (load == 'yes') {
-                                                //     value_cart_count = value.cart.count_data_cart
-                                                // }
+                                                const load = value.cart.check_load
+                                                var value_cart_count = 0
+                                                if (load == 'no') {
+                                                    value_cart_count = this.state.data_cart_count
+                                                }
+                                                else if (load == 'yes') {
+                                                    value_cart_count = value.cart.count_data_cart
+                                                }
 
                                                 return (
                                                     <Indicator
                                                         className="indicator--mobile"
                                                         url="/keranjang"
-                                                        value={value.cart.count_data_cart}
-                                                        // value={value_cart_count}
+                                                        //value={value.cart.count_data_cart}
+                                                        value={value_cart_count}
                                                         icon={<Cart20Svg />}
                                                     />
                                                 )

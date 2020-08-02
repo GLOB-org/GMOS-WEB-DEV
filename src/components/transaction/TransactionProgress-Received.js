@@ -350,7 +350,7 @@ export default class InfoCompanyCard extends Component{
                                 </span>
                             </div> 
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-4 d-print-none">
                             <div className="address-card__row">
                                 <div className="address-card__row-title">Status</div>
                                 <span style={{fontSize: '14px', fontWeight: '500'}}>
