@@ -9,7 +9,7 @@ export { ReactComponent as ArrowRoundedRight6x9Svg } from './arrow-rounded-right
 export { ReactComponent as ArrowRoundedRight7x11Svg } from './arrow-rounded-right-7x11.svg';
 export { ReactComponent as ArrowRoundedRight8x13Svg } from './arrow-rounded-right-8x13.svg';
 export { ReactComponent as Cart16Svg } from './cart-16.svg';
-export { ReactComponent as Cart20Svg } from './cart-20-green.svg';
+export { ReactComponent as Cart20Svg } from './cart-24.svg';
 export { ReactComponent as Check9x7Svg } from './check-9x7.svg';
 export { ReactComponent as Check12x9Svg } from './check-12x9.svg';
 export { ReactComponent as Compare16Svg } from './compare-16.svg';
@@ -30,7 +30,7 @@ export { ReactComponent as LogoGLoBMobile } from './glob-v2-5.svg';
 export { ReactComponent as LogoGLoB } from './glob-v3-19.svg';
 export { ReactComponent as LogoSmallSvg } from './logo-small.svg';
 export { ReactComponent as Menu18x14Svg } from './menu-18x14.svg';
-export { ReactComponent as Notif20Svg } from './notif20.svg';
+export { ReactComponent as Notif20Svg } from './notifnew.svg';
 export { ReactComponent as Quickview16Svg } from './quickview-16.svg';
 export { ReactComponent as Rating13x12Svg } from './rating-13x12.svg';
 export { ReactComponent as Search20Svg } from './search-20.svg';

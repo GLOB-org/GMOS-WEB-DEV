@@ -35,7 +35,7 @@ $local-open-transition-duration: .2s;
     transition: background-color .2s;
     border-radius: $indicator-border-radius;
     height: $indicator-height;
-    padding: 0 14px;
+    padding: 0 10px;
     display: flex;
     align-items: center;
 }
@@ -49,12 +49,22 @@ $local-open-transition-duration: .2s;
     background: $indicator-default-counter-bg;
     color: $indicator-default-counter-font-color;
     font-weight: $font-weight-bold;
+}
 
+.indicator-cart {
     @include direction {
-        #{$margin-inline-start}: -5px;
+        #{$margin-inline-start}: -2px;
         #{$margin-inline-end}: -8px;
     }
 }
+
+.indicator-notification {
+    @include direction {
+        #{$margin-inline-start}: -8px;
+        #{$margin-inline-end}: -8px;
+    }
+}
+
 .indicator__dropdown {
     top: 100%;
     position: absolute;

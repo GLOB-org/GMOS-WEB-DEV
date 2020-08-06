@@ -46,7 +46,7 @@ export default function BlockFeatures(props) {
                         </div>
                         <div className="block-features__content">
                             <div className="block-features__title">100% Aman</div>
-                            <div className="block-features__subtitle">Only secure payments</div>
+                            <div className="block-features__subtitle">Data privasi terjaga</div>
                         </div>
                     </div>
                     <div className="block-features__divider" />
@@ -56,7 +56,7 @@ export default function BlockFeatures(props) {
                         </div>
                         <div className="block-features__content">
                             <div className="block-features__title">Penawaran Menarik</div>
-                            <div className="block-features__subtitle">Discounts up to 90%</div>
+                            <div className="block-features__subtitle">Harga kompetitif</div>
                         </div>
                     </div>
                 </div>

@@ -290,8 +290,8 @@ export default class InfoCompanyCard extends Component{
                     </div>
 
                     <hr style={{ borderWidth: '1px'}}/>  
-                    <div className="address-card__row-title">Daftar Pesanan yang Dikomplain</div>  
-                    <table className="cart__table cart-table mt-2" >
+                    <div className="address-card__row-title d-print-none">Daftar Pesanan yang Dikomplain</div>  
+                    <table className="cart__table cart-table mt-2 d-print-none" >
                         <thead className="cart-table__head">
                             <tr className="cart-table__row" style= {{fontSize: '12px'}}>
                                 <th className="cart-table__column cart-table__column--image" style={{width: '10%'}}></th>

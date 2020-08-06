@@ -1,13 +1,10 @@
 // react
 import React, { Component } from 'react';
-import { useEffect } from 'react';
 
 // third-party
-import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { decrypt, encrypt, url } from '../../lib';
 import Axios from 'axios';
-import Toast from 'light-toast';
 
 // application
 import Indicator from './Indicator';
@@ -69,11 +66,11 @@ class IndicatorNotification extends Component {
         let dropdown_null;
 
         const items = this.state.data_notif.map((item, index) => {
-            let text = "Balasan nego untuk barang ";
+            let text = "Balasan nego ";
 
             return (
                 <div>
-                    <label style={{ fontSize: '13px', fontWeight: '550' }}>{text}<strong>"{item.barang_nama}"</strong> ({item.seller_nama})</label>
+                    <label style={{ fontSize: '13px', fontWeight: '550', textAlign: 'justify' }}>{text}<strong>"{item.barang_nama}"</strong> ({item.seller_nama})</label>
                     <hr style={{ margin: '8px' }} />
                 </div>
             );
@@ -110,14 +107,14 @@ class IndicatorNotification extends Component {
         dropdown = (
             <div className="dropcart" >
                 <div className="dropcart__products-list" style={{ paddingBottom: '0px' }}>
-                    <center>Notifikasi context</center>
+                    <center>Notifikasi</center>
                 </div>
                 <CartContext.Consumer>
                     {value => {
                         const load = value.notif.check_load_notif;
 
                         const items_update = value.notif.data_notif.map((item, index) => {
-                            let text = "Balasan nego untuk barang ";
+                            let text = "Balasan nego ";
 
                             return (
                                 <div>
@@ -158,29 +155,27 @@ class IndicatorNotification extends Component {
                     if (count_notif > 0) {
                         return load == 'yes' ? (
                             //sblmnya dropdown_null
-                            <Indicator dropdown={dropdown} value={count_notif} icon={<Notif20Svg />} />
+                            <Indicator type={'notification'} dropdown={dropdown} value={count_notif} icon={<Notif20Svg />} />
                         ) : (
-                                <Indicator dropdown={dropdown} value={this.state.data_notif.length} icon={<Notif20Svg />} />
+                                <Indicator type={'notification'} dropdown={dropdown} value={this.state.data_notif.length} icon={<Notif20Svg />} />
                             );
                     }
                     else if (load == "no" && count_notif == 0 && this.state.data_notif.length == 0) {
                         return (
                             //sblmnya dropdown_null
-                            <Indicator dropdown={dropdown_null} value={count_notif} icon={<Notif20Svg />} />
+                            <Indicator type={'notification'} dropdown={dropdown_null} value={count_notif} icon={<Notif20Svg />} />
                         )
                     }
                     else {
                         return load == 'yes' ? (
                             //sblmnya dropdown_null
-                            <Indicator dropdown={dropdown_null} value={count_notif} icon={<Notif20Svg />} />
+                            <Indicator type={'notification'} dropdown={dropdown_null} value={count_notif} icon={<Notif20Svg />} />
                         ) : (
                                 //sblmnya dropdown_null
-                                <Indicator dropdown={dropdown_first} value={this.state.data_notif.length} icon={<Notif20Svg />} />
+                                <Indicator type={'notification'} dropdown={dropdown_first} value={this.state.data_notif.length} icon={<Notif20Svg />} />
                                 // <Indicator url="/shop/cart" dropdown={dropdown_first} value={this.state.data_cart.length} icon={<Heart20Svg />} />
                             );
                     }
-
-
                 }}
             </CartContext.Consumer>
         )

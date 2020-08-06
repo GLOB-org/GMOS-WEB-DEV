@@ -63,6 +63,7 @@ class ProductCard extends Component {
             display_buttonnegolagi: 'block',
             id_history_nego: '',
             id_mastercart: '',
+            get_sales_token: [],
             get_qtybarang: '', get_beratbarang: '',
             get_pricebarang: '', get_priceterendahbarang: '',
             persen_nego: '', respons_nego: '',
@@ -606,7 +607,9 @@ class ProductCard extends Component {
             })
 
             //cek max nego
-            let cek_maxnego = encrypt("select count(*) from gcm_master_cart gmc where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'I' and history_nego_id != 0  and barang_id = " + product.id + " and create_date >= date_trunc('day', CURRENT_TIMESTAMP)")
+            let cek_maxnego = encrypt("select count(*) from gcm_master_cart gmc where company_id = " +
+                decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'I' and history_nego_id != 0 " +
+                "and barang_id = " + product.id + " and create_date >= date_trunc('day', CURRENT_TIMESTAMP)")
 
             await Axios.post(url.select, {
                 query: cek_maxnego
@@ -630,6 +633,22 @@ class ProductCard extends Component {
                     quantity_nego: parseInt(product.jumlah_min_nego),
                     disablekirimnego: false
                 });
+
+                //get token
+                let query_token = encrypt("select distinct token from gcm_notification_token where user_id in " +
+                    "(select id_sales from gcm_company_listing_sales where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+                    " and seller_id = " + product.company_id + " and status = 'A')")
+
+                Axios.post(url.select, {
+                    query: query_token
+                }).then(async (data) => {
+                    this.setState({
+                        get_sales_token: data.data.data
+                    });
+                }).catch(err => {
+                    // console.log('error');
+                    // console.log(err);
+                })
 
                 //cek nego auto
                 let cek_negoauto = encrypt("select price, price_terendah, persen_nego_1, persen_nego_2, persen_nego_3 from  gcm_list_barang  where  id = " + product.id)
@@ -831,7 +850,7 @@ class ProductCard extends Component {
                             let query = encrypt("INSERT INTO gcm_master_cart (company_id, barang_id, qty, harga_konsumen, harga_sales, create_by, update_by, shipto_id, billto_id, payment_id) VALUES " +
                                 "(" + decrypt(localStorage.getItem('CompanyIDLogin')) + "," +
                                 product.id + "," +
-                                (this.state.quanti0ty_nego / product.berat) + "," +
+                                (this.state.quantity_nego / product.berat) + "," +
                                 (document.getElementById("inputNego").value.split('.').join("") * this.state.quantity_nego) + "," +
                                 (Math.ceil(this.state.respons_nego * product.kurs) * this.state.quantity_nego) + "," +
                                 decrypt(localStorage.getItem('UserIDLogin')) + "," +
@@ -839,7 +858,7 @@ class ProductCard extends Component {
                                 this.state.data_alamat_shipto + "," +
                                 this.state.data_alamat_billto + "," +
                                 payment_id + ") returning id");
-                                
+
                             Toast.loading('loading . . .', () => {
                             });
                             await Axios.post(url.select, {
@@ -1360,7 +1379,8 @@ class ProductCard extends Component {
                             {(value) => (
                                 <button type="submit" onClick={async () => {
                                     await submit_nego(); await value.loadDataCart(); await value.loadDataNotif();
-                                    await value.sendNotif(product.company_id, 'send nego', this.state.nego_auto )
+                                    await value.sendNotifikasi(product.barang_id, product.nama, decrypt(localStorage.getItem('CompanyIDLogin')),
+                                        product.company_id, product.nama_perusahaan, this.state.get_sales_token, this.state.nego_auto)
                                 }} style={{ width: '100%' }} className="btn btn-primary" disabled={this.state.disablekirimnego}>
                                     Kirim Nego
                                 </button>

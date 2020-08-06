@@ -62,6 +62,7 @@ class Indicator extends Component {
         if (onClick) {
             onClick(event);
         }
+
     };
 
     toggle() {
@@ -85,11 +86,16 @@ class Indicator extends Component {
     render() {
         const { open } = this.state;
         const { url, className, icon } = this.props;
-        let { value, dropdown } = this.props;
+        let { type, value, dropdown } = this.props;
         let button;
 
         if (value !== undefined) {
-            value = <span id="count_cart" className="indicator__value">{value}</span>;
+            if (type == 'cart') {
+                value = <span id="count_cart" className="indicator__value indicator-cart">{value}</span>;
+            }
+            else {
+                value = <span id="count_cart" className="indicator__value indicator-notification">{value}</span>;
+            }
         }
 
         const title = (

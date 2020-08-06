@@ -6,6 +6,7 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import Axios from 'axios';
 
 // application
 import CartIndicator from './IndicatorCart';
@@ -15,6 +16,7 @@ import NavLinks from './NavLinks';
 import NavLinksnLogin from './NavLinksnLogin';
 import IndicatorSearch from './IndicatorSearch';
 import { LogoSmallSvg, LogoGLoB } from '../../svg';
+import { encrypt, decrypt, url } from '../../lib';
 
 function NavPanel(props) {
     const { layout, wishlist } = props;
@@ -43,8 +45,19 @@ function NavPanel(props) {
     }
 
     const ClickLogout = () => {
-        window.location.reload()
-        localStorage.clear();
+        let query = encrypt("delete from gcm_notification_token where user_id = " + decrypt(localStorage.getItem('UserIDLogin')) +
+            " and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and token = '" + decrypt(localStorage.getItem('Token')) + "'")
+        Axios.post(url.select, {
+            query: query
+        }).then(data => {
+            window.location.reload()
+            localStorage.clear();
+        }).catch(err => {
+            // console.log('error');
+            // console.log(err);
+        })
+        // window.location.reload()
+        // localStorage.clear();
     };
 
     return (
@@ -61,9 +74,9 @@ function NavPanel(props) {
                             <NavLinks />
                         </div>) : (
 
-                            <div id="nav-panel-loggedin" className="nav-panel__nav-links nav-links" style={{ marginLeft: '50px', display: 'none' }}>
-                                <NavLinks />
-                            </div>
+                        <div id="nav-panel-loggedin" className="nav-panel__nav-links nav-links" style={{ marginLeft: '50px', display: 'none' }}>
+                            <NavLinks />
+                        </div>
                         )
                     }
 
@@ -80,9 +93,9 @@ function NavPanel(props) {
                     <div className="nav-panel__indicators">
                         {/* {searchIndicator} */}
 
-                        {/* {checkLogin ?
+                        {checkLogin ?
                             (<NotifIndicator />) : null
-                        } */}
+                        }
 
                         {checkLogin ?
                             (<CartIndicator />) : null

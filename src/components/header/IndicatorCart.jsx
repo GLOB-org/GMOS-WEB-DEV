@@ -48,7 +48,7 @@ class IndicatorCart extends Component {
     }
 
     async loadDataCart() {
-     
+
         let query = encrypt("SELECT a.id, a.history_nego_id, e.harga_final, d.nama_perusahaan, c.nama, c.berat, f.alias as satuan," +
             "a.barang_id, b.price, b.foto, c.category_id, b.company_id as seller_id, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count, time_respon, " +
             "case when now() < time_respon then 'no' end as status_time_respon, g.nominal as kurs " +
@@ -398,11 +398,9 @@ class IndicatorCart extends Component {
                             ) : (
                                     <div>{items}</div>
                                 );
-
                         }}
                     </CartContext.Consumer>
                 </div>
-
 
                 <CartContext.Consumer>
                     {value => {
@@ -487,21 +485,21 @@ class IndicatorCart extends Component {
 
                     if (count_cart > 0) {
                         return load == 'yes' ? (
-                            <Indicator url="/shop / cart" dropdown={dropdown} value={value.cart.count_data_cart} icon={<Cart20Svg />} />
+                            <Indicator type={'cart'} url="/shop / cart" dropdown={dropdown} value={value.cart.count_data_cart} icon={<Cart20Svg />} />
                         ) : (
-                                <Indicator url="/shop/cart" dropdown={dropdown} value={this.state.data_cart.length} icon={<Cart20Svg />} />
+                                <Indicator type={'cart'} url="/shop/cart" dropdown={dropdown} value={this.state.data_cart.length} icon={<Cart20Svg />} />
                             );
                     }
                     else if (load == "no" && count_cart == 0 && this.state.data_cart.length == 0) {
                         return (
-                            <Indicator url="/shop / cart" dropdown={dropdown_null} value={value.cart.count_data_cart} icon={<Cart20Svg />} />
+                            <Indicator type={'cart'} url="/shop / cart" dropdown={dropdown_null} value={value.cart.count_data_cart} icon={<Cart20Svg />} />
                         )
                     }
                     else {
                         return load == 'yes' ? (
-                            <Indicator url="/shop / cart" dropdown={dropdown_null} value={value.cart.count_data_cart} icon={<Cart20Svg />} />
+                            <Indicator type={'cart'} url="/shop / cart" dropdown={dropdown_null} value={value.cart.count_data_cart} icon={<Cart20Svg />} />
                         ) : (
-                                <Indicator url="/shop/cart" dropdown={dropdown_first} value={this.state.data_cart.length} icon={<Cart20Svg />} />
+                                <Indicator type={'cart'} url="/shop/cart" dropdown={dropdown_first} value={this.state.data_cart.length} icon={<Cart20Svg />} />
                             );
                     }
                 }}

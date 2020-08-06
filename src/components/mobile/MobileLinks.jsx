@@ -3,23 +3,40 @@ import React from 'react';
 
 // third-party
 import PropTypes from 'prop-types';
+import Axios from 'axios';
 
 // application
 import AppLink from '../shared/AppLink';
 import Collapse from '../shared/Collapse';
 import { ArrowRoundedDown12x7Svg } from '../../svg';
-
+import { encrypt, decrypt, url } from '../../lib';
 
 function MobileLinks(props) {
     const { links, level, onItemClick } = props;
 
     const handleItemClick = (item) => {
         if (onItemClick) {
-            onItemClick(item);
             if(item.label == 'Keluar'){
-                window.location.reload()
+                ClickLogout()
             }
+            onItemClick(item);
         }
+    };
+    
+    const ClickLogout = () => {
+        let query = encrypt("delete from gcm_notification_token where user_id = " + decrypt(localStorage.getItem('UserIDLogin')) +
+            " and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and token = '" + decrypt(localStorage.getItem('Token')) + "'")
+        Axios.post(url.select, {
+            query: query
+        }).then(data => {
+            window.location.reload()
+            localStorage.clear();
+        }).catch(err => {
+            // console.log('error');
+            // console.log(err);
+        })
+        // window.location.reload()
+        // localStorage.clear();
     };
 
     const linksList = links.map((link, index) => {

@@ -113,13 +113,6 @@ export default class InfoCompanyCard extends Component{
                     (<td><center><span > Menunggu respon</span></center></td>)
                 }
 
-
-                {/* {(this.state.time_to_respon == "yes" && this.state.harga_sales != null) ?
-                    (<td style={{textAlign: 'right'}}><span><NumberFormat value={this.state.harga_sales} displayType={'text'} allowNegative={false}  thousandSeparator={'.'} decimalSeparator={','} /></span></td>) 
-                    :
-                    (<td><center><span > Menunggu respon</span></center></td>)
-                } */}
-
                 <td><center>{sisa_nego} x</center></td>
                 <td>
                     {this.props.status == "nego_aktif" ?

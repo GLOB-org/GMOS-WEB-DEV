@@ -22,6 +22,7 @@ import theme from '../../data/theme';
 import InfoAccountCard from './AccountPageDashboard-Account';
 import InfoCompanyCard from './AccountPageDashboard-Company';
 import TransactionHistory from './AccountPageDashboard-Transaction';
+import { ToastType } from 'react-toastify';
 
 class AccountPageDashboard extends Component {
 
@@ -266,7 +267,8 @@ class AccountPageDashboard extends Component {
     }
 
     getCompanyListing = async () => {
-        let company_listing = encrypt("select seller_id from gcm_company_listing where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'A'")
+        // let company_listing = encrypt("select seller_id from gcm_company_listing where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and status = 'A'")
+        let company_listing = encrypt("select seller_id from gcm_company_listing where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')))
 
         await Axios.post(url.select, {
             query: company_listing
@@ -289,7 +291,7 @@ class AccountPageDashboard extends Component {
             if (this.state.modalTambahAlamat == false) {
                 Toast.loading('loading . . .', () => {
                 });
-                this.getCompanyListing()
+                await this.getCompanyListing()
                 Toast.hide()
             }
 
@@ -732,10 +734,10 @@ class AccountPageDashboard extends Component {
         });
 
         if (this.state.modalEditAlamat == false) {
-            var querytalamat = "with new_insert as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) values (" +
+            var queryalamat = "with new_insert as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) values (" +
                 this.state.inputKelurahan + "," + this.state.inputKecamatan + "," + this.state.inputKota + "," + this.state.inputProvinsi + "," + this.state.inputKodePOS + ", '" + this.state.inputNoTelp + "', 'N', 'N', " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", '" + this.state.inputAlamat + "', 'A') returning id ) "
-
-            querytalamat = querytalamat + "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_alamat_customer) values "
+                
+            queryalamat = queryalamat + "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_alamat_customer) values "
             var loop = ""
             for (var i = 0; i < this.state.data_company_listing.length; i++) {
                 loop = loop + "((select id from new_insert)," + decrypt(localStorage.getItem('CompanyIDLogin')) + "," + this.state.data_company_listing[i].seller_id + ",null)"
@@ -743,8 +745,7 @@ class AccountPageDashboard extends Component {
                     loop = loop.concat(",")
                 }
             }
-            querytalamat = querytalamat + loop
-
+            queryalamat = queryalamat + loop
         }
 
         else if (this.state.modalEditAlamat == true) {
@@ -757,7 +758,7 @@ class AccountPageDashboard extends Component {
                 }
 
                 var queryalamat = "with new_update as (update gcm_master_alamat set shipto_active = 'N', billto_active = 'N', flag_active = 'I' where id = " + this.state.selected_update + " ), " +
-                "new_insert as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) values (" +
+                    "new_insert as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) values (" +
                     this.state.inputKelurahan + "," + this.state.inputKecamatan + "," + this.state.inputKota + "," + this.state.inputProvinsi + "," + this.state.inputKodePOS + ", '" + this.state.inputNoTelp + "', '" + shipto +
                     "', 'Y', " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", '" + this.state.inputAlamat + "', 'A') returning id ) "
 
@@ -781,8 +782,6 @@ class AccountPageDashboard extends Component {
                     this.state.inputNoTelp + "' where id = " + this.state.selected_update
             }
         }
-
-        // console.log(queryalamat)
 
         Axios.post(url.select, {
             query: encrypt(queryalamat)

@@ -16,6 +16,7 @@ import Axios from 'axios';
 import Swal from 'sweetalert2'
 import swal from 'sweetalert';
 import Toast from 'light-toast';
+import firebase from 'firebase';
 
 
 // application
@@ -45,7 +46,6 @@ export default class AccountPageLogin extends Component {
             timer: '',
             message_id: ''
         };
-
     }
 
     async componentDidMount() {
@@ -56,30 +56,28 @@ export default class AccountPageLogin extends Component {
         } else {
             await this.setState({ test: false })
         }
-
-
     }
 
-    // checkVerifiedUser = () => {
-    //     if (localStorage.getItem('Login') != null) {
-
-    //         let get_status = encrypt("select no_hp_verif, no_hp from gcm_master_user where id = " + decrypt(localStorage.getItem('UserIDLogin')));
-
-    //         Axios.post(url.select, {
-    //             query: get_status
-    //         }).then(data => {
-    //             this.setState({
-    //                 statusVerified: data.data.data[0].no_hp_verif,
-    //                 noHandphoneVerified: data.data.data[0].no_hp
-    //             });
-    //         }).catch(err => {
-    //             this.setState({ displaycatch: true });
-    //             console.log('error');
-    //             console.log(err);
-    //         })
-
-    //     }
-    // }
+    getTokenFCM = () => {
+        const messaging = firebase.messaging()
+        messaging.requestPermission().then(() => {
+            return messaging.getToken()
+        }).then(token => {
+            let query = encrypt("insert into gcm_notification_token (user_id, company_id, token) values " +
+                "(" + this.state.data[0].id + ", " + this.state.data[0].company_id + ", '" + token + "' )")
+            Axios.post(url.select, {
+                query: query
+            }).then(data => {
+                localStorage.setItem('Token', encrypt(token));
+            }).catch(err => {
+                // console.log('error');
+                // console.log(err);
+            })
+        }).catch((error) => {
+            console.log('error')
+            console.log(error)
+        })
+    }
 
     ClickLogin = () => {
 
@@ -106,6 +104,7 @@ export default class AccountPageLogin extends Component {
                 Toast.hide();
                 if (data.data.data.length == 1) {
                     if (data.data.data[0].status == 'A') {
+                        this.getTokenFCM()
                         localStorage.setItem('Login', true);
                         localStorage.setItem('UserLogin', encrypt(this.state.data[0].nama));
                         localStorage.setItem('CompanyIDLogin', encrypt(this.state.data[0].company_id));
@@ -127,6 +126,9 @@ export default class AccountPageLogin extends Component {
                             icon: 'success',
                             title: 'Selamat datang, ' + this.state.data[0].nama
                         })
+
+
+
                     }
                     else if (data.data.data[0].status == 'I') {
                         this.setState({ openOTP: true })

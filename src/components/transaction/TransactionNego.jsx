@@ -575,7 +575,6 @@ export default class TransactionNego extends Component {
             }
 
             else if (get_nego_count == 3) {
-                alert('3')
                 this.setState({
                     harganegocurrent_pembeli: data.data.data[0].harga_nego_3,
                     harganegocurrent_penjual: data.data.data[0].harga_sales_3
@@ -909,7 +908,7 @@ export default class TransactionNego extends Component {
         var input_nego = document.getElementById('inputNego').value.split('.').join("")
         var user_id = decrypt(localStorage.getItem('UserIDLogin'))
 
-        if (input_nego == ""){
+        if (input_nego == "") {
             Toast.info('Silakan masukkan harga nego !', 2500, () => {
             });
         }
@@ -953,6 +952,7 @@ export default class TransactionNego extends Component {
                 Toast.hide();
                 Toast.success('Berhasil mengirim nego', 2000, () => {
                 });
+                this.LoadDataNego()
                 this.toggleNego()
             }).catch(err => {
                 // console.log('error' + err);
@@ -1305,10 +1305,9 @@ export default class TransactionNego extends Component {
                 });
             }
         }
-
     }
 
-    async componentDidMount() {
+    LoadDataNego = () => {
         if (localStorage.getItem('Login') != null) {
 
             // let nego = encrypt("select a.id as id_mastercart, d.id, a.status, e.nama, e.berat, a.barang_id,a.qty, b.price, b.foto, e.category_id, b.company_id, a.nego_count, a.harga_konsumen, a.harga_sales, a.history_nego_id, f.harga_final, " +
@@ -1414,7 +1413,10 @@ export default class TransactionNego extends Component {
             // this.GetDataPagination(1)
 
         }
+    }
 
+    async componentDidMount() {
+        this.LoadDataNego()
     }
 
     render() {
@@ -1897,30 +1899,6 @@ export default class TransactionNego extends Component {
                                     </div>
                                 </div>
 
-                                {/* <div id="nego-form" style={{ display: this.state.display_negoform }}>
-                                    <div className="row" >
-                                        <div className="col-12">
-                                            <label style={{ fontSize: '13px', fontWeight: '400' }}>Masukkan Harga Nego</label>
-                                        </div>
-                                    </div>
-
-                                    <div className="row" >
-                                        <div className="col-7 col-md-7 col-sm-12">
-                                            <InputGroup >
-                                                <InputGroupAddon addonType="prepend">
-                                                    <InputGroupText>Rp</InputGroupText>
-                                                </InputGroupAddon>
-                                                <NumberFormat id='inputNego' style={{ width: '100%' }} className="form-control" allowNegative={false} spellCheck="false" autoComplete="off" thousandSeparator={'.'} decimalSeparator={','} />
-                                            </InputGroup>
-                                        </div>
-                                        <div className="col-5 col-md-5 col-sm-12" style={{ textAlign: 'right' }}>
-                                            <button className="btn btn-primary " type="submit" onClick={this.kirimNego.bind(this)} style={{ float: 'right', width: '120px' }}>
-                                                <span id='spinner-nego' style={{ display: 'none' }}><i class="fa fa-spinner fa-spin"></i></span><span id='label-kirimnego'>Kirim Nego</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div> */}
-
                                 <div style={{ display: this.state.display_negoform }}>
                                     <div className="row" >
                                         <div className="col-12">
@@ -1947,63 +1925,6 @@ export default class TransactionNego extends Component {
 
                             </div>
                         </div>
-
-                        {/* <div id="nego-form" className="row justify-content" style={{ display: this.state.display_negoform }} >
-                            <div className="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xs-4">
-                                <div className="row">
-                                    <div className="col-7 col-md-7 col-sm-12">
-                                        <label style={{ fontSize: '13px', fontWeight: '400' }}>Penawaran terakhir Anda </label>
-                                    </div>
-                                    <div className="col-5 col-md-5 col-sm-12" style={{ textAlign: 'right' }}>
-                                        <span style={{ fontSize: '15px', fontWeight: '600' }}><NumberFormat value={this.state.harganegocurrent_pembeli} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
-                                    </div>
-                                    <label style={{ fontSize: '13px', fontWeight: '400' }}>Masukkan Harga Nego</label>
-                                </div>
-
-                                <div className="row" >
-                                    <div className="col-7 col-md-7 col-sm-12">
-                                        <InputGroup >
-                                            <InputGroupAddon addonType="prepend">
-                                                <InputGroupText>Rp</InputGroupText>
-                                            </InputGroupAddon>
-                                            <NumberFormat id='inputNego' style={{ width: '100%' }} className="form-control" spellCheck="false" autoComplete="off" thousandSeparator={'.'} decimalSeparator={','} />
-                                        </InputGroup>
-                                    </div>
-                                    <div className="col-5 col-md-5 col-sm-12" style={{ textAlign: 'right' }}>
-                                        <button className="btn btn-primary " type="submit" onClick={this.kirimNego.bind(this)} style={{ float: 'right', width: '120px' }}>
-                                            <span id='spinner-nego' style={{ display: 'none' }}><i class="fa fa-spinner fa-spin"></i></span><span id='label-kirimnego'>Kirim Nego</span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div> */}
-
-                        {/* <div id="nego-form" style={{ display: this.state.display_negoform }} className="table-responsive-sm">
-                            <table style={{ width: '50%' }}>
-                                <tbody>
-                                    <tr style={{ height: '15px' }}></tr>
-                                    <tr>
-                                        <td colSpan='2'><label style={{ fontSize: '13px', fontWeight: '400' }}>Masukkan Harga Nego</label></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <InputGroup >
-                                                <InputGroupAddon addonType="prepend">
-                                                    <InputGroupText>Rp</InputGroupText>
-                                                </InputGroupAddon>
-                                                <NumberFormat id='inputNego' style={{ width: '100%' }} className="form-control" spellCheck="false" autoComplete="off" thousandSeparator={'.'} decimalSeparator={','} />
-                                            </InputGroup>
-                                        </td>
-                                        <td>
-                                            <button className="btn btn-primary " type="submit" onClick={this.kirimNego.bind(this)} style={{ float: 'right', width: '120px' }}>
-                                                <span id='spinner-nego' style={{ display: 'none' }}><i class="fa fa-spinner fa-spin"></i></span><span id='label-kirimnego'>Kirim Nego</span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div> */}
 
                     </ModalBody>
                 </Modal >

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { decrypt, encrypt, url } from '../lib';
 import Axios from 'axios';
-import openSocket from "socket.io-client";
-import {db} from "../components/firebase/index";
+import { db } from "../components/firebase/index";
+import { toast } from 'react-toastify';
 import firebase from 'firebase';
 
 export const CartContext = React.createContext(
@@ -19,7 +19,7 @@ export const CartContext = React.createContext(
         },
         loadDataCart: () => { },
         loadDataNotif: () => { },
-        sendNotif: () => { },
+        sendNotifikasi: () => { },
     }
 );
 
@@ -41,17 +41,32 @@ export default class CartContainer extends Component {
             setRoomID: this.setRoomID,
             loadDataCart: this.loadDataCart,
             loadDataNotif: this.loadDataNotif,
-            sendNotif: this.sendNotif
+            sendNotifikasi: this.sendNotifikasi
         };
     }
 
     componentDidMount() {
 
-        db.collection('message').where("buyerId", "==", "10").onSnapshot(snapshot => {
-            snapshot.docs.map(doc => {
-                console.log(doc.data())
-            })
-        })
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker
+                .register("./firebase-messaging-sw.js")
+                .then(function (registration) {
+                    console.log("Registration successful, scope is:", registration.scope);
+                })
+                .catch(function (err) {
+                    console.log("Service worker registration failed, error:", err);
+                });
+        }
+
+   
+        //navigator.serviceWorker.addEventListener("message", (message) => console.log('pesan : ',message.data));
+        navigator.serviceWorker.addEventListener("message", (message) => this.getNotifikasi(message));
+
+        // db.collection('message').where("buyerId", "==", "10").onSnapshot(snapshot => {
+        //     snapshot.docs.map(doc => {
+        //         console.log(doc.data())
+        //     })
+        // })
 
         // db.collection('message').add({
         //     content: msg,
@@ -81,16 +96,16 @@ export default class CartContainer extends Component {
 
         // socket.on('nego_response', data => {
         //     console.log(data)
-        //     // const options = {
-        //     //     autoClose: false,
-        //     //     className: 'custom-toast',
-        //     //     position: 'bottom-right',
-        //     //     autoClose: 5000
-        //     // };
-        //     // setTimeout(function () {
-        //     // // toast.success('💬 Ada balasan nego dari penjual', options);
-        //     // alert('nego balas')
-        //     // }, timeout);
+        // const timeout = 0
+        // const options = {
+        //     autoClose: false,
+        //     className: 'custom-toast',
+        //     position: 'bottom-right',
+        //     autoClose: 5000
+        // };
+        // setTimeout(function () {
+        //     toast.success('💬 Ada balasan nego dari penjual', options);
+        // }, timeout);
 
         //     if (data.source != 'buyer-direct_response') {
         //         var timeout = 0
@@ -132,8 +147,6 @@ export default class CartContainer extends Component {
 
     loadDataNotif = async () => {
 
-        // alert('load data notif')
-
         let query = encrypt("select barang_id, barang_nama, buyer_id, buyer_nama, " +
             "seller_id, seller_nama from gcm_notification_nego where read_flag = 'N' and source = 'seller' " +
             "and buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " order by date desc")
@@ -148,6 +161,81 @@ export default class CartContainer extends Component {
                     check_load_notif: 'yes'
                 },
             });
+        }).catch(err => {
+            console.log('error' + err);
+            console.log(err);
+        })
+    }
+
+    buildAlert = () => {
+        const timeout = 0
+        const options = {
+            autoClose: false,
+            className: 'custom-toast',
+            position: 'bottom-right',
+            autoClose: 5000
+        };
+        setTimeout(function () {
+            toast.success('💬 Ada balasan nego dari penjual', options);
+        }, timeout);
+    }
+
+    getNotifikasi = (get_message) => {
+        this.loadDataNotif()
+        this.buildAlert()
+    }
+
+    sendNotifikasi = async (get_barang_id, get_barang_nama, get_buyer_id,
+        get_seller_id, get_seller_nama, get_token, get_check_nego_auto) => {
+        const timeout = 0
+        const data_token = []
+
+        let query = encrypt("insert into gcm_notification_nego (barang_id, barang_nama, buyer_id, " +
+            "buyer_nama, seller_id, seller_nama, source) values (" + get_barang_id + ",'" + get_barang_nama +
+            "'," + get_buyer_id + ",(select nama_perusahaan from gcm_master_company where id = " + get_buyer_id +
+            ")," + get_seller_id + ",'" + get_seller_nama + "', 'buyer')")
+
+        await Axios.post(url.select, {
+            query: query
+        }).then(data => {
+
+            if (get_token != null) {
+
+                //array token
+                for (var i = 0; i < get_token.length; i++) {
+                    data_token.push(get_token[i].token)
+                }
+                if (get_check_nego_auto == true) {
+                    data_token.push(decrypt(localStorage.getItem('Token')))
+                    //timeout = 3600000
+                    timeout = 0
+                }
+
+                console.log('send to :')
+                console.log(data_token)
+
+                const fetchOptions = {
+                    "registration_ids": data_token,
+                    "notification": {
+                        "title": "Title of your notification",
+                        "body": "content of your notification"
+                    },
+                    "data": {
+                        "key1": "value1",
+                        "key2": "value2"
+                    }
+                }
+
+                setTimeout(() => {
+                    Axios.post("https://fcm.googleapis.com/fcm/send", fetchOptions, {
+                        headers: {
+                            "Authorization": "key=AAAA6NuQ4as:APA91bG9s8KnXjq2LjuRtTBDxcBXfM-D3AHk5Lcpstlf6uMU1tmc-M9FHK78w0FXk7uGfwHn4isfg6KFJnJeuIgHyVASgch_jo1ATWab_eB9WF4ArQw22Xli9owTQwFnRL64-ERS5-0Z",
+                            "Content-Type": "application/json"
+                        }
+                    })
+                }, timeout);
+            }
+
         }).catch(err => {
             console.log('error' + err);
             console.log(err);

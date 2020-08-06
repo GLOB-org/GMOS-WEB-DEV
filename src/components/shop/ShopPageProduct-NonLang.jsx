@@ -37,7 +37,7 @@ class ShopPageProductNonLangganan extends Component {
             product_detail_length: '',
             status_cart: '',
             shoppage_category: 'nonlangganan',
-            category_id:''
+            category_id: ''
         }
     }
 
@@ -46,10 +46,17 @@ class ShopPageProductNonLangganan extends Component {
         var arraystring = []
         arraystring = this.props.match.params.productId.toString().split("-")
 
-        let query = encrypt("SELECT a.nama, b.barang_id, b.id, price, price_terendah, foto, category_id, b.company_id, berat, " +
+        // let query = encrypt("SELECT a.nama, b.barang_id, b.id, price, price_terendah, foto, category_id, b.company_id, berat, " +
+        //     "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.nama_perusahaan, d.alias as satuan, e.nominal as kurs FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a " +
+        //     "inner join gcm_list_barang b on a.id=b.barang_id inner join gcm_listing_kurs e on b.company_id = e.company_id where b.status='A' " +
+        //     "and now() between e.tgl_start and e.tgl_end and b.company_id = c.id and a.satuan = d.id and b.id = " + arraystring[0] + " order by b.create_date desc, category_id asc, nama asc");
+
+        let query = encrypt("select a.nama, b.barang_id, b.id, price, price_terendah, " +
+            "case when b.persen_nego_1 != 0 or b.persen_nego_2 != 0 or b.persen_nego_3 != 0 then true else false end as nego_auto, " +
+            "case when price = price_terendah then 'no' else 'yes' end as negotiable, foto, category_id, b.company_id, berat, " +
             "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.nama_perusahaan, d.alias as satuan, e.nominal as kurs FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a " +
             "inner join gcm_list_barang b on a.id=b.barang_id inner join gcm_listing_kurs e on b.company_id = e.company_id where b.status='A' " +
-            "and now() between e.tgl_start and e.tgl_end and b.company_id = c.id and a.satuan = d.id and b.id = " + arraystring[0] + " order by b.create_date desc, category_id asc, nama asc");
+            "and now() between e.tgl_start and e.tgl_end and b.company_id = c.id and a.satuan = d.id and b.id =  " + arraystring[0] + " order by b.create_date desc, category_id asc, nama asc")
 
         Axios.post(url.select, {
             query: query

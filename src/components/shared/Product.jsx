@@ -48,6 +48,7 @@ class Product extends Component {
             openresponnego_max: false,
             get_pricebarang: '',
             get_priceterendahbarang: '',
+            get_sales_token: [],
             nego_auto: true,
             persen_nego: '',
             displayformnego: 'block',
@@ -400,6 +401,22 @@ class Product extends Component {
                     disablekirimnego: false
                 });
 
+                //get token
+                let query_token = encrypt("select distinct token from gcm_notification_token where user_id in " +
+                    "(select id_sales from gcm_company_listing_sales where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+                    " and seller_id = " + product.company_id + " and status = 'A')")
+
+                Axios.post(url.select, {
+                    query: query_token
+                }).then(async (data) => {
+                    this.setState({
+                        get_sales_token: data.data.data
+                    });
+                }).catch(err => {
+                    // console.log('error');
+                    // console.log(err);
+                })
+
                 //cek nego auto
                 let cek_negoauto = encrypt("select price, price_terendah, persen_nego_1, persen_nego_2, persen_nego_3 from  gcm_list_barang  where  id = " + product.id)
                 Axios.post(url.select, {
@@ -476,8 +493,7 @@ class Product extends Component {
                         "(" + decrypt(localStorage.getItem('CompanyIDLogin')) + "," +
                         product.id + "," +
                         (this.state.quantity_nego / product.berat) + "," +
-                        (document.getElementById("inputNego").value.split('.').join("") * this.state.quantity_nego) + "," +
-                        (Math.ceil(this.state.respons_nego * product.kurs) * this.state.quantity_nego) + "," +
+                        (document.getElementById("inputNego").value.split('.').join("") * this.state.quantity_nego) + ",null ," +
                         decrypt(localStorage.getItem('UserIDLogin')) + "," +
                         decrypt(localStorage.getItem('UserIDLogin')) + "," +
                         this.state.data_alamat_shipto + "," +
@@ -495,6 +511,7 @@ class Product extends Component {
                         let input_nego = document.getElementById("inputNego").value.split('.').join("")
                         let respon_nego = Math.ceil((this.state.respons_nego * product.kurs))
                         let price_terendah = Math.ceil((product.price_terendah * product.kurs))
+                        let harga_sales = Math.ceil((product.price * product.kurs))
 
                         if (this.state.nego_auto == true) {
                             if (input_nego > respon_nego) {
@@ -514,7 +531,9 @@ class Product extends Component {
                             }
                             else {
                                 var set_harga_final = 0
+                                respon_nego = harga_sales
                             }
+                            
                             var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, harga_final, updated_by_2, updated_by_3, updated_date_2, updated_date_3, time_respon)" +
                                 "values (" + input_nego + "," + respon_nego + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null," + set_harga_final + ",null,null,null,null,null) returning id ")
                         }
@@ -673,6 +692,7 @@ class Product extends Component {
         });
 
         if (this.state.status_cart != '') {
+           
             return (
                 <div className={`product product--layout--${layout}`}>
                     <div className="product__content">
@@ -888,16 +908,6 @@ class Product extends Component {
                                         <center>
                                             <label htmlFor="input-nego" style={{ fontSize: '13px', fontWeight: '550' }}>Kuantitas ({product.satuan}) : </label>
                                         </center>
-                                        {/* <InputNumberMax
-                                            id="product-quantity-nego"
-                                            aria-label="Quantity"
-                                            className="product__quantity"
-                                            min={product.jumlah_min_nego}
-                                            value={this.state.quantity_nego}
-                                            kelipatan={product.berat}
-                                            onChange={this.handleChangeQuantityNego}
-                                        // setDisabled={this.state.disable_qtynego}
-                                        /> */}
                                         <div className={classes} style={{ width: '100%' }}>
                                             <NumberFormat id="product-quantity-nego" value={this.state.quantity_nego} onChange={() => this.handleChangeQuantityNego()} spellCheck="false" autoComplete="off" allowNegative={false} style={{ width: '100%' }}
                                                 className={formControlClasses} disabled={this.state.disable_qtynego} thousandSeparator={'.'} decimalSeparator={','} />
@@ -921,7 +931,13 @@ class Product extends Component {
                             </div>
                             <CartContext.Consumer>
                                 {(value) => (
-                                    <button type="submit" onClick={async () => { await submit_nego(); await value.loadDataCart(); await this.statusbarang_cart(); }} style={{ width: '100%' }} className="btn btn-primary" disabled={this.state.disable_button_nego}>
+                                    <button type="submit" onClick={async () => {
+                                        await submit_nego(); await value.loadDataCart();
+                                        await value.loadDataNotif();
+                                        await value.sendNotifikasi(product.barang_id, product.nama, decrypt(localStorage.getItem('CompanyIDLogin')),
+                                            product.company_id, product.nama_perusahaan, this.state.get_sales_token, product.nego_auto)
+                                        await this.statusbarang_cart();
+                                    }} style={{ width: '100%' }} className="btn btn-primary" disabled={this.state.disable_button_nego}>
                                         Kirim Nego
                                     </button>
                                 )}
@@ -995,6 +1011,7 @@ class Product extends Component {
             );
         }
         else {
+         
             return (
                 <div className={`product product--layout--${layout}`}>
                     <div className="product__content">
@@ -1214,15 +1231,6 @@ class Product extends Component {
                                         <center>
                                             <label htmlFor="input-nego" style={{ fontSize: '13px', fontWeight: '550' }}>Kuantitas ({product.satuan}) : </label>
                                         </center>
-                                        {/* <InputNumberMax
-                                            id="product-quantity-nego"
-                                            aria-label="Quantity"
-                                            className="product__quantity"
-                                            min={product.jumlah_min_nego}
-                                            value={this.state.quantity_nego}
-                                            kelipatan={product.berat}
-                                            onChange={this.handleChangeQuantityNego}
-                                        /> */}
                                         <div className={classes} style={{ width: '100%' }}>
                                             <NumberFormat id="product-quantity-nego" value={this.state.quantity_nego} onChange={() => this.handleChangeQuantityNego()} spellCheck="false" autoComplete="off" allowNegative={false}
                                                 className={formControlClasses} thousandSeparator={'.'} decimalSeparator={','} />
@@ -1246,7 +1254,13 @@ class Product extends Component {
                             </div>
                             <CartContext.Consumer>
                                 {(value) => (
-                                    <button type="submit" onClick={async () => { await submit_nego(); await value.loadDataCart(); await this.statusbarang_cart(); }} style={{ width: '100%' }} className="btn btn-primary" disabled={this.state.disable_button_nego}>
+                                    <button type="submit" onClick={async () => {
+                                        await submit_nego(); await value.loadDataCart();
+                                        await value.loadDataNotif();
+                                        await value.sendNotifikasi(product.barang_id, product.nama, decrypt(localStorage.getItem('CompanyIDLogin')),
+                                            product.company_id, product.nama_perusahaan, this.state.get_sales_token, product.nego_auto)
+                                        await this.statusbarang_cart();
+                                    }} style={{ width: '100%' }} className="btn btn-primary" disabled={this.state.disable_button_nego}>
                                         Kirim Nego
                                     </button>
                                 )}
