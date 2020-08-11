@@ -18,11 +18,14 @@ import swal from 'sweetalert';
 import Pagination from '../shared/Pagination';
 import Toast from 'light-toast';
 import DialogCatch from '../shared/DialogCatch';
+import DialogNegoSuccess from '../shared/DialogNegoSuccess';
+import { CartContext } from '../../context/cart';
 
 // data stubs
 import addresses from '../../data/accountAddresses';
 import theme from '../../data/theme';
 import TransactionNegoTable from './TransactionNego-Table';
+import { trimEnd } from 'lodash';
 
 export default class TransactionNego extends Component {
 
@@ -34,10 +37,12 @@ export default class TransactionNego extends Component {
             data_pagination: [],
             data_paginationtetap: [],
             history_nego: [],
+            get_sales_token: [],
             data_nego_length: '',
             display_negoform: 'none',
             display_dealnego: 'none',
             displaydeal: 'none',
+            display_successnego: false,
             id_history_nego: '',
             data_negoaktif_length: '',
             data_negoselesai_length: '',
@@ -62,6 +67,8 @@ export default class TransactionNego extends Component {
             satuanBarang: '',
             hargaBarang: '',
             hargaSales: '',
+            id_seller: '',
+            nama_seller: '',
             id_mastercart: '',
             get_qty: '',
             get_berat: '',
@@ -76,6 +83,7 @@ export default class TransactionNego extends Component {
             time_to_respon: 'yes',
             sizeModal: 'lg',
             nego_countBarang: '',
+            nego_auto: '',
             notes: '',
             namaBarangApproval: '',
             hargaBarangAwal: '',
@@ -258,6 +266,29 @@ export default class TransactionNego extends Component {
         this.forceUpdate()
     }
 
+    toggleNegoSuccess = () => {
+        this.setState({
+            display_successnego: !this.state.display_successnego
+        });
+    }
+
+    getToken = () => {
+        let query_token = encrypt("select distinct token from gcm_notification_token where user_id in " +
+            "(select id_sales from gcm_company_listing_sales where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+            " and seller_id = " + this.state.id_seller + " and status = 'A')")
+
+        Axios.post(url.select, {
+            query: query_token
+        }).then(async (data) => {
+            this.setState({
+                get_sales_token: data.data.data
+            });
+        }).catch(err => {
+            // console.log('error');
+            // console.log(err);
+        })
+    }
+
     handlePageChange_Aktif = (page_negoaktif) => {
         this.setState(() => ({ page_negoaktif }));
         this.GetDataPagination(page_negoaktif, 'negoaktif')
@@ -304,6 +335,10 @@ export default class TransactionNego extends Component {
                 get_berat: data.data.data[0].berat,
                 get_qty: data.data.data[0].qty,
                 id_mastercart: data.data.data[0].id_mastercart,
+                id_barang: data.data.data[0].barang_id,
+                id_seller: this.state.data[id].company_id,
+                nama_seller: this.state.data[id].nama_perusahaan,
+                nego_auto: this.state.data[id].nego_auto,
                 notes: data.data.data[0].notes
             });
 
@@ -474,7 +509,6 @@ export default class TransactionNego extends Component {
                 });
             }
 
-
             var get_nego_count = ""
             if (status == 'aktif') {
                 get_nego_count = this.state.data_paginationtetap_negoaktif[id].nego_count
@@ -642,13 +676,6 @@ export default class TransactionNego extends Component {
             // console.log(err);
         })
 
-        // alert(this.state.data_paginationtetap_negoselesai[id].history_nego_id)
-        // alert(this.state.data_paginationtetap_negoselesai[id].barang_id)
-        // alert(this.state.data_paginationtetap_negoselesai[id].nama)
-        // alert(this.state.data_paginationtetap_negoselesai[id].satuan)
-        // alert(this.state.data_paginationtetap_negoselesai[id].price)
-        // alert(this.state.data_paginationtetap_negoselesai[id].kurs)
-        // alert(this.state.data_paginationtetap_negoselesai[id].nego_count)
 
         if (status == 'aktif') {
             this.setState({
@@ -673,16 +700,6 @@ export default class TransactionNego extends Component {
             });
         }
 
-        // this.setState({
-        //     id_history_nego: this.state.data[id].history_nego_id,
-        //     idBarang: this.state.data[id].barang_id,
-        //     namaBarang: this.state.data[id].nama,
-        //     satuanBarang: this.state.data[id].satuan,
-        //     hargaBarang: Math.ceil(this.state.data[id].price * this.state.data[id].kurs),
-        //     nego_countBarang: this.state.data[id].nego_count,
-        //     sizeModal: 'lg'
-        // });
-
         if (this.state.data[id].harga_sales == null) {
             this.setState({
                 hargaSales: "-"
@@ -695,7 +712,6 @@ export default class TransactionNego extends Component {
         }
         // this.forceUpdate();
         await this.toggleNego();
-
     }
 
     toggleNego = async () => {
@@ -903,7 +919,7 @@ export default class TransactionNego extends Component {
     }
 
     // untuk nego ke 2 dan 3 
-    kirimNego = () => {
+    kirimNego = async () => {
 
         var input_nego = document.getElementById('inputNego').value.split('.').join("")
         var user_id = decrypt(localStorage.getItem('UserIDLogin'))
@@ -917,20 +933,38 @@ export default class TransactionNego extends Component {
             Toast.info('Harga nego harus lebih dari penawaran terakhir Anda', 2500, () => {
             });
         }
+
         else if (Number(input_nego) > Number(this.state.hargaBarang)) {
             Toast.info('Harga nego harus kurang dari harga barang', 2500, () => {
             });
         }
 
-        else {
-            Toast.loading('loading . . .', () => {
+        else if (Number(input_nego) > Number(this.state.harganegocurrent_penjual)) {
+            Toast.info('Harga nego harus kurang atau sama dengan harga penawaran penjual', 2500, () => {
             });
+        }
 
-            let nego2 = "with new_update as (update gcm_history_nego set harga_nego_2 = " + input_nego + ", updated_by_2 = " + user_id +
-                " , updated_date_2 = now() where id=" + this.state.id_history_nego + " returning harga_nego_2 as harga_nego, updated_date_2 as updated_date) "
+        else {
+            // Toast.loading('loading . . .', () => {
+            // });
+
+            let harga_final = 0;
+            let param_update_mastercart = "(select harga_nego from new_update) * " + this.state.get_berat + " * " + this.state.get_qty
+            let param_update_histoynego2 = ""
+            let param_update_histoynego3 = ""
+
+            if (Number(input_nego) == Number(this.state.harganegocurrent_penjual)) {
+                harga_final = Number(input_nego)
+                param_update_mastercart = "harga_sales "
+                param_update_histoynego2 = ",harga_sales_2 = " + harga_final
+                param_update_histoynego3 = ",harga_sales_3 = " + harga_final
+            }
+
+            let nego2 = "with new_update as (update gcm_history_nego set harga_final = " + harga_final + ", harga_nego_2 = " + input_nego + ", updated_by_2 = " + user_id +
+                " , updated_date_2 = now() " + param_update_histoynego2 + " where id=" + this.state.id_history_nego + " returning harga_nego_2 as harga_nego, updated_date_2 as updated_date) "
 
             let nego3 = "with new_update as (update gcm_history_nego set harga_nego_3 = " + input_nego + ", updated_by_3 = " + user_id +
-                " , updated_date_3 = now() where id=" + this.state.id_history_nego + " returning harga_nego_3 as harga_nego, updated_date_3 as updated_date) "
+                " , updated_date_3 = now() " + param_update_histoynego3 + " where id=" + this.state.id_history_nego + " returning harga_nego_3 as harga_nego, updated_date_3 as updated_date) "
 
             if (this.state.nego_countBarang == 1) {
                 var nego = nego2
@@ -940,7 +974,7 @@ export default class TransactionNego extends Component {
             }
 
             let update_mastercart = "update gcm_master_cart set nego_count = nego_count + 1 , harga_konsumen = " +
-                "(select harga_nego from new_update)" + " , update_by = " + user_id +
+                param_update_mastercart + " , update_by = " + user_id +
                 ", update_date = (select updated_date from new_update) where id = '" + this.state.id_mastercart + "'"
 
             let final_query = encrypt(nego.concat(update_mastercart))
@@ -950,8 +984,13 @@ export default class TransactionNego extends Component {
             }).then(data => {
                 document.getElementById('inputNego').value = ""
                 Toast.hide();
-                Toast.success('Berhasil mengirim nego', 2000, () => {
-                });
+                if (Number(input_nego) == Number(this.state.harganegocurrent_penjual)) {
+                    this.setState({ display_successnego: true });
+                }
+                else {
+                    Toast.success('Berhasil mengirim nego', 2000, () => {
+                    })
+                }
                 this.LoadDataNego()
                 this.toggleNego()
             }).catch(err => {
@@ -1310,13 +1349,9 @@ export default class TransactionNego extends Component {
     LoadDataNego = () => {
         if (localStorage.getItem('Login') != null) {
 
-            // let nego = encrypt("select a.id as id_mastercart, d.id, a.status, e.nama, e.berat, a.barang_id,a.qty, b.price, b.foto, e.category_id, b.company_id, a.nego_count, a.harga_konsumen, a.harga_sales, a.history_nego_id, f.harga_final, " +
-            //     "f.harga_nego as harga_nego_1, f.harga_sales as harga_sales_1, f.harga_nego_2, f.harga_sales_2, f.harga_nego_3, f.harga_sales_3, to_char(f.time_respon, 'yyyy-MM-dd HH24:MI:SS') as time_respon , g.nama_perusahaan, to_char(a.create_date, 'dd-MM-yyyy / HH24:MI') as create_date, h.nominal as kurs, i.alias as satuan " +
-            //     "from gcm_master_company g , gcm_history_nego f inner join gcm_master_cart a on f.id = a.history_nego_id inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang e on b.barang_id=e.id " +
-            //     "left join gcm_master_user c on c.id=a.update_by left join gcm_master_company d on d.id=c.company_id inner join gcm_listing_kurs h on h.company_id = b.company_id inner join gcm_master_satuan i on e.satuan = i.id " +
-            //     "where b.company_id = g.id and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and nego_count > 0 and now() between h.tgl_start and h.tgl_end order by a.update_date desc")
-
-            let nego = encrypt("select a.id as id_mastercart, d.id, a.status, e.nama, e.berat, a.barang_id,a.qty, b.price, b.foto, e.category_id, b.company_id, a.nego_count, a.harga_konsumen, a.harga_sales, a.history_nego_id, f.harga_final, " +
+            let nego = encrypt("select a.id as id_mastercart, d.id, a.status, e.nama, e.berat, a.barang_id,a.qty, b.price, b.foto, e.category_id, b.company_id, a.nego_count," +
+                "case when b.persen_nego_1 != 0 or b.persen_nego_2 != 0 or b.persen_nego_3 != 0 then true else false end as nego_auto," +
+                "a.harga_konsumen, a.harga_sales, a.history_nego_id, f.harga_final, " +
                 "f.harga_nego as harga_nego_1, f.harga_sales as harga_sales_1, f.harga_nego_2, f.harga_sales_2, f.harga_nego_3, f.harga_sales_3, to_char(f.time_respon, 'yyyy-MM-dd HH24:MI:SS') as time_respon , " +
                 "case when now() < f.time_respon then 'no' end as status_time_respon, " +
                 "g.nama_perusahaan, to_char(a.create_date, 'dd-MM-yyyy / HH24:MI') as create_date, h.nominal as kurs, i.alias as satuan " +
@@ -1916,9 +1951,19 @@ export default class TransactionNego extends Component {
                                             </InputGroup>
                                         </div>
                                         <div className="col-5 col-md-5 col-sm-12" style={{ textAlign: 'right' }}>
-                                            <button className="btn btn-primary " type="submit" onClick={this.kirimNego.bind(this)} style={{ float: 'right', width: '120px' }}>
-                                                <span id='spinner-nego' style={{ display: 'none' }}><i class="fa fa-spinner fa-spin"></i></span><span id='label-kirimnego'>Kirim Nego</span>
-                                            </button>
+
+                                            <CartContext.Consumer>
+                                                {(value) => (
+                                                    <button className="btn btn-primary " type="submit" onClick={async () => {
+                                                        await this.kirimNego(); await value.loadDataCart(); await value.loadDataNotif();
+                                                        await value.sendNotifikasi(this.state.idBarang, this.state.namaBarang, decrypt(localStorage.getItem('CompanyIDLogin')),
+                                                            this.state.id_seller, this.state.nama_seller, this.state.get_sales_token, this.state.nego_auto)
+                                                    }}
+                                                        style={{ float: 'right', width: '120px' }}>
+                                                        <span id='spinner-nego' style={{ display: 'none' }}><i class="fa fa-spinner fa-spin"></i></span><span id='label-kirimnego'>Kirim Nego</span>
+                                                    </button>
+                                                )}
+                                            </CartContext.Consumer>
                                         </div>
                                     </div>
                                 </div>
@@ -2007,6 +2052,8 @@ export default class TransactionNego extends Component {
                         </Button>
                     </DialogActions>
                 </Dialog>
+
+                <DialogNegoSuccess isOpen={this.state.display_successnego} isClose={this.toggleNegoSuccess} />
 
                 <DialogCatch isOpen={this.state.displaycatch} />
             </div >

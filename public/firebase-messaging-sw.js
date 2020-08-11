@@ -5,18 +5,22 @@ firebase.initializeApp({
     messagingSenderId: "1000116117931"
 })
 
-const messagingFCM = firebase.messaging()
+const messaging = firebase.messaging()
 
 messaging.setBackgroundMessageHandler(payload => {
     console.log(payload)
     console.log('background message')
-    // const title = payload.notification.title;
-    // console.log('payload', payload.notification.icon);
-    // console.log(payload)
-    // const options = {
-    //     body: payload.notification.body,
-    //     icon: payload.notification.icon
-    // }
-    // return self.registration.showNotification(title, options);
-})
+    // const notificationTitle = 'Background Message Title';
+    // // const notificationOptions = {
+    // //     body: 'Background Message body.',
+    // //     icon: '/firebase-logo.png'
+    // // };
+    // const notificationOptions = {
+    //     body: 'Background Message body.',
+    //     icon: '/firebase-logo.png'
+    // };
 
+    // return self.registration.showNotification(notificationTitle,
+    //     notificationOptions);
+
+})

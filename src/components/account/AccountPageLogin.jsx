@@ -18,6 +18,8 @@ import swal from 'sweetalert';
 import Toast from 'light-toast';
 import firebase from 'firebase';
 
+import { makeStyles } from '@material-ui/core/styles';
+import Fab from '@material-ui/core/Fab';
 
 // application
 import PageHeader from '../shared/PageHeader';
@@ -415,7 +417,6 @@ export default class AccountPageLogin extends Component {
     }
 
     render() {
-
         const checkLogin = localStorage.getItem('Login');
         const breadcrumb = [
             { title: 'Beranda', url: '' },

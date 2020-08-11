@@ -10,6 +10,7 @@ import Axios from 'axios';
 
 // application
 import CartIndicator from './IndicatorCart';
+import ChatIndicator from './IndicatorChat';
 import NotifIndicator from './IndicatorNotification';
 import Departments from './Departments';
 import NavLinks from './NavLinks';
@@ -74,9 +75,9 @@ function NavPanel(props) {
                             <NavLinks />
                         </div>) : (
 
-                        <div id="nav-panel-loggedin" className="nav-panel__nav-links nav-links" style={{ marginLeft: '50px', display: 'none' }}>
-                            <NavLinks />
-                        </div>
+                            <div id="nav-panel-loggedin" className="nav-panel__nav-links nav-links" style={{ marginLeft: '50px', display: 'none' }}>
+                                <NavLinks />
+                            </div>
                         )
                     }
 
@@ -92,6 +93,10 @@ function NavPanel(props) {
 
                     <div className="nav-panel__indicators">
                         {/* {searchIndicator} */}
+
+                        {checkLogin ?
+                            (<ChatIndicator />) : null
+                        }
 
                         {checkLogin ?
                             (<NotifIndicator />) : null

@@ -205,24 +205,7 @@ class ShopPageProductLangganan extends Component {
                                                     <li className="product__meta-availability">
                                                     </li>
                                                 </ul>
-                                                {/* <br />
-                                                <form className="product__options">
-                                                    <div className="form-group product__option">
-                                                        <div className="product__actions">
-                                                            <div className="product__actions-item">
-                                                                <shimmerButtonProductDetail class="shine product__quantity"></shimmerButtonProductDetail>
-                                                            </div>
-                                                            <div className="product__actions-item product__actions-item--addtocart">
-                                                                <shimmerButtonProductDetail class="shine product__quantity"></shimmerButtonProductDetail>
-                                                            </div>
-                                                            <div className="product__actions-item product__actions-item--addtocart">
-                                                                <shimmerButtonProductDetail class="shine product__quantity"></shimmerButtonProductDetail>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </form> */}
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>)
@@ -261,7 +244,6 @@ class ShopPageProductLangganan extends Component {
                         </div>
                     </div>)
                 }
-
                 {content}
             </React.Fragment>
         );

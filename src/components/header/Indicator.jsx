@@ -10,7 +10,6 @@ import { Link } from 'react-router-dom';
 class Indicator extends Component {
     constructor(props) {
         super(props);
-
         this.state = {
             open: false,
         };
@@ -55,6 +54,9 @@ class Indicator extends Component {
 
         if (dropdown) {
             event.preventDefault();
+            if (this.props.type == 'chat') {
+                this.props.modalChat()
+            }
         }
 
         this.toggle();

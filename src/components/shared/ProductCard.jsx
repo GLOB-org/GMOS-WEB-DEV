@@ -28,7 +28,6 @@ import { wishlistAddItem } from '../../store/wishlist';
 import NumberFormat from 'react-number-format';
 import Toast from 'light-toast';
 import { CartContext } from '../../context/cart';
-
 import openSocket from "socket.io-client";
 import { toast } from 'react-toastify';
 
@@ -1560,7 +1559,6 @@ class ProductCard extends Component {
                     <DialogTitle id="responsive-dialog-title">Selamat! Nego Berhasil Disepakati </DialogTitle>
                     <DialogContent>
                         <center>
-                            {/* <img src={"/images/connection.png"} /> */}
                             <i class="fas fa-check-circle fa-3x mb-4" style={{ color: '#8CC63E' }}></i>
                         </center>
                         <DialogContentText>
