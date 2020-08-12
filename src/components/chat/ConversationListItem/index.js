@@ -8,15 +8,14 @@ export default function ConversationListItem(props) {
     shave('.conversation-snippet', 20);
   })
 
-    const { photo, name, text } = props.data;
-
-    return (
-      <div className="conversation-list-item">
-        <img className="conversation-photo" src={photo} alt="conversation" />
-        <div className="conversation-info">
-          <h1 className="conversation-title">{ name }</h1>
-          <p className="conversation-snippet">{ text }</p>
-        </div>
+  const { photo, name, text } = props.data;
+  return (
+    <div className="conversation-list-item" onClick={()=>props.clicked(name)}>
+      <img className="conversation-photo" src={ photo } alt="conversation" />
+      <div className="conversation-info">
+        <h1 className="conversation-title">{ name }</h1>
+        <p className="conversation-snippet">{ text }</p>
       </div>
-    );
+    </div>
+  );
 }

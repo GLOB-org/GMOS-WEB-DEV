@@ -129,8 +129,6 @@ export default class AccountPageLogin extends Component {
                             title: 'Selamat datang, ' + this.state.data[0].nama
                         })
 
-
-
                     }
                     else if (data.data.data[0].status == 'I') {
                         this.setState({ openOTP: true })
@@ -254,18 +252,25 @@ export default class AccountPageLogin extends Component {
 
     sendOtp = async () => {
         let RootSendOtp = 'https://www.mospay.id/sendotp/message/sendmessage';
+
         let x = this.generateOtp()
         let dataReturned = Object.create(null);
         dataReturned = {
             otptype: this.state.inputTipeOTP,
             nohp: this.state.inputNoTelp,
-            message: 'Yth. pelanggan GLOB di nomor ' + this.state.inputTipeOTP + '. Berikut OTP Anda: ' + x +
+            message: 'Yth. pelanggan GLOB di nomor ' + this.state.inputNoTelp + '. Berikut OTP Anda: ' + x +
                 '. Gunakan OTP ini untuk aktivasi akun Anda. Terima kasih.',
             userid: 'GMOS001',
             key: 'z25k4at3jzob718iqceofgor6a1tbm'
         }
 
-        await Axios.post(RootSendOtp, dataReturned).then(res => {
+        let axiosConfig = {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        await Axios.post(RootSendOtp, dataReturned, axiosConfig).then(res => {
             let status = res.data.successCode
             let messageid = res.data.messageID
             this.setState({
@@ -321,6 +326,7 @@ export default class AccountPageLogin extends Component {
                             openInsertOTP: false
                         });
                         Toast.hide()
+                        this.getTokenFCM()
                         localStorage.setItem('Login', true);
                         localStorage.setItem('UserLogin', encrypt(this.state.data[0].nama));
                         localStorage.setItem('CompanyIDLogin', encrypt(this.state.data[0].company_id));
@@ -534,7 +540,7 @@ export default class AccountPageLogin extends Component {
                                                     value={this.state.inputTipeOTP}
                                                 >
                                                     <option value="" disabled selected hidden></option>
-                                                    <option value="WA">WhatsApp</option>
+                                                    {/* <option value="WA" >WhatsApp</option> */}
                                                     <option value="SMS">SMS</option>
 
                                                 </Input>

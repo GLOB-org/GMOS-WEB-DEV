@@ -6,8 +6,10 @@ export default function ConversationSearch() {
       <div className="conversation-search">
         <input
           type="search"
+          spellcheck="false"
+          autoComplete="off"
           className="conversation-search-input"
-          placeholder="Search Messages"
+          placeholder="Cari pengguna"
         />
       </div>
     );

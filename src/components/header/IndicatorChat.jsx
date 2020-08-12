@@ -12,6 +12,7 @@ import Indicator from './Indicator';
 import { Chat24Svg } from '../../svg';
 import { cartRemoveItem } from '../../store/cart';
 import { CartContext } from '../../context/cart';
+import Messenger from '../chat/Messenger';
 
 class IndicatorChat extends Component {
 
@@ -58,10 +59,10 @@ class IndicatorChat extends Component {
         let modal_chat;
 
         modal_chat = (
-            <Modal isOpen={this.state.modalChat_isOpen} size="lg" backdrop="static" >
-                <ModalHeader className="modalHeaderCustom" toggle={this.toggleModalChat}>Chat</ModalHeader>
+            <Modal isOpen={this.state.modalChat_isOpen} size="xl" backdrop="static" >
+                <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.toggleModalChat}>Chat</ModalHeader>
                 <div className="card-body">
-                    <center>test</center>
+                    <Messenger />
                 </div>
             </Modal>
         )

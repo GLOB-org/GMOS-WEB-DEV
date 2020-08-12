@@ -10,7 +10,6 @@ import { Link } from 'react-router-dom';
 // third-party
 import { Helmet } from 'react-helmet-async';
 import { Button, FormFeedback, Input, InputGroup, InputGroupAddon, InputGroupText, Modal, ModalBody, ModalHeader } from 'reactstrap';
-import swal from 'sweetalert';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -290,8 +289,7 @@ export default class AccountPageRegister extends Component {
 
     fungsiPendaftaran = () => {
 
-        // Toast.loading('loading . . .', () => {
-        // });
+        var checked_null = false
 
         if (this.state.inputTipeRegister == 'S') {
             var seller_status = 'I'
@@ -314,128 +312,118 @@ export default class AccountPageRegister extends Component {
                 "null,'', null, " + this.state.inputCheckPPN + ") RETURNING id as id_company ), "
         }
         else {
-            var seller_status = null
-            var sa_role = null
-            var sa_divisi = null
 
-            var registrasi_perusahaan = "with new_insert1 as (insert into gcm_master_company " +
-                "(nama_perusahaan, no_npwp, no_siup, email, no_telp, tipe_bisnis, dokumen_pendukung, " +
-                "listing_id, type, seller_status, blacklist_by, notes_blacklist, payment_id) " +
-                "values( " +
-                "'" + this.state.inputNamaPerusahaan + "'," +
-                "'" + this.state.inputNomorNPWP + "'," +
-                "'" + this.state.inputNomorSIUP + "'," +
-                "'" + this.state.inputEmail + "'," +
-                "'" + this.state.inputNoTelp + "'," +
-                "'" + this.state.inputTipeBisnis + "'," +
-                "'" + this.state.inputUrl + "'," +
-                "0, " +
-                "'" + this.state.inputTipeRegister + "'," +
-                + seller_status + "," +
-                "null,'', null ) RETURNING id as id_company ), "
+            if (this.state.selectedPenjual.length == 0) {
+                checked_null = true
+            }
+            else {
+                var seller_status = null
+                var sa_role = null
+                var sa_divisi = null
 
+                var registrasi_perusahaan = "with new_insert1 as (insert into gcm_master_company " +
+                    "(nama_perusahaan, no_npwp, no_siup, email, no_telp, tipe_bisnis, dokumen_pendukung, " +
+                    "listing_id, type, seller_status, blacklist_by, notes_blacklist, payment_id) " +
+                    "values( " +
+                    "'" + this.state.inputNamaPerusahaan + "'," +
+                    "'" + this.state.inputNomorNPWP + "'," +
+                    "'" + this.state.inputNomorSIUP + "'," +
+                    "'" + this.state.inputEmail + "'," +
+                    "'" + this.state.inputNoTelp + "'," +
+                    "'" + this.state.inputTipeBisnis + "'," +
+                    "'" + this.state.inputUrl + "'," +
+                    "0, " +
+                    "'" + this.state.inputTipeRegister + "'," +
+                    + seller_status + "," +
+                    "null,'', null ) RETURNING id as id_company ), "
+            }
         }
 
-        // var registrasi_perusahaan = "with new_insert1 as (insert into gcm_master_company " +
-        //     "(nama_perusahaan, no_npwp, no_siup, email, no_telp, tipe_bisnis, dokumen_pendukung, " +
-        //     "listing_id, type, seller_status, blacklist_by, notes_blacklist, payment_id) " +
-        //     "values( " +
-        //     "'" + this.state.inputNamaPerusahaan + "'," +
-        //     "'" + this.state.inputNomorNPWP + "'," +
-        //     "'" + this.state.inputNomorSIUP + "'," +
-        //     "'" + this.state.inputEmail + "'," +
-        //     "'" + this.state.inputNoTelp + "'," +
-        //     "'" + this.state.inputTipeBisnis + "'," +
-        //     "'" + this.state.inputUrl + "'," +
-        //     "0, " +
-        //     "'" + this.state.inputTipeRegister + "'," +
-        //     + seller_status + "," +
-        //     "null," +
-        //     "'', null) RETURNING id as id_company ), "
+        if (checked_null == false) {
+            let alamat_perusahaan = "new_insert2 as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, " +
+                "kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) " +
+                "values( " +
+                "'" + this.state.inputKelurahan + "'," +
+                "'" + this.state.inputKecamatan + "'," +
+                "'" + this.state.inputKota + "'," +
+                "'" + this.state.inputProvinsi + "'," +
+                "'" + this.state.inputKodePOS + "'," +
+                "'" + this.state.inputNoTelp + "'," +
+                "'Y','Y', (select id_company from new_insert1)," +
+                "'" + this.state.inputAlamat + "'," +
+                "'A') returning id ) "
 
-        let alamat_perusahaan = "new_insert2 as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, " +
-            "kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) " +
-            "values( " +
-            "'" + this.state.inputKelurahan + "'," +
-            "'" + this.state.inputKecamatan + "'," +
-            "'" + this.state.inputKota + "'," +
-            "'" + this.state.inputProvinsi + "'," +
-            "'" + this.state.inputKodePOS + "'," +
-            "'" + this.state.inputNoTelp + "'," +
-            "'Y','Y', (select id_company from new_insert1)," +
-            "'" + this.state.inputAlamat + "'," +
-            "'A') returning id ) "
+            let registrasi_akun_buyer = "new_insert4 as (INSERT INTO gcm_master_user " +
+                "(nama, no_ktp, email, no_hp, username, password, status, role, company_id, create_by, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, blacklist_by, id_blacklist, is_blacklist, notes_blacklist) " +
+                "VALUES ('" + this.state.inputNamaLengkap + "'," +
+                "'" + this.state.inputNoKTP + "'," +
+                "'" + this.state.inputEmailAkun + "'," +
+                "'" + this.state.inputNoHP + "'," +
+                "'" + this.state.inputUsername + "'," +
+                "'" + encrypt(this.state.inputPassword) + "'," +
+                "'" + this.state.inputStatus + "'," +
+                "'" + this.state.inputRole + "'," +
+                "(select id_company from new_insert1)" +
+                ",0,0, null, null, null, false, false,null,0,false,'')),"
 
-        // let listing_alamat = "new_insert3 as (insert into gcm_listing_alamat (id_master_alamat, id_buyer, kode_alamat_customer)" +
-        //     "values((select id from new_insert2), (select id_company from new_insert1), null)), "
+            let registrasi_akun_seller = "INSERT INTO gcm_master_user " +
+                "(nama, no_ktp, email, no_hp, username, password, status, role, company_id, create_by, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, blacklist_by, id_blacklist, is_blacklist, notes_blacklist) " +
+                "VALUES ('" + this.state.inputNamaLengkap + "'," +
+                "'" + this.state.inputNoKTP + "'," +
+                "'" + this.state.inputEmailAkun + "'," +
+                "'" + this.state.inputNoHP + "'," +
+                "'" + this.state.inputUsername + "'," +
+                "'" + encrypt(this.state.inputPassword) + "'," +
+                "'" + this.state.inputStatus + "'," +
+                "'" + this.state.inputRole + "'," +
+                "(select id_company from new_insert1)" +
+                ",0,0,now() ,'" + sa_role + "', " + sa_divisi + ", false, false,null,0,false,'')"
 
-        let registrasi_akun_buyer = "new_insert4 as (INSERT INTO gcm_master_user " +
-            "(nama, no_ktp, email, no_hp, username, password, status, role, company_id, create_by, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, blacklist_by, id_blacklist, is_blacklist, notes_blacklist) " +
-            "VALUES ('" + this.state.inputNamaLengkap + "'," +
-            "'" + this.state.inputNoKTP + "'," +
-            "'" + this.state.inputEmailAkun + "'," +
-            "'" + this.state.inputNoHP + "'," +
-            "'" + this.state.inputUsername + "'," +
-            "'" + encrypt(this.state.inputPassword) + "'," +
-            "'" + this.state.inputStatus + "'," +
-            "'" + this.state.inputRole + "'," +
-            "(select id_company from new_insert1)" +
-            ",0,0, null, null, null, false, false,null,0,false,'')),"
+            if (this.state.inputTipeRegister == 'B') {
+                let listing_company = "new_insert5 as (INSERT INTO gcm_company_listing (buyer_id, seller_id, buyer_number_mapping, seller_number_mapping, blacklist_by, notes_blacklist) VALUES "
+                let listing_alamat = "INSERT INTO gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_alamat_customer) VALUES "
+                let loop_company = ""
+                let loop_alamat = ""
+                let length = this.state.selectedPenjual.length;
+                for (var i = 0; i < length; i++) {
+                    loop_company = loop_company + "((select id_company from new_insert1) ," + this.state.selectedPenjual[i].id + ", null, null, null, '')"
+                    if (i < length - 1) {
+                        loop_company = loop_company.concat(",")
+                    }
+                    if (i == length - 1) {
+                        loop_company = loop_company.concat(")")
+                    }
 
-        let registrasi_akun_seller = "INSERT INTO gcm_master_user " +
-            "(nama, no_ktp, email, no_hp, username, password, status, role, company_id, create_by, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, blacklist_by, id_blacklist, is_blacklist, notes_blacklist) " +
-            "VALUES ('" + this.state.inputNamaLengkap + "'," +
-            "'" + this.state.inputNoKTP + "'," +
-            "'" + this.state.inputEmailAkun + "'," +
-            "'" + this.state.inputNoHP + "'," +
-            "'" + this.state.inputUsername + "'," +
-            "'" + encrypt(this.state.inputPassword) + "'," +
-            "'" + this.state.inputStatus + "'," +
-            "'" + this.state.inputRole + "'," +
-            "(select id_company from new_insert1)" +
-            ",0,0,now() ,'" + sa_role + "', " + sa_divisi + ", false, false,null,0,false,'')"
-
-        if (this.state.inputTipeRegister == 'B') {
-            let listing_company = "new_insert5 as (INSERT INTO gcm_company_listing (buyer_id, seller_id, buyer_number_mapping, seller_number_mapping, blacklist_by, notes_blacklist) VALUES "
-            let listing_alamat = "INSERT INTO gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_alamat_customer) VALUES "
-            let loop_company = ""
-            let loop_alamat = ""
-            let length = this.state.selectedPenjual.length;
-            for (var i = 0; i < length; i++) {
-                loop_company = loop_company + "((select id_company from new_insert1) ," + this.state.selectedPenjual[i].id + ", null, null, null, '')"
-                if (i < length - 1) {
-                    loop_company = loop_company.concat(",")
+                    loop_alamat = loop_alamat + "((select id from new_insert2), (select id_company from new_insert1)," + this.state.selectedPenjual[i].id + ", null )"
+                    if (i < length - 1) {
+                        loop_alamat = loop_alamat.concat(",")
+                    }
                 }
-                if (i == length - 1) {
-                    loop_company = loop_company.concat(")")
-                }
-
-                loop_alamat = loop_alamat + "((select id from new_insert2), (select id_company from new_insert1)," + this.state.selectedPenjual[i].id + ", null )"
-                if (i < length - 1) {
-                    loop_alamat = loop_alamat.concat(",")
-                }
+                var insert_company = encrypt(registrasi_perusahaan.concat(alamat_perusahaan).concat(',').concat(registrasi_akun_buyer).concat(listing_company.concat(loop_company).concat(listing_alamat).concat(loop_alamat)))
             }
-            var insert_company = encrypt(registrasi_perusahaan.concat(alamat_perusahaan).concat(',').concat(registrasi_akun_buyer).concat(listing_company.concat(loop_company).concat(listing_alamat).concat(loop_alamat)))
+            else {
+                var insert_company = encrypt(registrasi_perusahaan.concat(alamat_perusahaan).concat(registrasi_akun_seller))
+            }
+
+            Axios.post(url.select, {
+                query: insert_company
+            }).then(data => {
+
+                Toast.hide()
+                this.setState({
+                    openListPenjual: false,
+                    isSuksesRegister: true
+                });
+
+            }).catch(err => {
+                // console.log(err);
+            })
         }
         else {
-            var insert_company = encrypt(registrasi_perusahaan.concat(alamat_perusahaan).concat(registrasi_akun_seller))
+            Toast.info('Silakan pilih distributor !', 2500, () => {
+            });
         }
 
-        console.log(decrypt(insert_company))
-
-        Axios.post(url.select, {
-            query: insert_company
-        }).then(data => {
-
-            Toast.hide()
-            this.setState({
-                openListPenjual: false,
-                isSuksesRegister: true
-            });
-
-        }).catch(err => {
-            // console.log(err);
-        })
     }
 
     handleDaftar = () => {
@@ -605,7 +593,8 @@ export default class AccountPageRegister extends Component {
             if (this.state.inputTipeRegister == 'B') {
                 var listPenjual = ''
                 if (this.state.inputTipeBisnis != '1') {
-                    listPenjual = encrypt(" select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' and tipe_bisnis='" + this.state.inputTipeBisnis + "' order by nama_perusahaan");
+                    listPenjual = encrypt(" select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' and " +
+                        "(tipe_bisnis='1' or tipe_bisnis='" + this.state.inputTipeBisnis + "') order by nama_perusahaan");
                 }
                 else {
                     listPenjual = encrypt(" select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' order by nama_perusahaan");

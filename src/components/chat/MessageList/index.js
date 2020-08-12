@@ -16,13 +16,12 @@ export default function MessageList(props) {
     getMessages();
   },[])
 
-  
   const getMessages = () => {
-     var tempMessages = [
+      var tempMessages = [
         {
           id: 1,
           author: 'apple',
-          message: 'Hello world! This is a long message that will hopefully get wrapped by our message bubble component! We will see how well it works.',
+          message: 'props.titleRoom',
           timestamp: new Date().getTime()
         },
         {
@@ -84,6 +83,7 @@ export default function MessageList(props) {
   }
 
   const renderMessages = () => {
+   
     let i = 0;
     let messageCount = messages.length;
     let tempMessages = [];
@@ -94,6 +94,7 @@ export default function MessageList(props) {
       let next = messages[i + 1];
       let isMine = current.author === MY_USER_ID;
       let currentMoment = moment(current.timestamp);
+
       let prevBySameAuthor = false;
       let nextBySameAuthor = false;
       let startsSequence = true;
@@ -102,7 +103,9 @@ export default function MessageList(props) {
 
       if (previous) {
         let previousMoment = moment(previous.timestamp);
+        
         let previousDuration = moment.duration(currentMoment.diff(previousMoment));
+        
         prevBySameAuthor = previous.author === current.author;
         
         if (prevBySameAuthor && previousDuration.as('hours') < 1) {
@@ -116,7 +119,9 @@ export default function MessageList(props) {
 
       if (next) {
         let nextMoment = moment(next.timestamp);
+        
         let nextDuration = moment.duration(nextMoment.diff(currentMoment));
+        
         nextBySameAuthor = next.author === current.author;
 
         if (nextBySameAuthor && nextDuration.as('hours') < 1) {
@@ -135,6 +140,8 @@ export default function MessageList(props) {
         />
       );
 
+      // console.log(current)
+
       // Proceed to the next message.
       i += 1;
     }
@@ -145,7 +152,7 @@ export default function MessageList(props) {
     return(
       <div className="message-list">
         <Toolbar
-          title="Conversation Title"
+          title={props.titleRoom}
           rightItems={[
             <ToolbarButton key="info" icon="ion-ios-information-circle-outline" />,
             <ToolbarButton key="video" icon="ion-ios-videocam" />,
@@ -154,15 +161,17 @@ export default function MessageList(props) {
         />
 
         <div className="message-list-container">{renderMessages()}</div>
-
+{/* 
         <Compose rightItems={[
-          <ToolbarButton key="photo" icon="ion-ios-camera" />,
-          <ToolbarButton key="image" icon="ion-ios-image" />,
-          <ToolbarButton key="audio" icon="ion-ios-mic" />,
-          <ToolbarButton key="money" icon="ion-ios-card" />,
-          <ToolbarButton key="games" icon="ion-logo-game-controller-b" />,
-          <ToolbarButton key="emoji" icon="ion-ios-happy" />
-        ]}/>
+          // <ToolbarButton key="photo" icon="ion-ios-camera" />,
+          // <ToolbarButton key="image" icon="ion-ios-image" />,
+          // <ToolbarButton key="audio" icon="ion-ios-mic" />,
+          // <ToolbarButton key="money" icon="ion-ios-card" />,
+          // <ToolbarButton key="games" icon="ion-logo-game-controller-b" />,
+          // <ToolbarButton key="emoji" icon="ion-ios-happy" />
+        ]}/> */}
+
+        <Compose />
       </div>
     );
 }

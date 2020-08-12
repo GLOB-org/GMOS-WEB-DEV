@@ -688,7 +688,10 @@ class ShopPageCheckout extends Component {
             // console.log('error : ' + err);
         })
 
-        if (this.state.label_distributor_shipto != '' || this.state.label_distributor_billto != '') {
+        // this.state.label_distributor_shipto != '' || this.state.label_distributor_billto != ''
+        // || 
+
+        if (this.state.label_distributor_shipto != null || this.state.label_distributor_billto != null) {
             Toast.hide()
             this.setState({
                 openresponalamat: true
@@ -1115,6 +1118,7 @@ class ShopPageCheckout extends Component {
                 });
 
                 let filter_data_checkout_billto;
+
                 filter_data_checkout_billto = this.state.data_alamat.filter(filter => {
                     return filter.id == filter_data_checkout_payment[0].billto_id;
                 });
@@ -2234,7 +2238,7 @@ class ShopPageCheckout extends Component {
                                 (null)
                             }
 
-                            Silakan ubah alamat atau hubungi distributor terkait.
+                            <p>Silakan ubah alamat atau hubungi distributor terkait.</p>
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
