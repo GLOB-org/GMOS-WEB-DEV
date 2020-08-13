@@ -80,6 +80,7 @@ export default class TransactionNego extends Component {
             openCatatan: false,
             openApprovalNego: false,
             openFilter: false,
+            openConfirmationApproveNego: false,
             time_to_respon: 'yes',
             sizeModal: 'lg',
             nego_countBarang: '',
@@ -714,6 +715,10 @@ export default class TransactionNego extends Component {
         await this.toggleNego();
     }
 
+    toggleConfirmationApproveNego = () => {
+        this.setState({ openConfirmationApproveNego: !this.state.openConfirmationApproveNego });
+    }
+
     toggleNego = async () => {
         await this.setState({ openNego: !this.state.openNego });
     }
@@ -1015,7 +1020,7 @@ export default class TransactionNego extends Component {
         })
     }
 
-    submitApproval = () => {
+    submitApproval = async () => {
         var param_update = ""
         if (this.state.negocountBarangApproval == 1) {
             param_update = "harga_nego"
@@ -1034,13 +1039,21 @@ export default class TransactionNego extends Component {
         let final_query = encrypt(approve1.concat(approve2))
         Toast.loading('loading . . .', () => {
         });
-        Axios.post(url.select, {
+        await Axios.post(url.select, {
             query: final_query
         }).then(data => {
             Toast.hide()
             Toast.success('Harga berhasil disepakati', 2000, () => {
             });
-            window.location.reload()
+
+            this.setState({
+                openConfirmationApproveNego: false,
+                openApprovalNego: false
+            })
+
+            this.LoadDataNego()
+
+            // window.location.reload()
         }).catch(err => {
             // console.log('error' + err);
             // console.log(err);
@@ -1994,7 +2007,7 @@ export default class TransactionNego extends Component {
                                 </div>
                             </div>
                             <div className="col-md-4" >
-                                <button className="btn btn-secondary" type="submit" onClick={this.submitApproval.bind(this)} style={{ float: 'right' }} >Setujui Harga</button>
+                                <button className="btn btn-secondary" type="submit" onClick={this.toggleConfirmationApproveNego} style={{ float: 'right' }} >Setujui Harga</button>
                             </div>
                         </div>
                     </ModalBody>
@@ -2050,6 +2063,31 @@ export default class TransactionNego extends Component {
                         <Button color="light" onClick={this.toggleFilterDate}>
                             Batal
                         </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={this.state.openConfirmationApproveNego}
+                    aria-labelledby="responsive-dialog-title"
+                >
+                    <DialogTitle id="responsive-dialog-title">Konfirmasi</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Apakah Anda yakin untuk menyetujui harga kesepakatan ?
+                    </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <CartContext.Consumer>
+                            {(value) => (
+                                <button className='btn btn-primary' onClick={async () => { await this.submitApproval(); await value.loadDataCart() }}>
+                                    Ya
+                                </button>
+                            )}
+                        </CartContext.Consumer>
+
+                        <button className="btn btn-light" onClick={() => this.setState({ openConfirmationApproveNego: false })}>
+                            Batal
+                        </button>
                     </DialogActions>
                 </Dialog>
 

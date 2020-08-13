@@ -52,8 +52,9 @@ function NavPanel(props) {
             Axios.post(url.select, {
                 query: query
             }).then(data => {
-                window.location.reload()
                 localStorage.clear();
+                window.location.reload()
+                this.props.history.push('/')
             }).catch(err => {
                 // console.log('error');
                 // console.log(err);
@@ -113,11 +114,12 @@ function NavPanel(props) {
                         <div style={{ marginTop: '5px' }}>
 
                             {checkLogin ? (
-                                <NavLink to="/">
-                                    <button type="submit" id="btnLoginHeader" className="btn" onClick={ClickLogout}>
-                                        Keluar
-                                    </button>
-                                </NavLink>) : (
+                                // <NavLink to="/">
+                                <button type="submit" id="btnLoginHeader" className="btn" onClick={ClickLogout}>
+                                    Keluar
+                                </button>
+                                // </NavLink>
+                            ) : (
                                     <NavLink to="/masuk">
                                         <button type="submit" id="btnLoginHeader" className="btn" >
                                             Masuk

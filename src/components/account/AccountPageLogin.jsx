@@ -58,6 +58,8 @@ export default class AccountPageLogin extends Component {
         } else {
             await this.setState({ test: false })
         }
+
+        console.log(decrypt('VDN38TJyNZM3ilR1061Ung=='))
     }
 
     getTokenFCM = () => {

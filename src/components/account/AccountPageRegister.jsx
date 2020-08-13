@@ -405,6 +405,9 @@ export default class AccountPageRegister extends Component {
                 var insert_company = encrypt(registrasi_perusahaan.concat(alamat_perusahaan).concat(registrasi_akun_seller))
             }
 
+            Toast.loading('loading . . .', () => {
+            });
+
             Axios.post(url.select, {
                 query: insert_company
             }).then(data => {
@@ -894,19 +897,21 @@ export default class AccountPageRegister extends Component {
         }
     }
 
-    pilihDistributor(id) {
+    async pilihDistributor(id) {
         let id_get;
         id_get = this.state.listPenjual[id].id;
         var checkCB = 'n'
         if (document.getElementById(id).checked == true) {
-            this.setState(prevState => ({
+            await this.setState(prevState => ({
                 selectedPenjual: [...prevState.selectedPenjual, { id: id_get }]
             }))
         }
         else {
-            this.setState({
-                selectedPenjual: this.state.selectedPenjual.filter((_, i) => i !== id)
-            });
+            await this.setState({
+                selectedPenjual: this.state.selectedPenjual.filter(filter => {
+                    return filter.id != id_get;
+                })
+            })
         }
         for (var i = 0; i < this.state.listPenjuallength; i++) {
             if (document.getElementById(i).checked == true) {

@@ -73,6 +73,7 @@ class ShopPageProductLangganan extends Component {
             Axios.post(url.select, {
                 query: getrelated_product
             }).then((data) => {
+            
                 this.setState({
                     related_product: data.data.data
                 })
@@ -82,7 +83,8 @@ class ShopPageProductLangganan extends Component {
 
                     let id_get, total_get, nama_get, category_id_get, company_id_get;
                     let nama_perusahaan_get, foto_get, price_get, price_terendah_get;
-                    let deskripsi_get, jumlah_min_beli_get, jumlah_min_nego_get, berat_get, satuan_get, kurs, kode_barang_get;
+                    let deskripsi_get, jumlah_min_beli_get, jumlah_min_nego_get;
+                    let berat_get, satuan_get, kurs, kode_barang_get, negotiable_get;
 
                     for (var i = 0; i < (5 - related_product_length); i++) {
 
@@ -101,6 +103,7 @@ class ShopPageProductLangganan extends Component {
                         berat_get = data.data.data[0].berat;
                         satuan_get = data.data.data[0].satuan;
                         kurs = data.data.data[0].kurs;
+                        negotiable_get = data.data.data[0].negotiable;
 
                         this.setState(prevState => ({
                             related_product: [...prevState.related_product, {
@@ -109,7 +112,8 @@ class ShopPageProductLangganan extends Component {
                                 nama_perusahaan: nama_perusahaan_get, foto: foto_get,
                                 price: price_get, price_terendah: price_terendah_get,
                                 deskripsi: deskripsi_get, jumlah_min_beli: jumlah_min_beli_get,
-                                jumlah_min_nego: jumlah_min_nego_get, berat: berat_get, satuan: satuan_get, kurs: kurs,
+                                jumlah_min_nego: jumlah_min_nego_get, berat: berat_get, 
+                                satuan: satuan_get, kurs: kurs, negotiable: negotiable_get
                             }]
                         }))
                     }

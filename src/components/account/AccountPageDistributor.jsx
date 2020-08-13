@@ -51,8 +51,10 @@ class AccountPageDashboard extends Component {
         }
         else {
             await this.setState({
-                listDistributor_join: this.state.listDistributor_join.filter((_, i) => i !== id)
-            });
+                listDistributor_join: this.state.listDistributor_join.filter(filter => {
+                    return filter.id != id_get;
+                })
+            })
         }
         for (var i = 0; i < this.state.listDistributor.length; i++) {
             if (document.getElementById(i).checked == true) {
@@ -83,8 +85,8 @@ class AccountPageDashboard extends Component {
                 }
 
                 else {
-                    var querydistributor = encrypt("select id, nama_perusahaan from gcm_master_company where tipe_bisnis = " +
-                        "(select tipe_bisnis from gcm_master_company where id = " + decrypt(localStorage.getItem("CompanyIDLogin")) + ") and id not in (" + this.state.id_distributor + ") and type ='S' and seller_status='A'")
+                    var querydistributor = encrypt("select id, nama_perusahaan from gcm_master_company where tipe_bisnis in " +
+                        "((select tipe_bisnis from gcm_master_company where id = " + decrypt(localStorage.getItem("CompanyIDLogin")) + "),1) and id not in (" + this.state.id_distributor + ") and type ='S' and seller_status='A'")
                 }
 
                 await Axios.post(url.select, {
