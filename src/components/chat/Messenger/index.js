@@ -7,7 +7,8 @@ export default class Messenger extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        personChat: ''
+        personChat: '',
+        dataChat: ''
     };
   }
 
@@ -19,19 +20,20 @@ export default class Messenger extends Component {
 
   render(){
 
-    const clickRoom = (person) => {
+    const clickRoom = (person, index, dataChat) => {
       this.setState({
-        personChat: person
+        personChat: person,
+        dataChat: dataChat[index]
       })
     }
 
     return (
       <div className="messenger">
         <div className="scrollable sidebar">
-          <ConversationList clickConversationList={clickRoom}/>
+          <ConversationList clickConversationList = {clickRoom} />
         </div>
         <div className="scrollable content">
-          <MessageList titleRoom={this.state.personChat}/> 
+          <MessageList titleRoom = {this.state.personChat} messageRoom = {this.state.dataChat}/> 
         </div>
       </div>
     )

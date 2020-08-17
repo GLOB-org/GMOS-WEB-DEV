@@ -2,13 +2,13 @@
     padding: 10px;
     display: flex;
     align-items: center;
-    background: red;
     /* background: white; */
     border-top: 1px solid #eeeef1;
     position: sticky;
     /* width: calc(100% - 20px); */
     width: 100%;
-    bottom: 0px;
+    /* top: 450px;    */
+    bottom: 0px; 
 }
 
 @supports (backdrop-filter: blur(20px)) {

@@ -7,7 +7,8 @@ import moment from 'moment';
 
 import './MessageList.css';
 
-const MY_USER_ID = 'apple';
+// const MY_USER_ID = 'apple';
+const MY_USER_ID = 205;
 
 export default function MessageList(props) {
   const [messages, setMessages] = useState([])
@@ -21,7 +22,7 @@ export default function MessageList(props) {
         {
           id: 1,
           author: 'apple',
-          message: 'props.titleRoom',
+          message: 'Hello',
           timestamp: new Date().getTime()
         },
         {
@@ -70,30 +71,45 @@ export default function MessageList(props) {
           id: 9,
           author: 'apple',
           message: 'Hello world! This is a long message that will hopefully get wrapped by our message bubble component! We will see how well it works.',
-          timestamp: new Date().getTime()
+          timestamp: 1597630330328
         },
         {
           id: 10,
           author: 'orange',
           message: 'It looks like it wraps exactly as it is supposed to. Lets see what a reply looks like!',
-          timestamp: new Date().getTime()
+          timestamp: 1597630330809
         },
       ]
       setMessages([...messages, ...tempMessages])
   }
 
   const renderMessages = () => {
-   
+
+    var tempChat = []
+    tempChat = props.messageRoom
+    // for (var x = 0; x < tempChat.length; x++){
+    //   console.log(tempChat[x].timestamp)
+    // }
+    
     let i = 0;
-    let messageCount = messages.length;
+    // let messageCount = messages.length;
+    // let tempMessages = [];
+    let messageCount = tempChat.length;
     let tempMessages = [];
 
     while (i < messageCount) {
-      let previous = messages[i - 1];
-      let current = messages[i];
-      let next = messages[i + 1];
-      let isMine = current.author === MY_USER_ID;
-      let currentMoment = moment(current.timestamp);
+      // let previous = messages[i - 1];
+      // let current = messages[i];
+      // let next = messages[i + 1];
+      // let isMine = current.author === MY_USER_ID;
+      // let currentMoment = moment(current.timestamp);
+      let previous = tempChat[i - 1];
+      let current = tempChat[i];
+      let next = tempChat[i + 1];
+      let isMine = current.sender === MY_USER_ID;
+      console.log(current.sender + " - " + MY_USER_ID)
+      // let currentMoment = moment(current.timestamp);
+      let currentMoment = moment(1597634197)
 
       let prevBySameAuthor = false;
       let nextBySameAuthor = false;
@@ -102,11 +118,14 @@ export default function MessageList(props) {
       let showTimestamp = true;
 
       if (previous) {
-        let previousMoment = moment(previous.timestamp);
+        // let previousMoment = moment(previous.timestamp);
+        let previousMoment = moment(1597630597);
         
         let previousDuration = moment.duration(currentMoment.diff(previousMoment));
         
-        prevBySameAuthor = previous.author === current.author;
+        // prevBySameAuthor = previous.author === current.author;
+        prevBySameAuthor = previous.sender === current.sender;
+
         
         if (prevBySameAuthor && previousDuration.as('hours') < 1) {
           startsSequence = false;
@@ -118,11 +137,12 @@ export default function MessageList(props) {
       }
 
       if (next) {
-        let nextMoment = moment(next.timestamp);
+        // let nextMoment = moment(next.timestamp);
+        let nextMoment = moment(1597637797);
         
         let nextDuration = moment.duration(nextMoment.diff(currentMoment));
         
-        nextBySameAuthor = next.author === current.author;
+        nextBySameAuthor = next.sender === current.sender;
 
         if (nextBySameAuthor && nextDuration.as('hours') < 1) {
           endsSequence = false;

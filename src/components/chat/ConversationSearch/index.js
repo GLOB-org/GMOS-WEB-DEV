@@ -9,7 +9,7 @@ export default function ConversationSearch() {
           spellcheck="false"
           autoComplete="off"
           className="conversation-search-input"
-          placeholder="Cari pengguna"
+          placeholder="Cari nama"
         />
       </div>
     );

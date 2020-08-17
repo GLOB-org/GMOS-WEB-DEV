@@ -12,7 +12,7 @@ export default function Message(props) {
     } = props;
 
     const friendlyTimestamp = moment(data.timestamp).format('LLLL');
-
+    console.log(isMine)
     return (
       <div className={[
         'message',
@@ -29,7 +29,7 @@ export default function Message(props) {
 
         <div className="bubble-container">
           <div className="bubble" title={friendlyTimestamp}>
-            { data.message }
+            { data.contain }
           </div>
         </div>
       </div>

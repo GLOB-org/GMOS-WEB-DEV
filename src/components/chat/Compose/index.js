@@ -9,7 +9,7 @@ export default function Compose(props) {
           className="compose-input"
           spellcheck="false"
           autoComplete="off"
-          placeholder="Ketikkan pesan di sini..."
+          placeholder="Tulis pesan di sini..."
         />
 
         {/* {

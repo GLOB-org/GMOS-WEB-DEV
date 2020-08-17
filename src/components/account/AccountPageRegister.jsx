@@ -381,7 +381,7 @@ export default class AccountPageRegister extends Component {
 
             if (this.state.inputTipeRegister == 'B') {
                 let listing_company = "new_insert5 as (INSERT INTO gcm_company_listing (buyer_id, seller_id, buyer_number_mapping, seller_number_mapping, blacklist_by, notes_blacklist) VALUES "
-                let listing_alamat = "INSERT INTO gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_alamat_customer) VALUES "
+                let listing_alamat = "insert into gcm_listing_alamat_temp (id_master_alamat, id_buyer, id_seller, kode_shipto_customer, kode_billto_customer) VALUES "
                 let loop_company = ""
                 let loop_alamat = ""
                 let length = this.state.selectedPenjual.length;
@@ -394,7 +394,7 @@ export default class AccountPageRegister extends Component {
                         loop_company = loop_company.concat(")")
                     }
 
-                    loop_alamat = loop_alamat + "((select id from new_insert2), (select id_company from new_insert1)," + this.state.selectedPenjual[i].id + ", null )"
+                    loop_alamat = loop_alamat + "((select id from new_insert2), (select id_company from new_insert1)," + this.state.selectedPenjual[i].id + ", null, null )"
                     if (i < length - 1) {
                         loop_alamat = loop_alamat.concat(",")
                     }
@@ -590,10 +590,10 @@ export default class AccountPageRegister extends Component {
 
         else {
 
-            Toast.loading('loading . . .', () => {
-            });
-
             if (this.state.inputTipeRegister == 'B') {
+                Toast.loading('loading . . .', () => {
+                });
+
                 var listPenjual = ''
                 if (this.state.inputTipeBisnis != '1') {
                     listPenjual = encrypt(" select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' and " +
