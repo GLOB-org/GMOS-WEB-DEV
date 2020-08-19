@@ -8,7 +8,7 @@ export default function ConversationListItem(props) {
     shave('.conversation-snippet', 20);
   })
 
-  const { photo, name, text } = props.data;
+  const { photo, name, text, unread_message } = props.data;
   return (
     <div className="conversation-list-item" onClick={()=>props.clicked(name, props.index)}>
       <img className="conversation-photo" src={ photo } alt="conversation" />
@@ -16,6 +16,9 @@ export default function ConversationListItem(props) {
         <h1 className="conversation-title">{ name }</h1>
         <p className="conversation-snippet">{ text }</p>
       </div>
+      {
+        unread_message > 0 ? (<span className="indicator-newchat">{ unread_message }</span>) : null
+      }
     </div>
   );
 }

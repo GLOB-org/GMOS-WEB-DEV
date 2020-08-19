@@ -118,7 +118,7 @@ export default class CartContainer extends Component {
             autoClose: 7000
         };
         setTimeout(function () {
-            toast.success('💬 Ada balasan nego dari penjual', options);
+            toast.success('Ada balasan nego dari penjual', options);
         }, timeout);
     }
 

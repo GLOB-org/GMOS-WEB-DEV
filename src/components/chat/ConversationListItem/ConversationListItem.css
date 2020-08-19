@@ -2,11 +2,21 @@
   display: flex;
   align-items: center;
   padding: 10px;
+  padding-right: 20px;
 }
 
 .conversation-list-item:hover {
   background: #eeeef1;
   cursor: pointer;
+}
+
+.conversation-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  right: 10px;
+  position: absolute; 
 }
 
 .conversation-photo {
@@ -28,4 +38,17 @@
   font-size: 14px;
   color: #888;
   margin: 0;
+}
+
+.indicator-newchat {
+  position: absolute;
+  right: 10px;
+  height: 15px;
+  font-size: 10px;
+  padding: 0 5px;
+  border-radius: 1000px;
+  background:#8CC63E;
+  color: white;  
+  font-weight: bold;
+  
 }
