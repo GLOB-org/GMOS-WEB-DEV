@@ -187,7 +187,7 @@ class AccountPageDashboard extends Component {
             }
 
             let query_result1 = query.concat(loop_1)
-            let query_list_alamat = "insert into gcm_listing_alamat_temp (id_master_alamat, id_buyer, " +
+            let query_list_alamat = "insert into gcm_listing_alamat (id_master_alamat, id_buyer, " +
                 "id_seller, kode_shipto_customer, kode_billto_customer) values "
 
             for (var i = 0; i < length_dist; i++) {

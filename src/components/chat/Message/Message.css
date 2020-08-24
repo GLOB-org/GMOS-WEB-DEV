@@ -43,15 +43,23 @@
 }
 
 .message .bubble-container .bubble {
-  margin: 1px 0px;
+  margin: 2px 0px;
   background: #f4f4f8;
-  padding: 10px 15px;
+  padding: 10px 10px;
   border-radius: 10px;
   max-width: 75%;
   border-top-left-radius: 2px;
   border-bottom-left-radius: 2px;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
+}
+
+.bubble-status{
+  display: flex;
+  flex-direction: column; 
+  /* align-items: flex-end;
+  flex-wrap: wrap;
+  height: 100%; */
 }
 
 .bubble-time{
@@ -61,6 +69,55 @@
   display: flex;
   align-items: flex-end;
   margin: 0px;
+}
+
+.box_chat{
+  display: flex;
+  flex-direction: column; /* or:   flex-flow: column wrap; */
+  height: 100%;
+}
+
+.box-chat-header{
+  background: white;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  padding-right: 20px;
+}
+
+.box-chat-message{
+  margin-top: 5px;
+}
+
+.box-chat-photo{
+  width: 50px;
+  height: 50px;
+  /* border-radius: 50%; */
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.box-chat-read{
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 2px;
+  /* object-fit: cover; */
+}
+
+.box-chat-snippet{
+  margin-top: 5px;
+  font-weight: bold;
+  font-size: 15px;
+  color: #3D464D;
+}
+
+.box-chat-title{
+  font-weight: 500;
+  font-size: 13px;
+  color: #3D464D;
 }
 
 .message.mine .bubble-container .bubble {

@@ -39,6 +39,6 @@ export default [
     {
         type: 'link',
         label: 'Keluar',
-        url: '/masuk'
+        // url: '/masuk'
     }
 ];

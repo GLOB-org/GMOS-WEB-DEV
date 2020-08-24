@@ -8,9 +8,9 @@ export default function ConversationListItem(props) {
     shave('.conversation-snippet', 20);
   })
 
-  const { photo, name, text, unread_message } = props.data;
+  const { id_seller, photo, name, text, unread_message } = props.data;
   return (
-    <div className="conversation-list-item" onClick={()=>props.clicked(name, props.index)}>
+    <div className="conversation-list-item" onClick={()=>props.clicked(id_seller, name, props.index)}>
       <img className="conversation-photo" src={ photo } alt="conversation" />
       <div className="conversation-info">
         <h1 className="conversation-title">{ name }</h1>

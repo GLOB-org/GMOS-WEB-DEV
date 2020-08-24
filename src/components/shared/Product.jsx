@@ -21,14 +21,12 @@ import AsyncAction from './AsyncAction';
 import Currency from './Currency';
 import InputNumber from './InputNumber';
 import ProductGallery from './ProductGallery';
-import Rating from './Rating';
 import { cartAddItem } from '../../store/cart';
 import { compareAddItem } from '../../store/compare';
 import { Wishlist16Svg, Compare16Svg } from '../../svg';
 import { wishlistAddItem } from '../../store/wishlist';
+import Messenger from '../chat/Messenger';
 import NumberFormat from 'react-number-format';
-import InputNumberMax from './InputNumberMax';
-
 import { CartContext } from '../../context/cart';
 
 class Product extends Component {
@@ -53,6 +51,7 @@ class Product extends Component {
             persen_nego: '',
             displayformnego: 'block',
             openresponlangganan: '',
+            modalChat_isOpen: false,
             count_barangnego: '',
             respons_nego: '',
             displaynegosuccess: false,
@@ -214,14 +213,13 @@ class Product extends Component {
     }
 
     toggle = () => {
-
         this.setState({ modalOpen: !this.state.modalOpen });
-        // if (this.state.quantity < this.state.quantity_nego) {
-        //     this.setState({ displayformnego: 'block' });
-        // }
-        // else {
-        //     this.setState({ displayformnego: 'none' });
-        // }
+    }
+
+    toggleModalChat = () => {
+        this.setState({
+            modalChat_isOpen: !this.state.modalChat_isOpen
+        })
     }
 
     toggleModalnegomax = () => {
@@ -533,7 +531,7 @@ class Product extends Component {
                                 var set_harga_final = 0
                                 respon_nego = harga_sales
                             }
-                            
+
                             var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, harga_final, updated_by_2, updated_by_3, updated_date_2, updated_date_3, time_respon)" +
                                 "values (" + input_nego + "," + respon_nego + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null," + set_harga_final + ",null,null,null,null,null) returning id ")
                         }
@@ -608,80 +606,6 @@ class Product extends Component {
             };
         }
 
-
-        // const submit_nego = () => {
-        //     if (document.getElementById("inputNego").value == "") {
-        //         Toast.fail('Silakan isi harga nego', 2500, () => {
-        //         });
-        //     }
-        //     else {
-
-        //         let query = encrypt("INSERT INTO gcm_master_cart (company_id, barang_id, qty, harga_konsumen, harga_sales, create_by, update_by) VALUES " +
-        //             "(" + decrypt(localStorage.getItem('CompanyIDLogin')) + "," +
-        //             product.id + "," +
-        //             (this.state.quantity / product.berat) + "," +
-        //             (document.getElementById("inputNego").value.split('.').join("") * this.state.quantity) + ", null," +
-        //             decrypt(localStorage.getItem('UserIDLogin')) + "," +
-        //             decrypt(localStorage.getItem('UserIDLogin')) + ") returning id");
-        //         Toast.loading('loading . . .', () => {
-        //         });
-        //         Axios.post(url.select, {
-        //             query: query
-        //         }).then((data) => {
-
-        //             this.setState({ id_mastercart: data.data.data[0].id })
-
-        //             if (document.getElementById("inputNego").value.split('.').join("") >= (product.price_terendah * product.kurs)) {
-        //                 var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, harga_final ,updated_by_2, updated_by_3, updated_date_2, updated_date_3)" +
-        //                     "values (" + document.getElementById("inputNego").value.split('.').join("") + "," + document.getElementById("inputNego").value.split('.').join("") + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null," + document.getElementById("inputNego").value.split('.').join("") + ",null,null,null,null) returning id ")
-
-        //             }
-
-        //             else {
-
-        //                 var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, updated_by_2, updated_by_3, updated_date_2, updated_date_3)" +
-        //                     "values (" + document.getElementById("inputNego").value.split('.').join("") + "," + Math.ceil((product.price_terendah * kurs)) + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null,null,null,null,null) returning id ")
-        //             }
-
-        //             //insert ke gcm_history_nego
-        //             Axios.post(url.select, {
-        //                 query: history_nego
-        //             }).then((data) => {
-
-        //                 if (document.getElementById("inputNego").value.split('.').join("") >= (product.price_terendah * product.kurs)) {
-        //                     var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, harga_sales = harga_konsumen  , history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
-        //                 }
-        //                 else {
-        //                     var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
-        //                 }
-
-        //                 // let update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
-
-        //                 Axios.post(url.select, {
-        //                     query: update_mastercart
-        //                 }).then((data) => {
-        //                     Toast.hide();
-        //                     Toast.success('Berhasil mengirim nego', 2000, () => {
-        //                     });
-        //                     this.toggle();
-        //                     document.getElementById("inputNego").value = ''
-        //                     this.setState({ quantity: product.berat })
-        //                     this.forceUpdate()
-        //                 }).catch(err => {
-        //                     console.log('error');
-        //                     console.log(err);
-        //                 })
-        //             }).catch(err => {
-        //                 console.log('error');
-        //                 console.log(err);
-        //             })
-        //         }).catch(err => {
-        //             console.log('error');
-        //             console.log(err);
-        //         })
-        //     };
-        // }
-
         const cek_login = localStorage.getItem('Login');
         const get_cart = cart
 
@@ -692,7 +616,7 @@ class Product extends Component {
         });
 
         if (this.state.status_cart != '') {
-           
+
             return (
                 <div className={`product product--layout--${layout}`}>
                     <div className="product__content">
@@ -740,26 +664,25 @@ class Product extends Component {
                             <div className="product__description">
                                 {product.deskripsi}
                             </div>
-                            {/* <ul className="product__features">
-                                <li>Speed: 750 RPM</li>
-                                <li>Power Source: Cordless-Electric</li>
-                                <li>Battery Cell Type: Lithium</li>
-                                <li>Voltage: 20 Volts</li>
-                                <li>Battery Capacity: 2 Ah</li>
-                            </ul> */}
                             <ul className="product__meta">
-                                <li className="product__meta-availability">
+                                {/* <li className="product__meta-availability">
                                     Dijual oleh :
                                     {' '}
-                                    <strong>{product.nama_perusahaan}</strong>
-                                    {/* <span className="text-success">{product.nama_perusahaan}</span> */}
-                                </li>
-                                {/* <li>
-                                    Brand:
-                                    <Link to="/">Wakita</Link>
-                                </li>
-                                <li>SKU: 83690/32</li> */}
+                                    <strong>{product.nama_perusahaan}{product.nama_perusahaan}{product.nama_perusahaan}{product.nama_perusahaan}</strong>
+                                </li> */}
                             </ul>
+                            <div className="row">
+                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-9">
+                                    <li className="product__meta-availability">
+                                        Dijual oleh :
+                                            {' '}
+                                        <strong>{product.nama_perusahaan}</strong>
+                                    </li>
+                                </div>
+                                {/* <div className="col-xs-12 col-sm-12 col-md-12 col-lg-3">
+                                    <div id="btn-chat-product" className='btn btn-xs' onClick={this.toggleModalChat}> hubungi penjual </div>
+                                </div> */}
+                            </div>
                         </div>
 
                         <div className="product__sidebar">
@@ -807,7 +730,6 @@ class Product extends Component {
                                             <div className="row">
                                                 <div className="col-xs-12 col-sm-12 col-md-12 col-lg-7">
                                                     <div className="row">
-
                                                         <div className="col-xs-12 col-sm-12 col-md-12 col-lg-8 mt-2 pr-lg-1 pl-lg-3">
                                                             {cek_login == null || hide_harga == true ?
                                                                 (<AsyncAction
@@ -952,6 +874,14 @@ class Product extends Component {
                         </div>
                     </Modal>
 
+                    <Modal isOpen={this.state.modalChat_isOpen} size="xl" backdrop="static" >
+                        <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.toggleModalChat}>Chat</ModalHeader>
+                        <div className="card-body">
+                            <Messenger  company_id_buyer={decrypt(localStorage.getItem('CompanyIDLogin'))} company_id_seller={product.company_id} 
+                                        barang_id={product.barang_id} type={"barang"} barang_image={product.foto} barang_nama={product.nama}/>
+                        </div>
+                    </Modal>
+
                     <Dialog
                         maxWidth="xs"
                         open={this.state.openresponlangganan}
@@ -1011,7 +941,7 @@ class Product extends Component {
             );
         }
         else {
-         
+
             return (
                 <div className={`product product--layout--${layout}`}>
                     <div className="product__content">
@@ -1059,26 +989,25 @@ class Product extends Component {
                             <div className="product__description">
                                 {product.deskripsi}
                             </div>
-                            {/* <ul className="product__features">
-                                <li>Speed: 750 RPM</li>
-                                <li>Power Source: Cordless-Electric</li>
-                                <li>Battery Cell Type: Lithium</li>
-                                <li>Voltage: 20 Volts</li>
-                                <li>Battery Capacity: 2 Ah</li>
-                            </ul> */}
                             <ul className="product__meta">
-                                <li className="product__meta-availability">
+                                {/* <li className="product__meta-availability">
                                     Dijual oleh :
                                     {' '}
-                                    <strong>{product.nama_perusahaan}</strong>
-                                    {/* <span className="text-success">{product.nama_perusahaan}</span> */}
-                                </li>
-                                {/* <li>
-                                    Brand:
-                                    <Link to="/">Wakita</Link>
-                                </li>
-                                <li>SKU: 83690/32</li> */}
+                                    <strong>{product.nama_perusahaan}{product.nama_perusahaan}{product.nama_perusahaan}{product.nama_perusahaan}</strong>
+                                </li> */}
                             </ul>
+                            <div className="row">
+                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-9">
+                                    <li className="product__meta-availability">
+                                        Dijual oleh :
+                                            {' '}
+                                        <strong>{product.nama_perusahaan}</strong>
+                                    </li>
+                                </div>
+                                {/* <div className="col-xs-12 col-sm-12 col-md-12 col-lg-3">
+                                    <div id="btn-chat-product" className='btn btn-xs' onClick={this.toggleModalChat}> hubungi penjual </div>
+                                </div> */}
+                            </div>
                         </div>
 
                         <div className="product__sidebar">
@@ -1103,24 +1032,12 @@ class Product extends Component {
                                             <label htmlFor="product-quantity" >Kuantitas ({product.satuan})</label>
                                             <div className="row">
                                                 <div className="col-xs-12 col-sm-12 col-md-12 col-lg-7">
-                                                    {/* <InputNumberMax
-                                                        id="product-quantity-beli"
-                                                        aria-label="Quantity"
-                                                        className="product__quantity"
-                                                        size="md"
-                                                        min={product.jumlah_min_beli}
-                                                        value={quantity}
-                                                        kelipatan={product.berat}
-                                                        onChange={this.handleChangeQuantity}
-                                                    /> */}
-
                                                     <div className={classes} style={{ width: '100%' }}>
                                                         <NumberFormat id="product-quantity-beli" value={quantity} onChange={() => this.handleChangeQuantity()} spellCheck="false" autoComplete="off" allowNegative={false}
                                                             className={formControlClasses} thousandSeparator={'.'} decimalSeparator={','} />
                                                         <div className="input-number__add" onMouseDown={() => this.handleAddMouseDown(product.berat, 'beli')} />
                                                         <div className="input-number__sub" onMouseDown={() => this.handleSubMouseDown(product.berat, product.jumlah_min_beli, 'beli')} />
                                                     </div>
-
                                                 </div>
                                             </div>
                                             <div className="row">
@@ -1272,6 +1189,14 @@ class Product extends Component {
                                     <i class={this.state.icon_nego1} aria-hidden="true" style={{ color: '#F87E45', marginLeft: '1px', marginRight: '1px' }}></i>
                                 </label>
                             </div>
+                        </div>
+                    </Modal>
+
+                    <Modal isOpen={this.state.modalChat_isOpen} size="xl" backdrop="static" >
+                        <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.toggleModalChat}>Chat</ModalHeader>
+                        <div className="card-body">
+                            <Messenger  company_id_buyer={decrypt(localStorage.getItem('CompanyIDLogin'))} company_id_seller={product.company_id} 
+                                        barang_id={product.barang_id} type={"barang"} barang_image={product.foto} barang_nama={product.nama}/>                        
                         </div>
                     </Modal>
 

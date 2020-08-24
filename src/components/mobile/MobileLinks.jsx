@@ -16,27 +16,34 @@ function MobileLinks(props) {
 
     const handleItemClick = (item) => {
         if (onItemClick) {
-            if(item.label == 'Keluar'){
+            if (item.label == 'Keluar') {
                 ClickLogout()
             }
             onItemClick(item);
         }
     };
-    
+
     const ClickLogout = () => {
-        let query = encrypt("delete from gcm_notification_token where user_id = " + decrypt(localStorage.getItem('UserIDLogin')) +
-            " and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and token = '" + decrypt(localStorage.getItem('Token')) + "'")
-        Axios.post(url.select, {
-            query: query
-        }).then(data => {
+        if (localStorage.getItem('Token') != null) {
+            let query = encrypt("delete from gcm_notification_token where user_id = " + decrypt(localStorage.getItem('UserIDLogin')) +
+                " and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and token = '" + decrypt(localStorage.getItem('Token')) + "'")
+            Axios.post(url.select, {
+                query: query
+            }).then(data => {
+                window.location.reload()
+                localStorage.clear();
+                this.props.history.push('/')
+            }).catch(err => {
+                // console.log('error');
+                // console.log(err);
+            })
+
+        }
+        else {
             window.location.reload()
             localStorage.clear();
-        }).catch(err => {
-            // console.log('error');
-            // console.log(err);
-        })
-        // window.location.reload()
-        // localStorage.clear();
+        }
+
     };
 
     const linksList = links.map((link, index) => {

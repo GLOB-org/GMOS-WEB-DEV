@@ -737,7 +737,7 @@ class AccountPageDashboard extends Component {
             var queryalamat = "with new_insert as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) values (" +
                 this.state.inputKelurahan + "," + this.state.inputKecamatan + "," + this.state.inputKota + "," + this.state.inputProvinsi + "," + this.state.inputKodePOS + ", '" + this.state.inputNoTelp + "', 'N', 'N', " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", '" + this.state.inputAlamat + "', 'A') returning id ) "
 
-            queryalamat = queryalamat + "insert into gcm_listing_alamat_temp (id_master_alamat, id_buyer, id_seller, kode_shipto_customer, kode_billto_customer) values "
+            queryalamat = queryalamat + "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_shipto_customer, kode_billto_customer) values "
             var loop = ""
             for (var i = 0; i < this.state.data_company_listing.length; i++) {
                 loop = loop + "((select id from new_insert)," + decrypt(localStorage.getItem('CompanyIDLogin')) + "," + this.state.data_company_listing[i].seller_id + ",null, null)"
@@ -770,7 +770,7 @@ class AccountPageDashboard extends Component {
                     "', 'Y', " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", '" + this.state.inputAlamat + "', 'A') returning id ), " + update_shipbill_cart
                     // "new_update_cart_billto as ( update gcm_master_cart set billto_id = (select id from new_insert) where billto_id = " + this.state.selected_update + " and status = 'A' )" + update_shipto_cart
 
-                queryalamat = queryalamat + "insert into gcm_listing_alamat_temp (id_master_alamat, id_buyer, id_seller, kode_shipto_customer, kode_billto_customer) values "
+                queryalamat = queryalamat + "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_shipto_customer, kode_billto_customer) values "
                 var loop = ""
 
                 for (var i = 0; i < this.state.data_company_listing.length; i++) {

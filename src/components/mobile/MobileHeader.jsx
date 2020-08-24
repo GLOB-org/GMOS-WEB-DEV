@@ -215,55 +215,49 @@ class MobileHeader extends Component {
                             <div className="mobile-header__indicators">
                                 {checkLogin ?
                                     (
-                                        <CartContext.Consumer>
-                                            {value => {
-                                                const load = value.cart.check_load
-                                                var value_cart_count = 0
-                                                if (load == 'no') {
-                                                    value_cart_count = this.state.data_cart_count
-                                                }
-                                                else if (load == 'yes') {
-                                                    value_cart_count = value.cart.count_data_cart
-                                                }
+                                        // <CartContext.Consumer>
+                                        //     {value => {
+                                        //         const load = value.cart.check_load
+                                        //         var value_cart_count = 0
+                                        //         if (load == 'no') {
+                                        //             value_cart_count = this.state.data_cart_count
+                                        //         }
+                                        //         else if (load == 'yes') {
+                                        //             value_cart_count = value.cart.count_data_cart
+                                        //         }
 
-                                                return (
-                                                    // <Indicator
-                                                    //     className="indicator--mobile "
-                                                    //     type="notification"
-                                                    //     dropdown={dropdown_null}
-                                                    //     value={value_cart_count}
-                                                    //     icon={<Notif20Svg />}
-                                                    // />
+                                        //         return (
+                                                 
+                                        //             <CartContext.Consumer>
+                                        //                 {value => {
+                                        //                     const load = value.notif.check_load_notif;
+                                        //                     const count_notif = value.notif.count_data_notif;
 
-                                                    <CartContext.Consumer>
-                                                        {value => {
-                                                            const load = value.notif.check_load_notif;
-                                                            const count_notif = value.notif.count_data_notif;
-
-                                                            if (count_notif > 0) {
-                                                                return load == 'yes' ? (
-                                                                    <Indicator type={'notification'} className="indicator--mobile " dropdown={dropdown} value={count_notif} icon={<Notif20Svg />} />
-                                                                ) : (
-                                                                        <Indicator type={'notification'} className="indicator--mobile " dropdown={dropdown} value={this.state.data_notif.length} icon={<Notif20Svg />} />
-                                                                    );
-                                                            }
-                                                            else if (load == "no" && count_notif == 0 && this.state.data_notif.length == 0) {
-                                                                return (
-                                                                    <Indicator type={'notification'} className="indicator--mobile " dropdown={dropdown_null} value={count_notif} icon={<Notif20Svg />} />
-                                                                )
-                                                            }
-                                                            else {
-                                                                return load == 'yes' ? (
-                                                                    <Indicator type={'notification'} className="indicator--mobile " dropdown={dropdown_null} value={count_notif} icon={<Notif20Svg />} />
-                                                                ) : (
-                                                                        <Indicator type={'notification'} className="indicator--mobile " dropdown={dropdown_first} value={this.state.data_notif.length} icon={<Notif20Svg />} />
-                                                                    );
-                                                            }
-                                                        }}
-                                                    </CartContext.Consumer>
-                                                )
-                                            }}
-                                        </CartContext.Consumer>
+                                        //                     if (count_notif > 0) {
+                                        //                         return load == 'yes' ? (
+                                        //                             <Indicator type={'notification'} className="indicator--mobile " dropdown={dropdown} value={count_notif} icon={<Notif20Svg />} />
+                                        //                         ) : (
+                                        //                                 <Indicator type={'notification'} className="indicator--mobile " dropdown={dropdown} value={this.state.data_notif.length} icon={<Notif20Svg />} />
+                                        //                             );
+                                        //                     }
+                                        //                     else if (load == "no" && count_notif == 0 && this.state.data_notif.length == 0) {
+                                        //                         return (
+                                        //                             <Indicator type={'notification'} className="indicator--mobile " dropdown={dropdown_null} value={count_notif} icon={<Notif20Svg />} />
+                                        //                         )
+                                        //                     }
+                                        //                     else {
+                                        //                         return load == 'yes' ? (
+                                        //                             <Indicator type={'notification'} className="indicator--mobile " dropdown={dropdown_null} value={count_notif} icon={<Notif20Svg />} />
+                                        //                         ) : (
+                                        //                                 <Indicator type={'notification'} className="indicator--mobile " dropdown={dropdown_first} value={this.state.data_notif.length} icon={<Notif20Svg />} />
+                                        //                             );
+                                        //                     }
+                                        //                 }}
+                                        //             </CartContext.Consumer>
+                                        //         )
+                                        //     }}
+                                        // </CartContext.Consumer>
+                                        null
                                     ) :
                                     (
                                         <NavLink to="/masuk">

@@ -45,17 +45,17 @@ class IndicatorChat extends Component {
 
             this.setState({count_chat: count_new_chat})
             
-            if (this.state.first_call_chat == false) {
-                if(this.state.modalChat_isOpen == false){
-                    const options = {
-                        autoClose: false,
-                        className: 'custom-toast',
-                        position: 'bottom-right',
-                        autoClose: 7000
-                    };
-                    toast.success('💬 Ada pesan baru', options);
-                }
-            }
+            // if (this.state.first_call_chat == false) {
+            //     if(this.state.modalChat_isOpen == false){
+            //         const options = {
+            //             autoClose: false,
+            //             className: 'custom-toast',
+            //             position: 'bottom-right',
+            //             autoClose: 7000
+            //         };
+            //         toast.success('💬 Ada pesan baru', options);
+            //     }
+            // }
             
             if (this.state.first_call_chat == true) {
                 this.setState({ first_call_chat: false })
@@ -97,7 +97,8 @@ class IndicatorChat extends Component {
             <Modal isOpen={this.state.modalChat_isOpen} size="xl" backdrop="static" >
                 <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.toggleModalChat}>Chat</ModalHeader>
                 <div className="card-body">
-                    <Messenger />
+                    <Messenger  company_id_buyer={""} company_id_seller={""} barang_id={""} type={"text"}
+                                barang_image={""} barang_nama={""}/> 
                 </div>
             </Modal>
         )

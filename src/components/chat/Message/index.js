@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment';
+import NumberFormat from 'react-number-format';
 import 'moment/locale/id';
 import './Message.css';
 
@@ -7,13 +8,14 @@ export default function Message(props) {
     const {
       data,
       isMine,
+      tagProduct,
+      product,
       startsSequence,
       endsSequence,
       showTimestamp
     } = props;
 
     moment.locale('id')
-
     //cek hari ini
     var date_now = moment(new Date().getTime()).format('L')
     var date_chat = moment(data.timestamp.time).format('L')
@@ -32,12 +34,21 @@ export default function Message(props) {
     var get_time = get_hours.toString() + ":" + get_minutes.toString()
     var chat_time = moment(get_time,'HHmm').format("HH:mm")
 
+    var read = data.read
+    if(read == true){
+      var icon_read = "/images/double-tick-15-bold.png"
+    }
+    else {
+      var icon_read = "/images/double-tick-15-grey.png"
+    }
+
     return (
       <div className={[
         'message',
         `${isMine ? 'mine' : ''}`,
         `${startsSequence ? 'start' : ''}`,
-        `${endsSequence ? 'end' : ''}`
+        `${endsSequence ? 'end' : ''}`,
+        // `${tagProduct ? 'tag-product' : ''}`,
       ].join(' ')}>
         {
           showTimestamp &&
@@ -48,12 +59,40 @@ export default function Message(props) {
 
         {isMine ?  
           (
-            <div className="bubble-container">
-              <p className="bubble-time" style={{marginRight:'5px'}}>{chat_time}</p>
-              <div className="bubble" title={friendlyTimestamp}>
-                { data.contain }
+            tagProduct ? (
+              <div className="bubble-container">
+                <p className="bubble-time" style={{marginRight:'5px'}}>
+                  <img className="box-chat-read" src={icon_read} />
+                </p>
+                <p className="bubble-time" style={{marginRight:'5px'}}>{chat_time}</p>
+                <div className="bubble" title={friendlyTimestamp}>
+                    <div className="box_chat">
+                      <div className="box-chat-header">
+                        <img className="box-chat-photo" src={ product.foto } alt="" />
+                        <div className="conversation-info">
+                          <h1 className="conversation-title box-chat-title">{ product.nama }</h1>
+                          <p className="box-chat-snippet">
+                            <NumberFormat value={Math.ceil(Number(product.price) * Number(product.kurs))} displayType={'text'} 
+                                          allowNegative={false} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /> / {product.satuan}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="box-chat-message">{ data.contain }</div>
+                    </div>  
+                </div>
               </div>
-            </div>
+            ):(
+              <div className="bubble-container">           
+                <p className="bubble-time" style={{marginRight:'5px'}}>
+                  <img className="box-chat-read" src={icon_read} />
+                </p>
+                <p className="bubble-time" style={{marginRight:'5px'}}>{chat_time}</p>
+                <div className="bubble" title={friendlyTimestamp}>
+                  { data.contain }
+                </div>
+              </div>
+            )
+            
           ):
           (
             <div className="bubble-container">

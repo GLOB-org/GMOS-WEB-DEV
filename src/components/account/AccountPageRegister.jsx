@@ -381,7 +381,7 @@ export default class AccountPageRegister extends Component {
 
             if (this.state.inputTipeRegister == 'B') {
                 let listing_company = "new_insert5 as (INSERT INTO gcm_company_listing (buyer_id, seller_id, buyer_number_mapping, seller_number_mapping, blacklist_by, notes_blacklist) VALUES "
-                let listing_alamat = "insert into gcm_listing_alamat_temp (id_master_alamat, id_buyer, id_seller, kode_shipto_customer, kode_billto_customer) VALUES "
+                let listing_alamat = "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_shipto_customer, kode_billto_customer) VALUES "
                 let loop_company = ""
                 let loop_alamat = ""
                 let length = this.state.selectedPenjual.length;

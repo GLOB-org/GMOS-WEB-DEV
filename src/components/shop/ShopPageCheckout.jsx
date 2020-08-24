@@ -654,12 +654,12 @@ class ShopPageCheckout extends Component {
         let check_mapping_alamat = encrypt("select shipto.nama_perusahaan_shipto, billto.nama_perusahaan_billto  from ( "+
             "select   string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan_billto from (select distinct a.billto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a "+ 
             "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A')a "+
-            "inner join gcm_listing_alamat_temp b on a.billto_id = b.id_master_alamat and a.company_id = b.id_buyer "+
+            "inner join gcm_listing_alamat b on a.billto_id = b.id_master_alamat and a.company_id = b.id_buyer "+
             "and a.seller_id = b.id_seller inner join gcm_master_company c on b.id_seller = c.id and b.kode_billto_customer is null "+
             ") billto, ( "+
             "select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan_shipto from (select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a "+
             "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A')a "+
-            "inner join gcm_listing_alamat_temp b on a.shipto_id = b.id_master_alamat and a.company_id = b.id_buyer "+
+            "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat and a.company_id = b.id_buyer "+
             "and a.seller_id = b.id_seller inner join gcm_master_company c on b.id_seller = c.id and b.kode_shipto_customer is null "+
             ") shipto")
 

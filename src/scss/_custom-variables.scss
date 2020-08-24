@@ -17,6 +17,15 @@ sans-serif;
     width: 100%;
 }
 
+#btn-chat-product {
+    background-color: white;
+    border-radius: 5px;
+    border: 1px solid #8CC63E;
+    color: #8CC63E;
+    white-space: nowrap;
+    float: right; 
+}
+
 #searchBarTransaction {
     border-width: 2px;
     border-color: rgb(238, 238, 238);
@@ -83,6 +92,19 @@ hr {
 
 #btnSetuju:hover {
     background-color: rgb(224, 65, 73);
+}
+
+.chat-product {
+    float: right;
+}
+
+.img-chat-product{
+    float: right;
+    width: 25px;
+    height: 25px;
+    // display: flex;
+    // align-items: flex-end;
+    object-fit: cover;
 }
 
 #input-otp {
