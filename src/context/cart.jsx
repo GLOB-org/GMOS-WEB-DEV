@@ -90,8 +90,8 @@ export default class CartContainer extends Component {
     loadDataNotif = async () => {
 
         let query = encrypt("select barang_id, barang_nama, buyer_id, buyer_nama, " +
-            "seller_id, seller_nama from gcm_notification_nego where read_flag = 'N' and source = 'seller' " +
-            "and buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " order by date desc")
+            "seller_id, seller_nama, to_char(date, 'dd-MM-yyyy / HH24:MI') as date from gcm_notification_nego where read_flag = 'N' and source = 'seller' " +
+            "and now() >= date and buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " order by date desc")
 
         await Axios.post(url.select, {
             query: query
@@ -115,7 +115,7 @@ export default class CartContainer extends Component {
             autoClose: false,
             className: 'custom-toast',
             position: 'bottom-right',
-            autoClose: 7000
+            // autoClose: 7000
         };
         setTimeout(function () {
             toast.success('Ada balasan nego dari penjual', options);
@@ -123,65 +123,121 @@ export default class CartContainer extends Component {
     }
 
     getNotifikasi = (get_message) => {
-        this.loadDataNotif()
-        this.buildAlert()
+        // this.loadDataNotif()
+        // this.buildAlert()
     }
 
-    sendNotifikasi = async (get_barang_id, get_barang_nama, get_buyer_id,
-        get_seller_id, get_seller_nama, get_token, get_check_nego_auto) => {
-        const timeout = 0
-        const data_token = []
+    sendNotifikasi = async (get_send_nego, get_barang_id, get_barang_nama, get_buyer_id,
+        get_seller_id, get_seller_nama, get_token, get_check_nego_auto, get_id_master_cart) => {
+        const data_token_buyer = []
+        const data_token_seller = []
 
-        let query = encrypt("insert into gcm_notification_nego (barang_id, barang_nama, buyer_id, " +
-            "buyer_nama, seller_id, seller_nama, source) values (" + get_barang_id + ",'" + get_barang_nama +
-            "'," + get_buyer_id + ",(select nama_perusahaan from gcm_master_company where id = " + get_buyer_id +
-            ")," + get_seller_id + ",'" + get_seller_nama + "', 'buyer')");
+        if (get_send_nego == true) {
 
-        await Axios.post(url.select, {
-            query: query
-        }).then(data => {
+            if (get_check_nego_auto == true) {
+                var query = encrypt("insert into gcm_notification_nego (barang_id, barang_nama, buyer_id, " +
+                    "buyer_nama, seller_id, seller_nama, source, date) values (" + get_barang_id + ",'" + get_barang_nama +
+                    "'," + get_buyer_id + ",(select nama_perusahaan from gcm_master_company where id = " + get_buyer_id +
+                    ")," + get_seller_id + ",'" + get_seller_nama + "', 'seller', now() + interval '1 hour')");
 
-            if (get_token.length > 0) {
+            }
+            else {
+                var query = encrypt("insert into gcm_notification_nego (barang_id, barang_nama, buyer_id, " +
+                    "buyer_nama, seller_id, seller_nama, source) values (" + get_barang_id + ",'" + get_barang_nama +
+                    "'," + get_buyer_id + ",(select nama_perusahaan from gcm_master_company where id = " + get_buyer_id +
+                    ")," + get_seller_id + ",'" + get_seller_nama + "', 'buyer')");
 
-                //array token
-                for (var i = 0; i < get_token.length; i++) {
-                    data_token.push(get_token[i].token)
-                }
-                if (get_check_nego_auto == true) {
-                    data_token.push(decrypt(localStorage.getItem('Token')))
-                    //timeout = 3600000
-                    timeout = 0
-                }
-
-                console.log('send to :')
-                console.log(data_token)
-
-                const fetchOptions = {
-                    "registration_ids": data_token,
-                    "notification": {
-                        "title": "Title of your notification",
-                        "body": "content of your notification"
-                    },
-                    "data": {
-                        "key1": "value1",
-                        "key2": "value2"
-                    }
-                }
-
-                setTimeout(() => {
-                    Axios.post("https://fcm.googleapis.com/fcm/send", fetchOptions, {
-                        headers: {
-                            "Authorization": "key=AAAA6NuQ4as:APA91bG9s8KnXjq2LjuRtTBDxcBXfM-D3AHk5Lcpstlf6uMU1tmc-M9FHK78w0FXk7uGfwHn4isfg6KFJnJeuIgHyVASgch_jo1ATWab_eB9WF4ArQw22Xli9owTQwFnRL64-ERS5-0Z",
-                            "Content-Type": "application/json"
-                        }
-                    })
-                }, timeout);
             }
 
-        }).catch(err => {
-            console.log('error' + err);
-            console.log(err);
-        })
+            await Axios.post(url.select, {
+                query: query
+            }).then(data => {
+
+                if (get_check_nego_auto == true) {
+                    var nego_type = "nego_persen"
+                }
+                else {
+                    var nego_type = "nego_sales"
+                }
+
+                const body = {
+                    nego_type: nego_type,
+                    timeout: 60000,
+                    id_cart: get_id_master_cart,
+                    company_id_buyer: get_buyer_id,
+                    company_id_seller: get_seller_id,
+                }
+
+                Axios.post("https://glob.co.id/External/sendNotification", body)
+                    .then(res => {
+                        console.log(res);
+                    })
+
+
+                // if (get_token.length > 0) {
+                //     if (get_check_nego_auto == true) {
+                //         for (var i = 0; i < get_token.length; i++) {
+                //             if (get_token[i].company_id == Number(decrypt(localStorage.getItem('CompanyIDLogin')))) {
+                //                 data_token_buyer.push(get_token[i].token)
+                //             }
+                //             else {
+                //                 data_token_seller.push(get_token[i].token)
+                //             }
+                //         }
+
+                //         const body_buyer = {
+                //             token: data_token_buyer,
+                //             timeout: 300000,
+                //             id_cart: get_id_master_cart
+                //         }
+
+                //         const body_seller = {
+                //             token: data_token_seller,
+                //             timeout: 0,
+                //             id_cart: get_id_master_cart
+                //         }
+
+                //         // send to buyer
+                //         Axios.post("https://glob.co.id/External/sendNotification", body_buyer)
+                //             .then(res => {
+                //                 console.log('send to buyer')
+                //                 console.log(res);
+                //             })
+
+                //         // send to seller    
+                //         if (data_token_seller.length > 0) {
+                //             Axios.post("https://glob.co.id/External/sendNotification", body_seller)
+                //                 .then(res => {
+                //                     console.log('send to seller')
+                //                     console.log(res);
+                //                 })
+                //         }
+                //     }
+                //     else {
+                //         for (var i = 0; i < get_token.length; i++) {
+                //             data_token_seller.push(get_token[i].token)
+                //         }
+
+                // const body = {
+                //     token: data_token_seller,
+                //     timeout: 300000,
+                //     id_cart: get_id_master_cart
+                // }
+
+                // Axios.post("https://glob.co.id/External/sendNotification", body)
+                //     .then(res => {
+                //         console.log(res);
+                //     })
+                //     }
+
+                // }
+
+            }).catch(err => {
+                console.log('error' + err);
+                console.log(err);
+            })
+        }
+
     }
 
     sendNotif = (get_seller_id, get_harga_nego, get_check_nego_auto) => {

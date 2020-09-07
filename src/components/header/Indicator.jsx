@@ -92,7 +92,7 @@ class Indicator extends Component {
         let button;
 
         if (value !== undefined) {
-            if (type == 'cart') {
+            if (type == 'cart' || type == 'chat') {
                 value = <span id="count_cart" className="indicator__value indicator-cart">{value}</span>;
             }
             else {

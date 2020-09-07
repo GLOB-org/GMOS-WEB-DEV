@@ -44,7 +44,7 @@ export default class AccountPageRegister extends Component {
             listKelurahan: [],
             listPenjual: [],
             listPenjuallength: '',
-            data_username: [],
+            data_user: [],
             selectedPenjual: [],
             listTipeBisnis: [],
             openListPenjual: false, openConfirmationUpload: false, openInfoBerkas: false,
@@ -408,19 +408,81 @@ export default class AccountPageRegister extends Component {
             Toast.loading('loading . . .', () => {
             });
 
+            let check_user_exist = encrypt("select * from " +
+                "(select count (username) as check_username from gcm_master_user gmu where username like '" + this.state.inputUsername + "') a, " +
+                "(select count (no_hp) check_nohp from gcm_master_user gmu where no_hp like '" + this.state.inputNoHP + "') b, " +
+                "(select count (email) check_email from gcm_master_user gmu where email like '" + this.state.inputEmailAkun + "') c, " +
+                "(select count (no_ktp) check_no_ktp from gcm_master_user gmu where no_ktp like '" + this.state.inputNoKTP + "') d ")
+
             Axios.post(url.select, {
-                query: insert_company
+                query: check_user_exist
             }).then(data => {
 
-                Toast.hide()
-                this.setState({
-                    openListPenjual: false,
-                    isSuksesRegister: true
-                });
+                if (data.data.data[0].check_username != "0" ||
+                    data.data.data[0].check_no_ktp != "0" ||
+                    data.data.data[0].check_nohp != "0" ||
+                    data.data.data[0].check_email != "0"
+                ) {
+                    Toast.fail('Data yang diinputkan telah terdaftar. Periksa kembali data Anda !', 3000, () => {
+                    });
+                    this.controlListPenjual()
+                }
+
+                if (data.data.data[0].check_username != "0") {
+                    this.setState({
+                        empty_username: true,
+                        KetTextUsername: "Username telah terdaftar",
+                        selectedPenjual: []
+                    });
+                }
+                if (data.data.data[0].check_no_ktp != "0") {
+                    this.setState({
+                        empty_ktp: true,
+                        KetTextKTP: "Nomor KTP telah terdaftar",
+                        selectedPenjual: []
+                    });
+                }
+                if (data.data.data[0].check_nohp != "0") {
+                    this.setState({
+                        empty_nohp: true,
+                        KetNoHP: "Nomor handpone telah terdaftar",
+                        selectedPenjual: []
+                    });
+                }
+                if (data.data.data[0].check_email != "0") {
+                    this.setState({
+                        empty_emailakun: true,
+                        KetEmailAkun: "Email telah terdaftar",
+                        selectedPenjual: []
+                    });
+                }
+                if (data.data.data[0].check_username == "0" &&
+                    data.data.data[0].check_no_ktp == "0" &&
+                    data.data.data[0].check_nohp == "0" &&
+                    data.data.data[0].check_email == "0") {
+
+                    //insert data pendaftaran
+                    Axios.post(url.select, {
+                        query: insert_company
+                    }).then(data => {
+
+                        Toast.hide()
+                        this.setState({
+                            openListPenjual: false,
+                            isSuksesRegister: true
+                        });
+
+                    }).catch(err => {
+                        Toast.fail('Proses pendaftaran gagal', 2000, () => {
+                        });
+                    })
+                }
 
             }).catch(err => {
-                // console.log(err);
+                Toast.fail('Proses pendaftaran gagal', 2000, () => {
+                });
             })
+
         }
         else {
             Toast.info('Silakan pilih distributor !', 2500, () => {
@@ -637,11 +699,7 @@ export default class AccountPageRegister extends Component {
     }
 
     handleUpload = () => {
-
-        Toast.loading('loading . . .', () => {
-        });
         const temp = this.state.inputUrl
-        // const tempName = encrypt(temp.name)
         const tempName = temp.name
         const storageRef = storage.ref(`documents/` + tempName);
         const uploadTask = storageRef.put(temp)
@@ -649,6 +707,8 @@ export default class AccountPageRegister extends Component {
         let x = this
         uploadTask.on('state_changed', (snapshot) => {
             var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            Toast.loading('loading . . .', () => {
+            });
             // console.log('Upload is ' + progress + '% done');
         }, (error) => {
             // Handle unsuccessful uploads
@@ -753,12 +813,33 @@ export default class AccountPageRegister extends Component {
         else if (get_email == 'emailakun') {
             this.setState({ inputEmailAkun: get_input });
             if (get_input.match(mailformat) || get_input.length == 0) {
-                this.setState({ empty_emailakun: false });
-                this.setState({ KetText: "" });
+                this.setState({
+                    empty_emailakun: false,
+                    KetEmailAkun: ""
+                });
+
+                let check_email = this.state.data_user.filter(input_email => {
+                    return input_email.email === event.target.value;
+                });
+
+                if (check_email != '') {
+                    this.setState({
+                        empty_emailakun: true,
+                        KetEmailAkun: "Email telah terdaftar"
+                    });
+                }
+                else {
+                    this.setState({
+                        empty_emailakun: false,
+                        KetEmailAkun: ""
+                    });
+                }
             }
             else {
-                this.setState({ empty_emailakun: true });
-                this.setState({ KetEmailAkun: "Tidak valid" });
+                this.setState({
+                    empty_emailakun: true,
+                    KetEmailAkun: "Tidak valid"
+                });
             }
         }
 
@@ -777,8 +858,27 @@ export default class AccountPageRegister extends Component {
             this.setState({ KetTextKTP: "Tidak valid (" + get_input.length + "/16)" });
         }
         else if (get_input.length == 16 || get_input.length == 0) {
-            this.setState({ empty_ktp: false });
-            this.setState({ KetTextKTP: "" });
+            this.setState({
+                empty_ktp: false,
+                KetTextKTP: ""
+            });
+
+            let check_ktp = this.state.data_user.filter(input_ktp => {
+                return input_ktp.no_ktp === event.target.value;
+            });
+
+            if (check_ktp != '') {
+                this.setState({
+                    empty_ktp: true,
+                    KetTextKTP: "Nomor KTP telah terdaftar"
+                });
+            }
+            else {
+                this.setState({
+                    empty_ktp: false,
+                    KetTextKTP: ""
+                });
+            }
         }
     }
 
@@ -874,12 +974,28 @@ export default class AccountPageRegister extends Component {
                     }
 
                     else if ((get_input.substring(0, 1) == '0' && get_input.length >= 10)) {
+
                         this.setState({
-                            empty_nohp: false
-                        });
-                        this.setState({
+                            empty_nohp: false,
                             KetNoHP: ""
                         });
+
+                        let check_no_hp = this.state.data_user.filter(input_no_hp => {
+                            return input_no_hp.no_hp === event.target.value;
+                        });
+
+                        if (check_no_hp != '') {
+                            this.setState({
+                                empty_nohp: true,
+                                KetNoHP: "Nomor handpone telah terdaftar"
+                            });
+                        }
+                        else {
+                            this.setState({
+                                empty_nohp: false,
+                                KetNoHP: ""
+                            });
+                        }
                     }
                 }
 
@@ -1010,12 +1126,12 @@ export default class AccountPageRegister extends Component {
         else if (get_input.length >= 8 || get_input.length == 0) {
             this.setState({ empty_username: false });
             this.setState({ KetTextUsername: "" });
-            let check_username = this.state.data_username.filter(input_username => {
+            let check_username = this.state.data_user.filter(input_username => {
                 return input_username.username === event.target.value;
             });
             if (check_username != '') {
                 this.setState({ empty_username: true });
-                this.setState({ KetTextUsername: "Username sudah digunakan" });
+                this.setState({ KetTextUsername: "Username telah terdaftar" });
             }
             else {
                 this.setState({ empty_username: false });
@@ -1079,12 +1195,12 @@ export default class AccountPageRegister extends Component {
         })
 
         //get daftar username
-        let query_username = encrypt("select username from gcm_master_user")
+        let query_username = encrypt("select username, email, no_hp, no_ktp from gcm_master_user")
 
         Axios.post(url.select, {
             query: query_username
         }).then(data => {
-            this.setState({ data_username: data.data.data });
+            this.setState({ data_user: data.data.data });
         }).catch(err => {
             // console.log('error' + err);
             // console.log(err);

@@ -71,13 +71,11 @@ export default class AccountPageLogin extends Component {
             Axios.post(url.select, {
                 query: query
             }).then(data => {
+                console.log('store token success')
                 localStorage.setItem('Token', encrypt(token));
-            }).catch(err => {
-                // console.log('error');
-                // console.log(err);
             })
         }).catch((error) => {
-            console.log('error')
+            console.log('error get token')
             console.log(error)
         })
     }
@@ -312,8 +310,6 @@ export default class AccountPageLogin extends Component {
             });
 
             await Axios.post(RootGetOtp, dataCheckGetOtp).then(res => {
-                // let status = res.data.successCode
-                // let messageid = res.data.messageID
 
                 if (this.state.valueOTP === this.state.sendValueOTP) {
                     let query = encrypt("update gcm_master_user set status='A', update_by=" + this.state.data[0].id +
@@ -541,7 +537,7 @@ export default class AccountPageLogin extends Component {
                                                     value={this.state.inputTipeOTP}
                                                 >
                                                     <option value="" disabled selected hidden></option>
-                                                    {/* <option value="WA" >WhatsApp</option> */}
+                                                    <option value="WA" >WhatsApp</option>
                                                     <option value="SMS">SMS</option>
 
                                                 </Input>

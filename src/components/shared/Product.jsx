@@ -54,6 +54,7 @@ class Product extends Component {
             modalChat_isOpen: false,
             count_barangnego: '',
             respons_nego: '',
+            send_nego: false,
             displaynegosuccess: false,
             icon_nego1: 'fas fa-circle fa-xs',
             icon_nego2: 'fas fa-circle fa-xs',
@@ -217,9 +218,16 @@ class Product extends Component {
     }
 
     toggleModalChat = () => {
-        this.setState({
-            modalChat_isOpen: !this.state.modalChat_isOpen
-        })
+        const cek_login = localStorage.getItem('Login')
+        if (this.props.hide_harga == true || cek_login == null) {
+            this.setState({ openresponlangganan: true })
+        }
+        else {
+            this.setState({
+                modalChat_isOpen: !this.state.modalChat_isOpen
+            })
+        }
+
     }
 
     toggleModalnegomax = () => {
@@ -399,22 +407,6 @@ class Product extends Component {
                     disablekirimnego: false
                 });
 
-                //get token
-                let query_token = encrypt("select distinct token from gcm_notification_token where user_id in " +
-                    "(select id_sales from gcm_company_listing_sales where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
-                    " and seller_id = " + product.company_id + " and status = 'A')")
-
-                Axios.post(url.select, {
-                    query: query_token
-                }).then(async (data) => {
-                    this.setState({
-                        get_sales_token: data.data.data
-                    });
-                }).catch(err => {
-                    // console.log('error');
-                    // console.log(err);
-                })
-
                 //cek nego auto
                 let cek_negoauto = encrypt("select price, price_terendah, persen_nego_1, persen_nego_2, persen_nego_3 from  gcm_list_barang  where  id = " + product.id)
                 Axios.post(url.select, {
@@ -437,9 +429,23 @@ class Product extends Component {
                         persen_nego: data.data.data[0].persen_nego_1
                     });
 
-                }).catch(err => {
-                    // console.log('error');
-                    // console.log(err);
+                })
+
+                //get token
+                var query_token = "select distinct token, company_id from gcm_notification_token where user_id in " +
+                    "(select id_sales from gcm_company_listing_sales where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+                    " and seller_id = " + product.company_id + " and status = 'A')"
+
+                if (this.state.nego_auto == true) {
+                    query_token = query_token + " or company_id = " + decrypt(localStorage.getItem('CompanyIDLogin'))
+                }
+
+                Axios.post(url.select, {
+                    query: encrypt(query_token)
+                }).then(async (data) => {
+                    this.setState({
+                        get_sales_token: data.data.data
+                    });
                 })
 
                 let cek_statuscart = encrypt("select a.id, a.history_nego_id, a.status, a.nego_count, a.qty, c.berat, b.persen_nego_1, b.persen_nego_2, b.persen_nego_3 from " +
@@ -468,6 +474,11 @@ class Product extends Component {
 
 
         const submit_nego = async () => {
+
+            await this.setState({
+                send_nego: false
+            })
+
             var harga_barang = Math.ceil(product.price * product.kurs)
             var input_nego = Number(document.getElementById("inputNego").value.split('.').join(""))
 
@@ -487,16 +498,35 @@ class Product extends Component {
                 }
                 else {
 
-                    let query = encrypt("INSERT INTO gcm_master_cart (company_id, barang_id, qty, harga_konsumen, harga_sales, create_by, update_by, shipto_id, billto_id, payment_id) VALUES " +
-                        "(" + decrypt(localStorage.getItem('CompanyIDLogin')) + "," +
-                        product.id + "," +
-                        (this.state.quantity_nego / product.berat) + "," +
-                        (document.getElementById("inputNego").value.split('.').join("") * this.state.quantity_nego) + ",null ," +
-                        decrypt(localStorage.getItem('UserIDLogin')) + "," +
-                        decrypt(localStorage.getItem('UserIDLogin')) + "," +
-                        this.state.data_alamat_shipto + "," +
-                        this.state.data_alamat_billto + "," +
-                        this.state.payment_id + ") returning id");
+                    await this.setState({
+                        send_nego: true
+                    })
+
+                    if (this.state.nego_auto == true) {
+                        var query = encrypt("INSERT INTO gcm_master_cart (company_id, barang_id, qty, harga_konsumen, harga_sales, create_by, update_by, shipto_id, billto_id, payment_id) VALUES " +
+                            "(" + decrypt(localStorage.getItem('CompanyIDLogin')) + "," +
+                            product.id + "," +
+                            (this.state.quantity_nego / product.berat) + "," +
+                            (document.getElementById("inputNego").value.split('.').join("") * this.state.quantity_nego) + ", " +
+                            (Math.ceil(this.state.respons_nego * product.kurs) * this.state.quantity_nego) + "," +
+                            decrypt(localStorage.getItem('UserIDLogin')) + "," +
+                            decrypt(localStorage.getItem('UserIDLogin')) + "," +
+                            this.state.data_alamat_shipto + "," +
+                            this.state.data_alamat_billto + "," +
+                            this.state.payment_id + ") returning id");
+                    }
+                    else {
+                        var query = encrypt("INSERT INTO gcm_master_cart (company_id, barang_id, qty, harga_konsumen, harga_sales, create_by, update_by, shipto_id, billto_id, payment_id) VALUES " +
+                            "(" + decrypt(localStorage.getItem('CompanyIDLogin')) + "," +
+                            product.id + "," +
+                            (this.state.quantity_nego / product.berat) + "," +
+                            (document.getElementById("inputNego").value.split('.').join("") * this.state.quantity_nego) + ", null ," +
+                            decrypt(localStorage.getItem('UserIDLogin')) + "," +
+                            decrypt(localStorage.getItem('UserIDLogin')) + "," +
+                            this.state.data_alamat_shipto + "," +
+                            this.state.data_alamat_billto + "," +
+                            this.state.payment_id + ") returning id");
+                    }
 
                     Toast.loading('loading . . .', () => {
                     });
@@ -856,7 +886,7 @@ class Product extends Component {
                                     <button type="submit" onClick={async () => {
                                         await submit_nego(); await value.loadDataCart();
                                         await value.loadDataNotif();
-                                        await value.sendNotifikasi(product.barang_id, product.nama, decrypt(localStorage.getItem('CompanyIDLogin')),
+                                        await value.sendNotifikasi(this.state.send_nego, product.barang_id, product.nama, decrypt(localStorage.getItem('CompanyIDLogin')),
                                             product.company_id, product.nama_perusahaan, this.state.get_sales_token, product.nego_auto)
                                         await this.statusbarang_cart();
                                     }} style={{ width: '100%' }} className="btn btn-primary" disabled={this.state.disable_button_nego}>
@@ -877,8 +907,8 @@ class Product extends Component {
                     <Modal isOpen={this.state.modalChat_isOpen} size="xl" backdrop="static" >
                         <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.toggleModalChat}>Chat</ModalHeader>
                         <div className="card-body">
-                            <Messenger  company_id_buyer={decrypt(localStorage.getItem('CompanyIDLogin'))} company_id_seller={product.company_id} 
-                                        barang_id={product.barang_id} type={"barang"} barang_image={product.foto} barang_nama={product.nama}/>
+                            <Messenger company_id_buyer={decrypt(localStorage.getItem('CompanyIDLogin'))} company_id_seller={product.company_id}
+                                barang_id={product.id} type={"barang"} barang_image={product.foto} barang_nama={product.nama} />
                         </div>
                     </Modal>
 
@@ -1174,7 +1204,7 @@ class Product extends Component {
                                     <button type="submit" onClick={async () => {
                                         await submit_nego(); await value.loadDataCart();
                                         await value.loadDataNotif();
-                                        await value.sendNotifikasi(product.barang_id, product.nama, decrypt(localStorage.getItem('CompanyIDLogin')),
+                                        await value.sendNotifikasi(this.state.send_nego, product.barang_id, product.nama, decrypt(localStorage.getItem('CompanyIDLogin')),
                                             product.company_id, product.nama_perusahaan, this.state.get_sales_token, product.nego_auto)
                                         await this.statusbarang_cart();
                                     }} style={{ width: '100%' }} className="btn btn-primary" disabled={this.state.disable_button_nego}>
@@ -1195,8 +1225,8 @@ class Product extends Component {
                     <Modal isOpen={this.state.modalChat_isOpen} size="xl" backdrop="static" >
                         <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.toggleModalChat}>Chat</ModalHeader>
                         <div className="card-body">
-                            <Messenger  company_id_buyer={decrypt(localStorage.getItem('CompanyIDLogin'))} company_id_seller={product.company_id} 
-                                        barang_id={product.barang_id} type={"barang"} barang_image={product.foto} barang_nama={product.nama}/>                        
+                            <Messenger company_id_buyer={decrypt(localStorage.getItem('CompanyIDLogin'))} company_id_seller={product.company_id}
+                                barang_id={product.id} type={"barang"} barang_image={product.foto} barang_nama={product.nama} />
                         </div>
                     </Modal>
 

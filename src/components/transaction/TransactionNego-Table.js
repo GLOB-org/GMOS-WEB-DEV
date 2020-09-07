@@ -64,7 +64,7 @@ export default class InfoCompanyCard extends Component{
     }
 
     render(){
-        
+
         if(this.props.data.nego_count == 1){
             var getharga_sales = this.props.data.harga_sales_1
             var getharga_nego = this.props.data.harga_nego_1
@@ -118,7 +118,7 @@ export default class InfoCompanyCard extends Component{
                     {this.props.status == "nego_aktif" ?
                         (   <div >
                                 <center>
-                        <button id={'btn-setuju'+this.props.index} type="button" class="btn btn-primary btn-xs" onClick={()=>this.props.approve_nego(this.props.index, this.state.harga_sales)} style={{ width: '80px' }}>Setuju</button>
+                                    <button id={'btn-setuju'+this.props.index} type="button" class="btn btn-primary btn-xs" onClick={()=>this.props.approve_nego(this.props.index, this.state.harga_sales)} style={{ width: '80px' }}>Setuju</button>
                                 </center>
                                 <center>
                                     <button type="button" class="btn btn-secondary btn-xs" onClick={()=>this.props.nego_detail(this.props.index, 'aktif')} style={{ marginTop: '5px', width: '80px' }}> Nego </button>

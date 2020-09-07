@@ -65,7 +65,7 @@ class ProductCard extends Component {
             get_sales_token: [],
             get_qtybarang: '', get_beratbarang: '',
             get_pricebarang: '', get_priceterendahbarang: '',
-            persen_nego: '', respons_nego: '',
+            persen_nego: '', respons_nego: '', send_nego: false,
             product_kurs_selected: '',
             disablekirimnego: false, disabletambahbarang: false,
             displaynegosuccess: false,
@@ -324,21 +324,6 @@ class ProductCard extends Component {
             });
             Toast.success('Berhasil mengirim nego', 1500, () => {
             });
-
-            //disable respon nego
-
-            // if (input_nego >= respons) {
-            //     this.setState({
-            //         openapprovednego: true,
-            //         openresponnego: false
-            //     });
-            // }
-            // else {
-            //     this.setState({
-            //         openapprovednego: false,
-            //         openresponnego: true
-            //     });
-            // }
 
             if (this.state.nego_count == 1) {
                 this.setState({
@@ -633,50 +618,49 @@ class ProductCard extends Component {
                     disablekirimnego: false
                 });
 
-                //get token
-                let query_token = encrypt("select distinct token from gcm_notification_token where user_id in " +
-                    "(select id_sales from gcm_company_listing_sales where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
-                    " and seller_id = " + product.company_id + " and status = 'A')")
-
-                Axios.post(url.select, {
-                    query: query_token
-                }).then(async (data) => {
-                    this.setState({
-                        get_sales_token: data.data.data
-                    });
-                }).catch(err => {
-                    // console.log('error');
-                    // console.log(err);
-                })
-
                 //cek nego auto
                 let cek_negoauto = encrypt("select price, price_terendah, persen_nego_1, persen_nego_2, persen_nego_3 from  gcm_list_barang  where  id = " + product.id)
                 Axios.post(url.select, {
                     query: cek_negoauto
                 }).then(async (data) => {
+                    this.setState({
+                        get_pricebarang: data.data.data[0].price,
+                        get_priceterendahbarang: data.data.data[0].price_terendah,
+                        persen_nego: data.data.data[0].persen_nego_1
+                    });
+
+                    //get token
+                    var query_token = "select distinct token, company_id from gcm_notification_token where user_id in " +
+                        "(select id_sales from gcm_company_listing_sales where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+                        " and seller_id = " + product.company_id + " and status = 'A')"
+
                     if (data.data.data[0].persen_nego_1 != '0.00' ||
                         data.data.data[0].persen_nego_2 != '0.00' ||
                         data.data.data[0].persen_nego_3 != '0.00') {
                         this.setState({
                             nego_auto: true
                         });
+                        query_token = query_token + " or company_id = " + decrypt(localStorage.getItem('CompanyIDLogin'))
+
                     } else {
                         this.setState({
                             nego_auto: false
                         });
                     }
-                    this.setState({
-                        get_pricebarang: data.data.data[0].price,
-                        get_priceterendahbarang: data.data.data[0].price_terendah,
-                        persen_nego: data.data.data[0].persen_nego_1
-                    });
-                }).catch(err => {
-                    // console.log('error');
-                    // console.log(err);
+
+                    Axios.post(url.select, {
+                        query: encrypt(query_token)
+                    }).then(async (data) => {
+                        this.setState({
+                            get_sales_token: data.data.data
+                        });
+                    })
+
                 })
 
-                let cek_statuscart = encrypt("select a.id, a.history_nego_id, a.status, a.nego_count, a.qty, c.berat, b.persen_nego_1, b.persen_nego_2, b.persen_nego_3 from " +
-                    "gcm_master_cart a, gcm_list_barang b, gcm_master_barang c where a.barang_id = b.id and c.id = b.barang_id and a.status = 'A' and a.company_id =" + decrypt(localStorage.getItem('CompanyIDLogin')) + "  and a.barang_id = " + product.id)
+                let cek_statuscart = encrypt("select a.id, a.history_nego_id, a.status, a.nego_count, d.harga_final, a.qty, c.berat, b.persen_nego_1, b.persen_nego_2, b.persen_nego_3 from " +
+                    "gcm_master_cart a, gcm_list_barang b, gcm_master_barang c, gcm_history_nego d  where a.barang_id = b.id and c.id = b.barang_id and a.history_nego_id = d.id and a.status = 'A' and a.company_id =" + decrypt(localStorage.getItem('CompanyIDLogin')) + "  and a.barang_id = " + product.id)
+
                 Axios.post(url.select, {
                     query: cek_statuscart
                 }).then(async (data) => {
@@ -689,6 +673,10 @@ class ProductCard extends Component {
                     }
                     else if (data.data.data.length > 0) {
                         if (data.data.data[0].nego_count > 0) {
+                            if (data.data.data[0].harga_final != 0) {
+                                this.setState({ nego_selesai: true })
+                            }
+
                             this.setState({
                                 nego_ongoing: true,
                                 disable_qtynego: true,
@@ -699,90 +687,93 @@ class ProductCard extends Component {
                                 quantity_nego: Number(data.data.data[0].qty * data.data.data[0].berat),
                             });
                             if (data.data.data[0].persen_nego_1 != '0.00') {
-                                // let query_detailnego = encrypt("select harga_nego, harga_nego_2, harga_nego_3, harga_sales, harga_sales_2, harga_sales_3, harga_final, time_respon - interval '7 hour' as time_respon from gcm_history_nego where id = " + data.data.data[0].history_nego_id)
                                 let query_detailnego = encrypt("select harga_nego, harga_nego_2, harga_nego_3, harga_sales, harga_sales_2, harga_sales_3, harga_final, to_char(time_respon, 'yyyy-MM-dd HH24:MI:SS') as time_respon from gcm_history_nego where id = " + data.data.data[0].history_nego_id)
 
                                 Axios.post(url.select, {
                                     query: query_detailnego
                                 }).then(data_nego => {
+
                                     if (data_nego.data.data[0].harga_final != 0) {
                                         Toast.fail('Barang telah dimasukkan ke dalam keranjang', 1500, () => {
                                         });
                                     }
                                     else {
-                                        if (data.data.data[0].nego_count == 1) {
-                                            this.setState({
-                                                nego_count: 1,
-                                                persen_nego: data.data.data[0].persen_nego_2,
-                                                icon_nego1: 'far fa-circle fa-xs',
-                                                currentnego_buyer: data_nego.data.data[0].harga_nego,
-                                                currentnego_seller: data_nego.data.data[0].harga_sales,
-                                                //opennego: !this.state.opennego
-                                            });
-                                        }
-                                        else if (data.data.data[0].nego_count == 2) {
-                                            this.setState({
-                                                nego_count: 2,
-                                                persen_nego: data.data.data[0].persen_nego_3,
-                                                icon_nego1: 'far fa-circle fa-xs',
-                                                icon_nego2: 'far fa-circle fa-xs',
-                                                currentnego_buyer: data_nego.data.data[0].harga_nego_2,
-                                                currentnego_seller: data_nego.data.data[0].harga_sales_2,
-                                                //opennego: !this.state.opennego
-                                            });
-                                        }
-                                        else if (data.data.data[0].nego_count == 3) {
-                                            this.setState({
-                                                nego_count: 3,
-                                                icon_nego1: 'far fa-circle fa-xs',
-                                                icon_nego2: 'far fa-circle fa-xs',
-                                                icon_nego3: 'far fa-circle fa-xs',
-                                                currentnego_buyer: data_nego.data.data[0].harga_nego_3,
-                                                currentnego_seller: data_nego.data.data[0].harga_sales_3,
-                                                display_buttonnegolagi: 'none',
-                                                //opennego: !this.state.opennego
-                                                //openresponnego: true
-                                            });
-                                            // this.responNego()
-                                        }
-                                        this.responNego()
-
-                                        //cek respon time
-                                        var gettime_respon = data_nego.data.data[0].time_respon;
-                                        var timestamp_respon = new Date(gettime_respon).getTime()
-                                        var timestamp_now = new Date().getTime()
-                                        var time_to_respon = "yes";
-
-                                        if (timestamp_now >= timestamp_respon) {
-                                            time_to_respon = "yes"
-                                        }
-                                        else if (timestamp_now < timestamp_respon) {
-                                            time_to_respon = "no"
-                                        }
-
-                                        if (time_to_respon == "no") {
-                                            this.setState({
-                                                currentnego_seller: 'menunggu respon',
-                                                disablekirimnego: true,
-                                                opennego: true
-                                            });
-                                        }
-                                        else {
-                                            if (this.state.nego_lagi_click == true) {
-                                                this.setState({
-                                                    opennego: true
-                                                });
-                                            }
-                                            else {
-                                                this.setState({
-                                                    openresponnego: true
-                                                });
-                                            }
-                                        }
-
-                                        this.setState({
-                                            display_current_nego: 'block'
+                                        Toast.fail('Barang dalam proses negosiasi', 1500, () => {
                                         });
+
+                                        // if (data.data.data[0].nego_count == 1) {
+                                        //     this.setState({
+                                        //         nego_count: 1,
+                                        //         persen_nego: data.data.data[0].persen_nego_2,
+                                        //         icon_nego1: 'far fa-circle fa-xs',
+                                        //         currentnego_buyer: data_nego.data.data[0].harga_nego,
+                                        //         currentnego_seller: data_nego.data.data[0].harga_sales,
+                                        //         //opennego: !this.state.opennego
+                                        //     });
+                                        // }
+                                        // else if (data.data.data[0].nego_count == 2) {
+                                        //     this.setState({
+                                        //         nego_count: 2,
+                                        //         persen_nego: data.data.data[0].persen_nego_3,
+                                        //         icon_nego1: 'far fa-circle fa-xs',
+                                        //         icon_nego2: 'far fa-circle fa-xs',
+                                        //         currentnego_buyer: data_nego.data.data[0].harga_nego_2,
+                                        //         currentnego_seller: data_nego.data.data[0].harga_sales_2,
+                                        //         //opennego: !this.state.opennego
+                                        //     });
+                                        // }
+                                        // else if (data.data.data[0].nego_count == 3) {
+                                        //     this.setState({
+                                        //         nego_count: 3,
+                                        //         icon_nego1: 'far fa-circle fa-xs',
+                                        //         icon_nego2: 'far fa-circle fa-xs',
+                                        //         icon_nego3: 'far fa-circle fa-xs',
+                                        //         currentnego_buyer: data_nego.data.data[0].harga_nego_3,
+                                        //         currentnego_seller: data_nego.data.data[0].harga_sales_3,
+                                        //         display_buttonnegolagi: 'none',
+                                        //         //opennego: !this.state.opennego
+                                        //         //openresponnego: true
+                                        //     });
+                                        //     // this.responNego()
+                                        // }
+                                        // this.responNego()
+
+                                        // //cek respon time
+                                        // var gettime_respon = data_nego.data.data[0].time_respon;
+                                        // var timestamp_respon = new Date(gettime_respon).getTime()
+                                        // var timestamp_now = new Date().getTime()
+                                        // var time_to_respon = "yes";
+
+                                        // if (timestamp_now >= timestamp_respon) {
+                                        //     time_to_respon = "yes"
+                                        // }
+                                        // else if (timestamp_now < timestamp_respon) {
+                                        //     time_to_respon = "no"
+                                        // }
+
+                                        // if (time_to_respon == "no") {
+                                        //     this.setState({
+                                        //         currentnego_seller: 'menunggu respon',
+                                        //         disablekirimnego: true,
+                                        //         opennego: true
+                                        //     });
+                                        // }
+                                        // else {
+                                        //     if (this.state.nego_lagi_click == true) {
+                                        //         this.setState({
+                                        //             opennego: true
+                                        //         });
+                                        //     }
+                                        //     else {
+                                        //         this.setState({
+                                        //             openresponnego: true
+                                        //         });
+                                        //     }
+                                        // }
+
+                                        // this.setState({
+                                        //     display_current_nego: 'block'
+                                        // });
                                     }
                                 }).catch(err => {
                                     // console.log('error');
@@ -792,8 +783,15 @@ class ProductCard extends Component {
 
                             // nego dgn sales
                             else {
-                                Toast.fail('Barang dalam proses negosiasi', 1500, () => {
-                                });
+                                if (this.state.nego_selesai == true) {
+                                    Toast.fail('Barang telah dimasukkan ke dalam keranjang', 1500, () => {
+                                    });
+                                }
+                                else {
+                                    Toast.fail('Barang dalam proses negosiasi', 1500, () => {
+                                    });
+                                }
+
                             }
                         }
                         else {
@@ -811,6 +809,10 @@ class ProductCard extends Component {
         }
 
         const submit_nego = async () => {
+
+            await this.setState({
+                send_nego: false
+            })
 
             let filter_payment
             filter_payment = this.state.data_payment_listing.filter(filter => {
@@ -840,6 +842,11 @@ class ProductCard extends Component {
                     });
                 }
                 else {
+
+                    await this.setState({
+                        send_nego: true
+                    })
+
                     if (this.state.nego_ongoing == true) {
                         this.kirimNego()
                     }
@@ -1161,64 +1168,12 @@ class ProductCard extends Component {
                                                     Nego
                                                 </button>
                                             ) : (null)}
-                                            {/* <button
-                                                type="button"
-                                                onClick={check_statusnego}
-                                                class="btn btn-secondary"
-                                            >
-                                                Nego
-                                            </button> */}
                                         </React.Fragment>
                                     )}
                                 />
                             </div>
-
                         )
                     }
-
-
-                    {/* {cek_login ? (
-                        <div className="product-card__buttons">
-                            <AsyncAction
-                                render={({ run, loading }) => (
-                                    <React.Fragment>
-                                        <button
-                                            type="button"
-                                            onClick={this.toggleModalqty}
-                                            className={classNames('btn btn-primary product-card__addtocart', {
-                                                'btn-loading': loading,
-                                            })}
-                                        >
-                                            Tambah ke Keranjang
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            onClick={check_statusnego}
-                                            // className={classNames('btn btn-primary product-card__addtocart', {
-                                            //     //'btn-loading': loading,
-                                            // })}
-                                            class="btn btn-secondary"
-                                        >
-                                            Nego
-                                    </button>
-                                    </React.Fragment>
-                                )}
-                            />
-                        </div>
-                    ) : (
-                            <div className="product-card__buttons">
-                                <AsyncAction
-                                    render={({ run, loading }) => (
-                                        <React.Fragment>
-                                            <Link to='/masuk' className='btn btn-primary product-card__addtocart'>Tambah ke Keranjang</Link>
-                                            <Link to='/masuk' className='btn btn-secondary product-card__addtocart'>Nego</Link>
-                                        </React.Fragment>
-                                    )}
-                                />
-                            </div>
-                        )
-                    } */}
                 </div>
 
                 {/* Modal detail barang */}
@@ -1378,8 +1333,8 @@ class ProductCard extends Component {
                             {(value) => (
                                 <button type="submit" onClick={async () => {
                                     await submit_nego(); await value.loadDataCart(); await value.loadDataNotif();
-                                    await value.sendNotifikasi(product.barang_id, product.nama, decrypt(localStorage.getItem('CompanyIDLogin')),
-                                        product.company_id, product.nama_perusahaan, this.state.get_sales_token, this.state.nego_auto)
+                                    await value.sendNotifikasi(this.state.send_nego, product.id, product.nama, decrypt(localStorage.getItem('CompanyIDLogin')),
+                                        product.company_id, product.nama_perusahaan, this.state.get_sales_token, this.state.nego_auto, this.state.id_mastercart)
                                 }} style={{ width: '100%' }} className="btn btn-primary" disabled={this.state.disablekirimnego}>
                                     Kirim Nego
                                 </button>

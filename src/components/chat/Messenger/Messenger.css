@@ -1,12 +1,11 @@
 .messenger {
   display: grid;
   width: 100%;
-  /* height: 100vh; */
   height: 450px;
   background: #eeeef1;
 
   grid-template-columns: 350px auto;
-  grid-template-rows: 60px auto 60px;
+  grid-template-rows: 40px auto 60px;
   grid-column-gap: 1px;
   grid-row-gap: 1px;
 }
@@ -14,12 +13,11 @@
 .messenger-tag-product {
   display: grid;
   width: 100%;
-  /* height: 100vh; */
   height: 450px;
   background: #eeeef1;
 
   grid-template-columns: 350px auto;
-  grid-template-rows: 60px auto 60px 60px;
+  grid-template-rows: 40px auto 60px 60px;
   grid-column-gap: 1px;
   grid-row-gap: 1px;
 }

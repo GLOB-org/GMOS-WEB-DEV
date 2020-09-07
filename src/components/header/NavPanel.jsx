@@ -98,8 +98,8 @@ function NavPanel(props) {
 
                     <div className="nav-panel__indicators">
                         {/* {searchIndicator} */}
-{/* 
-                        {checkLogin ?
+                        
+                        {/* {checkLogin ?
                             (<ChatIndicator />) : null
                         }
 

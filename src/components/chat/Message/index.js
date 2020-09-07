@@ -4,6 +4,8 @@ import NumberFormat from 'react-number-format';
 import 'moment/locale/id';
 import './Message.css';
 
+const client_timezone = new Date().getTimezoneOffset()
+
 export default function Message(props) {
     const {
       data,
@@ -14,6 +16,8 @@ export default function Message(props) {
       endsSequence,
       showTimestamp
     } = props;
+
+    console.log(product)
 
     moment.locale('id')
     //cek hari ini
@@ -29,11 +33,9 @@ export default function Message(props) {
       friendlyTimestamp = moment(data.timestamp.time).format('LL');
     }
 
-    var get_hours = data.timestamp.hours
-    var get_minutes = data.timestamp.minutes
-    var get_time = get_hours.toString() + ":" + get_minutes.toString()
-    var chat_time = moment(get_time,'HHmm').format("HH:mm")
-
+    //adjust timezone
+    var chat_time = moment(data.timestamp.time).format("HH:mm");
+    
     var read = data.read
     if(read == true){
       var icon_read = "/images/double-tick-15-bold.png"

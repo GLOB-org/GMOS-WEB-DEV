@@ -64,7 +64,7 @@ class ShopPageCategory extends Component {
             // console.log(err);
         })
 
-        let query_category = encrypt('select id, nama from gcm_master_category order by nama')
+        let query_category = encrypt('select id, nama from gcm_master_category order by id')
 
         await Axios.post(url.select, {
             query: query_category
@@ -93,7 +93,9 @@ class ShopPageCategory extends Component {
                 var param = ""
 
                 if (decrypt(localStorage.getItem('TipeBisnis')) != 1) {
-                    var param = "and category_id = " + decrypt(localStorage.getItem('TipeBisnis'))
+                    // var param = "and category_id = " + decrypt(localStorage.getItem('TipeBisnis'))
+                    var param = "and category_id != 1 " 
+
                 }
                 var get_produk = encrypt("SELECT a.nama, b.barang_id, b.id, b.kode_barang, price, price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable, foto, category_id, b.company_id, berat, b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.nama_perusahaan, d.alias as satuan, e.nominal as kurs FROM gcm_listing_kurs e, gcm_master_satuan d, gcm_master_company c, gcm_master_barang a inner join gcm_list_barang b on a.id=b.barang_id where a.status='A' and b.status='A' and b.company_id = c.id and d.id = a.satuan and e.company_id = b.company_id and b.company_id in (" + data.data.data[0].seller + ") " + param + " and now() between e.tgl_start and e.tgl_end  order by b.create_date desc, category_id asc, nama asc");
             }

@@ -58,7 +58,7 @@ class ShopPageCategory extends Component {
             // console.log(err);
         })
 
-        let query_category = encrypt('select id, nama from gcm_master_category order by nama')
+        let query_category = encrypt('select id, nama from gcm_master_category order by id')
 
         await Axios.post(url.select, {
             query: query_category

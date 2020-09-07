@@ -81,20 +81,35 @@ export default class BlockTabbedProductsCarousel extends Component {
 
                 else {
                     if (kategori_id == 100) {
+                        // var get_produk = encrypt("select a.barang_id as id, a.total, c.nama, c.category_id,  b.company_id, d.nama_perusahaan, b.foto, b.price, b.price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable, " +
+                        //     "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.berat, e.alias as satuan, f.nominal as kurs   from (" +
+                        //     "select barang_id, sum(qty) as total from gcm_transaction_detail " +
+                        //     "group by barang_id) as a, gcm_list_barang b, gcm_master_barang c,  gcm_master_company d, gcm_master_satuan e, gcm_listing_kurs f  where a.barang_id = b.id and b.barang_id=c.id and b.company_id = d.id " +
+                        //     "and c.satuan = e.id and c.category_id = " + decrypt(localStorage.getItem('TipeBisnis')) +
+                        //     "and f.company_id = b.company_id and b.company_id in (" + this.state.seller + ") and b.status = 'A' and now() between f.tgl_start and f.tgl_end ORDER by a.total desc FETCH FIRST 5 ROWS only")
+
                         var get_produk = encrypt("select a.barang_id as id, a.total, c.nama, c.category_id,  b.company_id, d.nama_perusahaan, b.foto, b.price, b.price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable, " +
                             "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.berat, e.alias as satuan, f.nominal as kurs   from (" +
                             "select barang_id, sum(qty) as total from gcm_transaction_detail " +
                             "group by barang_id) as a, gcm_list_barang b, gcm_master_barang c,  gcm_master_company d, gcm_master_satuan e, gcm_listing_kurs f  where a.barang_id = b.id and b.barang_id=c.id and b.company_id = d.id " +
-                            "and c.satuan = e.id and c.category_id = " + decrypt(localStorage.getItem('TipeBisnis')) +
+                            "and c.satuan = e.id and c.category_id != 1 " + 
                             "and f.company_id = b.company_id and b.company_id in (" + this.state.seller + ") and b.status = 'A' and now() between f.tgl_start and f.tgl_end ORDER by a.total desc FETCH FIRST 5 ROWS only")
+
                     }
                     else {
+                        // var get_produk = encrypt(" select * from (select a.barang_id as id, a.total, c.nama, c.category_id,  b.company_id, d.nama_perusahaan, b.foto, b.price, b.price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable, " +
+                        //     "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.berat, e.alias as satuan, f.nominal as kurs   from (" +
+                        //     "select barang_id, sum(qty) as total from gcm_transaction_detail " +
+                        //     "group by barang_id) as a, gcm_list_barang b, gcm_master_barang c,  gcm_master_company d, gcm_master_satuan e, gcm_listing_kurs f  where a.barang_id = b.id and b.barang_id=c.id and b.company_id = d.id " +
+                        //     "and c.satuan = e.id and c.category_id = " + decrypt(localStorage.getItem('TipeBisnis')) +
+                        //     "and f.company_id = b.company_id and b.company_id in (" + this.state.seller + ") and b.status = 'A' and now() between f.tgl_start and f.tgl_end ORDER by a.total desc FETCH FIRST 5 ROWS only) a where category_id = " + kategori_id)
+
                         var get_produk = encrypt(" select * from (select a.barang_id as id, a.total, c.nama, c.category_id,  b.company_id, d.nama_perusahaan, b.foto, b.price, b.price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable, " +
                             "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.berat, e.alias as satuan, f.nominal as kurs   from (" +
                             "select barang_id, sum(qty) as total from gcm_transaction_detail " +
                             "group by barang_id) as a, gcm_list_barang b, gcm_master_barang c,  gcm_master_company d, gcm_master_satuan e, gcm_listing_kurs f  where a.barang_id = b.id and b.barang_id=c.id and b.company_id = d.id " +
-                            "and c.satuan = e.id and c.category_id = " + decrypt(localStorage.getItem('TipeBisnis')) +
-                            "and f.company_id = b.company_id and b.company_id in (" + this.state.seller + ") and b.status = 'A' and now() between f.tgl_start and f.tgl_end ORDER by a.total desc FETCH FIRST 5 ROWS only) a where category_id = "+ kategori_id)
+                            "and c.satuan = e.id and c.category_id != 1 " +
+                            "and f.company_id = b.company_id and b.company_id in (" + this.state.seller + ") and b.status = 'A' and now() between f.tgl_start and f.tgl_end ORDER by a.total desc FETCH FIRST 5 ROWS only) a where category_id = " + kategori_id)
                     }
                 }
             }

@@ -29,6 +29,7 @@ export default function MessageList(props) {
       let tagProduct = false
       let idProduct, dataProduct
       let currentMoment = moment(current.timestamp.time);
+      let currentMoment_date = moment(current.timestamp.time).format('L');
 
       let prevBySameAuthor = false;
       let nextBySameAuthor = false;
@@ -38,6 +39,7 @@ export default function MessageList(props) {
 
       if (previous) {
         let previousMoment = moment(previous.timestamp.time);
+        let previousMoment_date = moment(previous.timestamp.time).format('L');
         
         let previousDuration = moment.duration(currentMoment.diff(previousMoment));
         
@@ -47,9 +49,10 @@ export default function MessageList(props) {
           startsSequence = false;
         }
 
-        if (previousDuration.as('days') < 1) {
+        if(currentMoment_date == previousMoment_date){
           showTimestamp = false;
         }
+
       }
 
       if (next) {

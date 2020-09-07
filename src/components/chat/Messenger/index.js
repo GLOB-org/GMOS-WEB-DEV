@@ -21,9 +21,6 @@ export default class Messenger extends Component {
         barang_nama: '',
         display_preview: 'none',
         hide_preview: false,
-        // className_messenger: 'messenger-tag-product',
-        // className_sidebar: 'scrollable sidebar-tag-product',
-        // className_content: 'scrollable content-tag-product'
         className_messenger: '',
         className_sidebar: '',
         className_content: ''
@@ -104,13 +101,20 @@ export default class Messenger extends Component {
         hidePreview()
       }
 
+      //scroll to bottom
+      var objDiv = document.getElementById("message-room");
+      objDiv.scrollTop = objDiv.scrollHeight;
+
     }
 
     const updateReadChat = (chat_key) => {
       for (var i = 0; i < chat_key.length; i++) {
         var direktori_update = "/" + this.state.keyRoom + "/message/" + chat_key[i]
-        let updateRef = firebase.database().ref(direktori_update);  
-        updateRef.update({ 'read': true });
+        if(chat_key[i] != undefined){
+          let updateRef = firebase.database().ref(direktori_update);  
+          updateRef.update({ 'read': true });
+        }
+       
       }
     }
 
@@ -160,7 +164,6 @@ export default class Messenger extends Component {
       var get_year = new Date().getFullYear()
       var get_time = new Date().getTime()
       var get_timezone = new Date().getTimezoneOffset()
-
 
       if(this.state.barang_id != ""){
         var param = { 

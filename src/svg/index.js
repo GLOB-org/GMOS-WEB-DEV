@@ -11,7 +11,7 @@ export { ReactComponent as ArrowRoundedRight8x13Svg } from './arrow-rounded-righ
 export { ReactComponent as Cart16Svg } from './cart-16.svg';
 // export { ReactComponent as Cart20Svg } from './cart-24.svg';
 export { ReactComponent as Cart20Svg } from './cart-new-24px.svg';
-export { ReactComponent as Chat24Svg } from './chat-new-24px.svg';
+export { ReactComponent as Chat24Svg } from './chat-24px.svg';
 export { ReactComponent as Check9x7Svg } from './check-9x7.svg';
 export { ReactComponent as Check12x9Svg } from './check-12x9.svg';
 export { ReactComponent as Compare16Svg } from './compare-16.svg';

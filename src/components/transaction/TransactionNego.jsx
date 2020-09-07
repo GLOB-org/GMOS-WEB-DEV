@@ -86,6 +86,7 @@ export default class TransactionNego extends Component {
             nego_countBarang: '',
             nego_auto: '',
             notes: '',
+            kurs: '',
             namaBarangApproval: '',
             hargaBarangAwal: '',
             hargaBarangApproval: '',
@@ -116,6 +117,11 @@ export default class TransactionNego extends Component {
             negocurrent2_penjual: '',
             negocurrent3_penjual: '',
             negocurrent_penjual: '',
+            respons_nego: '',
+            persen_nego: '',
+            price: '',
+            price_terendah: '',
+            send_nego: true,
 
             selected_id_nego: '',
             selected_status_nego: ''
@@ -274,19 +280,20 @@ export default class TransactionNego extends Component {
     }
 
     getToken = () => {
-        let query_token = encrypt("select distinct token from gcm_notification_token where user_id in " +
+        var query_token = "select distinct token, company_id from gcm_notification_token where user_id in " +
             "(select id_sales from gcm_company_listing_sales where buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
-            " and seller_id = " + this.state.id_seller + " and status = 'A')")
+            " and seller_id = " + this.state.id_seller + " and status = 'A')"
+
+        if (this.state.nego_auto == true) {
+            query_token = query_token + " or company_id = " + decrypt(localStorage.getItem('CompanyIDLogin'))
+        }
 
         Axios.post(url.select, {
-            query: query_token
+            query: encrypt(query_token)
         }).then(async (data) => {
             this.setState({
                 get_sales_token: data.data.data
             });
-        }).catch(err => {
-            // console.log('error');
-            // console.log(err);
         })
     }
 
@@ -312,8 +319,10 @@ export default class TransactionNego extends Component {
 
         let history_nego = encrypt("SELECT a.id, b.barang_id, b.qty, d.berat,a.harga_nego, a.harga_sales, a.notes, a.created_by, a.created_date, a.updated_by, " +
             "a.updated_date, a.harga_nego_2, a.harga_sales_2, a.harga_nego_3, a.harga_sales_3, a.harga_final, a.updated_by_2, a.updated_by_3, a.updated_date_2, a.updated_date_3, " +
-            "to_char(a.time_respon, 'yyyy-MM-dd HH24:MI:SS') as time_respon, b.nego_count, b.id as id_mastercart, b.harga_sales as harga_sales_mastercart " +
-            "FROM gcm_history_nego a, gcm_master_cart b, gcm_list_barang c, gcm_master_barang d where a.id ='" + param + "' and a.id = b.history_nego_id and b.barang_id = c.id and c.barang_id = d.id")
+            "to_char(a.time_respon, 'yyyy-MM-dd HH24:MI:SS') as time_respon, b.nego_count, b.id as id_mastercart, b.harga_sales as harga_sales_mastercart, " +
+            "c.persen_nego_1, c.persen_nego_2, c.persen_nego_3, c.price_terendah, e.nominal as kurs " +
+            "FROM gcm_history_nego a, gcm_master_cart b, gcm_list_barang c, gcm_master_barang d, gcm_listing_kurs e where a.id ='" + param + "' and a.id = b.history_nego_id " +
+            "and b.barang_id = c.id and c.barang_id = d.id and c.company_id = e.company_id and now() between e.tgl_start and e.tgl_end")
 
         Toast.loading('loading . . .', () => {
         });
@@ -321,7 +330,8 @@ export default class TransactionNego extends Component {
         await Axios.post(url.select, {
             query: history_nego
         }).then(async (data) => {
-            this.setState({
+            await this.setState({
+                index_data: id,
                 history_nego: data.data.data,
                 harganego1_pembeli: data.data.data[0].harga_nego,
                 harganego1_penjual: data.data.data[0].harga_sales,
@@ -340,8 +350,16 @@ export default class TransactionNego extends Component {
                 id_seller: this.state.data[id].company_id,
                 nama_seller: this.state.data[id].nama_perusahaan,
                 nego_auto: this.state.data[id].nego_auto,
-                notes: data.data.data[0].notes
+                persen_nego_1: data.data.data[0].persen_nego_1,
+                persen_nego_2: data.data.data[0].persen_nego_2,
+                persen_nego_3: data.data.data[0].persen_nego_3,
+                price: this.state.data[id].price,
+                price_terendah: data.data.data[0].price_terendah,
+                notes: data.data.data[0].notes,
+                kurs: data.data.data[0].kurs
             });
+
+            await this.getToken()
 
             Toast.hide();
 
@@ -361,6 +379,10 @@ export default class TransactionNego extends Component {
             }
 
             if (data.data.data[0].nego_count == '1') {
+                this.setState({
+                    persen_nego: data.data.data[0].persen_nego_2
+                });
+
                 if (data.data.data[0].harga_nego == null) {
                     this.setState({
                         harganego1_pembeli: 0
@@ -394,6 +416,10 @@ export default class TransactionNego extends Component {
             }
 
             else if (data.data.data[0].nego_count == '2') {
+                this.setState({
+                    persen_nego: data.data.data[0].persen_nego_3
+                });
+
                 if (data.data.data[0].harga_nego == null) {
                     this.setState({
                         harganego1_pembeli: 0
@@ -427,6 +453,7 @@ export default class TransactionNego extends Component {
             }
 
             else if (data.data.data[0].nego_count == '3') {
+
                 if (data.data.data[0].harga_nego == null) {
                     this.setState({
                         harganego1_pembeli: 0
@@ -713,6 +740,7 @@ export default class TransactionNego extends Component {
         }
         // this.forceUpdate();
         await this.toggleNego();
+
     }
 
     toggleConfirmationApproveNego = () => {
@@ -890,41 +918,23 @@ export default class TransactionNego extends Component {
         }
         this.forceUpdate()
 
-
-        // let searching;
-        // if (event.target.value.length > 0) {
-        //     searching = this.state.data_tetap.filter(input => {
-        //         return input.nama.toLowerCase().indexOf(event.target.value.toLowerCase()) !== -1 || input.nama_perusahaan.toLowerCase().indexOf(event.target.value.toLowerCase()) !== -1;
-        //     });
-        //     console.log(searching)
-        //     this.setState({ data_pagination: searching.slice(0, 10) });
-        //     let total_pagination = Math.ceil(searching.length / 10)
-        //     this.setState({
-        //         total_page: total_pagination,
-        //         data_nego_length: searching.length,
-        //         page: 1
-        //     });
-        // }
-        // if (event.target.value.length == 0) {
-        //     let total_pagination = Math.ceil(this.state.data_tetap.length / 10)
-        //     this.setState({
-        //         total_page: total_pagination,
-        //         data_pagination: this.state.data_paginationtetap,
-        //         data_nego_length: this.state.data_tetap.length
-        //     });
-
-        // }
-        // if (searching.length == 0) {
-        //     document.getElementById('pagination_nego').style.display = 'none'
-        // }
-        // else {
-        //     document.getElementById('pagination_nego').style.display = 'block'
-        // }
-        // this.forceUpdate()
     }
+
+    responNego() {
+        var respon = ((Number(this.state.price) - Number(this.state.price_terendah)) * Number(this.state.persen_nego / 100)) + Number(this.state.price_terendah)
+
+        this.setState({
+            respons_nego: respon
+        });
+    }
+
 
     // untuk nego ke 2 dan 3 
     kirimNego = async () => {
+
+        await this.setState({
+            send_nego: false
+        })
 
         var input_nego = document.getElementById('inputNego').value.split('.').join("")
         var user_id = decrypt(localStorage.getItem('UserIDLogin'))
@@ -950,8 +960,13 @@ export default class TransactionNego extends Component {
         }
 
         else {
-            // Toast.loading('loading . . .', () => {
-            // });
+
+            Toast.loading('loading . . .', () => {
+            });
+
+            await this.setState({
+                send_nego: true
+            })
 
             let harga_final = 0;
             let param_update_mastercart = "(select harga_nego from new_update) * " + this.state.get_berat + " * " + this.state.get_qty
@@ -965,11 +980,38 @@ export default class TransactionNego extends Component {
                 param_update_histoynego3 = ",harga_sales_3 = " + harga_final
             }
 
-            let nego2 = "with new_update as (update gcm_history_nego set harga_final = " + harga_final + ", harga_nego_2 = " + input_nego + ", updated_by_2 = " + user_id +
-                " , updated_date_2 = now() " + param_update_histoynego2 + " where id=" + this.state.id_history_nego + " returning harga_nego_2 as harga_nego, updated_date_2 as updated_date) "
+            if (this.state.nego_auto == true) {
+                await this.responNego()
+                var respons = Math.ceil(this.state.kurs * this.state.respons_nego)
+                var harga_sales_cart = (Math.ceil(this.state.kurs * this.state.respons_nego)) * (this.state.get_berat * this.state.get_qty)
 
-            let nego3 = "with new_update as (update gcm_history_nego set harga_nego_3 = " + input_nego + ", updated_by_3 = " + user_id +
-                " , updated_date_3 = now() " + param_update_histoynego3 + " where id=" + this.state.id_history_nego + " returning harga_nego_3 as harga_nego, updated_date_3 as updated_date) "
+                if (Number(respons) < Number(input_nego)) {
+                    respons = input_nego
+                }
+
+                var nego2 = "with new_update as (update gcm_history_nego set harga_final = " + harga_final + ", harga_nego_2 = " + input_nego + ", harga_sales_2 = " + respons + " , updated_by_2 = " + user_id +
+                    " , updated_date_2 = now(), time_respon = now() + interval '1 hour' " + param_update_histoynego2 + " where id=" + this.state.id_history_nego + " returning harga_nego_2 as harga_nego, updated_date_2 as updated_date) "
+
+                var nego3 = "with new_update as (update gcm_history_nego set harga_final = " + harga_final + ", harga_nego_3 = " + input_nego + ", harga_sales_3 = " + respons + " , updated_by_3 = " + user_id +
+                    " , updated_date_3 = now(), time_respon = now() + interval '1 hour' " + param_update_histoynego3 + " where id=" + this.state.id_history_nego + " returning harga_nego_3 as harga_nego, updated_date_3 as updated_date) "
+
+                var update_mastercart = "update gcm_master_cart set nego_count = nego_count + 1 , harga_konsumen = " +
+                    param_update_mastercart + " , harga_sales = " + harga_sales_cart + ", update_by = " + user_id +
+                    ", update_date = (select updated_date from new_update) where id = '" + this.state.id_mastercart + "'"
+
+            }
+            else {
+                var nego2 = "with new_update as (update gcm_history_nego set harga_final = " + harga_final + ", harga_nego_2 = " + input_nego + ", updated_by_2 = " + user_id +
+                    " , updated_date_2 = now() " + param_update_histoynego2 + " where id=" + this.state.id_history_nego + " returning harga_nego_2 as harga_nego, updated_date_2 as updated_date) "
+
+                var nego3 = "with new_update as (update gcm_history_nego set harga_final = " + harga_final + ", harga_nego_3 = " + input_nego + ", updated_by_3 = " + user_id +
+                    " , updated_date_3 = now() " + param_update_histoynego3 + " where id=" + this.state.id_history_nego + " returning harga_nego_3 as harga_nego, updated_date_3 as updated_date) "
+
+                var update_mastercart = "update gcm_master_cart set nego_count = nego_count + 1 , harga_konsumen = " +
+                    param_update_mastercart + " , update_by = " + user_id +
+                    ", update_date = (select updated_date from new_update) where id = '" + this.state.id_mastercart + "'"
+
+            }
 
             if (this.state.nego_countBarang == 1) {
                 var nego = nego2
@@ -977,10 +1019,6 @@ export default class TransactionNego extends Component {
             else if (this.state.nego_countBarang == 2) {
                 var nego = nego3
             }
-
-            let update_mastercart = "update gcm_master_cart set nego_count = nego_count + 1 , harga_konsumen = " +
-                param_update_mastercart + " , update_by = " + user_id +
-                ", update_date = (select updated_date from new_update) where id = '" + this.state.id_mastercart + "'"
 
             let final_query = encrypt(nego.concat(update_mastercart))
 
@@ -993,15 +1031,80 @@ export default class TransactionNego extends Component {
                     this.setState({ display_successnego: true });
                 }
                 else {
+                    Toast.hide()
                     Toast.success('Berhasil mengirim nego', 2000, () => {
                     })
                 }
                 this.LoadDataNego()
                 this.toggleNego()
+                document.getElementById('btn-setuju' + this.state.index_data).disabled = true
             }).catch(err => {
                 // console.log('error' + err);
                 // console.log(err);
             })
+
+
+
+
+
+            // if (this.state.nego_auto == true) {
+
+
+            // }
+            // else {
+
+            //     let harga_final = 0;
+            //     let param_update_mastercart = "(select harga_nego from new_update) * " + this.state.get_berat + " * " + this.state.get_qty
+            //     let param_update_histoynego2 = ""
+            //     let param_update_histoynego3 = ""
+
+            //     if (Number(input_nego) == Number(this.state.harganegocurrent_penjual)) {
+            //         harga_final = Number(input_nego)
+            //         param_update_mastercart = "harga_sales "
+            //         param_update_histoynego2 = ",harga_sales_2 = " + harga_final
+            //         param_update_histoynego3 = ",harga_sales_3 = " + harga_final
+            //     }
+
+            //     let nego2 = "with new_update as (update gcm_history_nego set harga_final = " + harga_final + ", harga_nego_2 = " + input_nego + ", updated_by_2 = " + user_id +
+            //         " , updated_date_2 = now() " + param_update_histoynego2 + " where id=" + this.state.id_history_nego + " returning harga_nego_2 as harga_nego, updated_date_2 as updated_date) "
+
+            //     let nego3 = "with new_update as (update gcm_history_nego set harga_nego_3 = " + input_nego + ", updated_by_3 = " + user_id +
+            //         " , updated_date_3 = now() " + param_update_histoynego3 + " where id=" + this.state.id_history_nego + " returning harga_nego_3 as harga_nego, updated_date_3 as updated_date) "
+
+            //     if (this.state.nego_countBarang == 1) {
+            //         var nego = nego2
+            //     }
+            //     else if (this.state.nego_countBarang == 2) {
+            //         var nego = nego3
+            //     }
+
+            //     let update_mastercart = "update gcm_master_cart set nego_count = nego_count + 1 , harga_konsumen = " +
+            //         param_update_mastercart + " , update_by = " + user_id +
+            //         ", update_date = (select updated_date from new_update) where id = '" + this.state.id_mastercart + "'"
+
+            //     let final_query = encrypt(nego.concat(update_mastercart))
+
+            //     Axios.post(url.select, {
+            //         query: final_query
+            //     }).then(data => {
+            //         document.getElementById('inputNego').value = ""
+            //         Toast.hide();
+            //         if (Number(input_nego) == Number(this.state.harganegocurrent_penjual)) {
+            //             this.setState({ display_successnego: true });
+            //         }
+            //         else {
+            //             Toast.success('Berhasil mengirim nego', 2000, () => {
+            //             })
+            //         }
+            //         this.LoadDataNego()
+            //         this.toggleNego()
+            //     }).catch(err => {
+            //         // console.log('error' + err);
+            //         // console.log(err);
+            //     })
+
+            // }
+
         }
     }
 
@@ -1043,17 +1146,17 @@ export default class TransactionNego extends Component {
             query: final_query
         }).then(data => {
             Toast.hide()
-            Toast.success('Harga berhasil disepakati', 2000, () => {
-            });
+            // Toast.success('Harga berhasil disepakati', 2000, () => {
+            // });
 
             this.setState({
+                display_successnego: true,
                 openConfirmationApproveNego: false,
                 openApprovalNego: false
             })
 
             this.LoadDataNego()
 
-            // window.location.reload()
         }).catch(err => {
             // console.log('error' + err);
             // console.log(err);
@@ -1969,8 +2072,8 @@ export default class TransactionNego extends Component {
                                                 {(value) => (
                                                     <button className="btn btn-primary " type="submit" onClick={async () => {
                                                         await this.kirimNego(); await value.loadDataCart(); await value.loadDataNotif();
-                                                        await value.sendNotifikasi(this.state.idBarang, this.state.namaBarang, decrypt(localStorage.getItem('CompanyIDLogin')),
-                                                            this.state.id_seller, this.state.nama_seller, this.state.get_sales_token, this.state.nego_auto)
+                                                        await value.sendNotifikasi(this.state.send_nego, this.state.idBarang, this.state.namaBarang, decrypt(localStorage.getItem('CompanyIDLogin')),
+                                                            this.state.id_seller, this.state.nama_seller, this.state.get_sales_token, this.state.nego_auto, this.state.id_mastercart)
                                                     }}
                                                         style={{ float: 'right', width: '120px' }}>
                                                         <span id='spinner-nego' style={{ display: 'none' }}><i class="fa fa-spinner fa-spin"></i></span><span id='label-kirimnego'>Kirim Nego</span>

@@ -48,7 +48,7 @@ class ShopPageCategory extends Component {
         // let kurs = yx.data.rates.IDR;
 
         let get_seller = encrypt("select string_agg(distinct cast(gcl.seller_id as varchar), ',') as seller FROM gcm_master_company gmc ,gcm_company_listing gcl where gcl.seller_id = gmc.id  and gcl.buyer_id  = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and gcl.status = 'A' and gmc.seller_status = 'A'")
-        let query_category = encrypt('select id, nama from gcm_master_category order by nama')
+        let query_category = encrypt('select id, nama from gcm_master_category order by id')
 
         await Axios.post(url.select, {
             query: query_category
@@ -86,7 +86,8 @@ class ShopPageCategory extends Component {
                 var get_seller = encrypt("select distinct b.company_id as id, c.nama_perusahaan FROM gcm_master_satuan d ,gcm_master_company c, gcm_master_barang a inner join gcm_list_barang b on a.id=b.barang_id where a.status='A' and b.status='A' and b.company_id = c.id and d.id = a.satuan and b.company_id not in (" + set_seller + ")")
             }
             else {
-                var get_produk = encrypt("SELECT a.nama, b.barang_id, b.id, b.kode_barang, price, price_terendah, foto, category_id, b.company_id, berat, b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.nama_perusahaan, d.alias as satuan FROM gcm_master_satuan d ,gcm_master_company c, gcm_master_barang a inner join gcm_list_barang b on a.id=b.barang_id where a.status='A' and b.status='A' and b.company_id = c.id and d.id = a.satuan and b.company_id not in (" + set_seller + ") and category_id = " + decrypt(localStorage.getItem('TipeBisnis')) + " order by b.create_date desc, category_id asc, nama asc")
+                // var get_produk = encrypt("SELECT a.nama, b.barang_id, b.id, b.kode_barang, price, price_terendah, foto, category_id, b.company_id, berat, b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.nama_perusahaan, d.alias as satuan FROM gcm_master_satuan d ,gcm_master_company c, gcm_master_barang a inner join gcm_list_barang b on a.id=b.barang_id where a.status='A' and b.status='A' and b.company_id = c.id and d.id = a.satuan and b.company_id not in (" + set_seller + ") and category_id = " + decrypt(localStorage.getItem('TipeBisnis')) + " order by b.create_date desc, category_id asc, nama asc")
+                var get_produk = encrypt("SELECT a.nama, b.barang_id, b.id, b.kode_barang, price, price_terendah, foto, category_id, b.company_id, berat, b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.nama_perusahaan, d.alias as satuan FROM gcm_master_satuan d ,gcm_master_company c, gcm_master_barang a inner join gcm_list_barang b on a.id=b.barang_id where a.status='A' and b.status='A' and b.company_id = c.id and d.id = a.satuan and b.company_id not in (" + set_seller + ") and category_id != 1 order by b.create_date desc, category_id asc, nama asc")
                 var get_seller = encrypt("SELECT b.company_id as id, c.nama_perusahaan FROM gcm_master_satuan d ,gcm_master_company c, gcm_master_barang a inner join gcm_list_barang b on a.id=b.barang_id where a.status='A' and b.status='A' and b.company_id = c.id and d.id = a.satuan and b.company_id not in (" + set_seller + ") and category_id =  " + decrypt(localStorage.getItem('TipeBisnis')))
             }
 

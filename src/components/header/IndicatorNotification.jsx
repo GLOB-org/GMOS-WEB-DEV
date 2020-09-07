@@ -29,13 +29,10 @@ class IndicatorNotification extends Component {
         let query = encrypt("update gcm_notification_nego set read_flag = 'Y' where " +
             "buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')))
 
-        // Toast.loading('', () => {
-        // });
-
         await Axios.post(url.select, {
             query: query
         }).then(data => {
-            // Toast.hide()
+
         }).catch(err => {
             console.log('error' + err);
             console.log(err);
@@ -45,8 +42,8 @@ class IndicatorNotification extends Component {
     async loadDataNotif() {
 
         let query = encrypt("select barang_id, barang_nama, buyer_id, buyer_nama, " +
-            "seller_id, seller_nama from gcm_notification_nego where read_flag = 'N' and source = 'seller' " +
-            "and buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " order by date desc")
+            "seller_id, seller_nama, to_char(date, 'dd-MM-yyyy / HH24:MI') as date from gcm_notification_nego where read_flag = 'N' and source = 'seller' " +
+            "and now() >= date and buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " order by date desc")
 
         await Axios.post(url.select, {
             query: query
@@ -66,11 +63,19 @@ class IndicatorNotification extends Component {
         let dropdown_null;
 
         const items = this.state.data_notif.map((item, index) => {
-            let text = "Balasan nego ";
+            let text = "Balasan negosiasi ";
 
             return (
                 <div>
-                    <label style={{ fontSize: '13px', fontWeight: '550', textAlign: 'justify' }}>{text}<strong>"{item.barang_nama}"</strong> ({item.seller_nama})</label>
+                    <label style={{ fontSize: '12px' }}><strong>{text}</strong></label>
+                    <div className="address-card__row-title" ><label><strong>{item.seller_nama}</strong></label></div>
+                    <div className="dropcart__product-name">
+                        <label style={{ fontSize: '13px', fontWeight: '550' }}>{item.barang_nama}</label>
+                    </div>
+                    <div className="address-card__row-title mt-2">
+                        <img src={"/images/schedule-18.png"} style={{ marginRight: '5px' }} />
+                        <label>{item.date}</label>
+                    </div>
                     <hr style={{ margin: '8px' }} />
                 </div>
             );
@@ -114,11 +119,19 @@ class IndicatorNotification extends Component {
                         const load = value.notif.check_load_notif;
 
                         const items_update = value.notif.data_notif.map((item, index) => {
-                            let text = "Balasan nego ";
+                            let text = "Balasan negosiasi ";
 
                             return (
                                 <div>
-                                    <label style={{ fontSize: '13px', fontWeight: '550' }}>{text}<strong>"{item.barang_nama}"</strong> ({item.seller_nama})</label>
+                                    <label style={{ fontSize: '12px' }}><strong>{text}</strong></label>
+                                    <div className="address-card__row-title" ><label><strong>{item.seller_nama}</strong></label></div>
+                                    <div className="dropcart__product-name">
+                                        <label style={{ fontSize: '13px', fontWeight: '550' }}>{item.barang_nama}</label>
+                                    </div>
+                                    <div className="address-card__row-title mt-2">
+                                        <img src={"/images/schedule-18.png"} style={{ marginRight: '5px' }} />
+                                        <label>{item.date}</label>
+                                    </div>
                                     <hr style={{ margin: '8px' }} />
                                 </div>
                             );

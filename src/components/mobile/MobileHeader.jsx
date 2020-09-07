@@ -35,7 +35,7 @@ class MobileHeader extends Component {
 
     componentDidMount() {
         this.loadDataCart()
-        this.loadDataNotif()
+        // this.loadDataNotif()
     }
 
     async readNotif() {
