@@ -58,22 +58,25 @@ class IndicatorChat extends Component {
                 count_chat: count_new_chat
             })
 
-            // if (this.state.first_call_chat == false) {
-            //     if(this.state.modalChat_isOpen == false){
-            //         const options = {
-            //             autoClose: false,
-            //             className: 'custom-toast',
-            //             position: 'bottom-right',
-            //             autoClose: 7000
-            //         };
-            //         toast.success('💬 Ada pesan baru', options);
-            //     }
-            // }
-
-            if (this.state.first_call_chat == true) {
-                this.setState({ first_call_chat: false })
-            }
         })
+    }
+
+    buildAlert() {
+        if (this.state.first_call_chat == false) {
+            if (this.state.modalChat_isOpen == false) {
+                const options = {
+                    autoClose: false,
+                    className: 'custom-toast',
+                    position: 'bottom-right',
+                    autoClose: 7000
+                };
+                toast.success('💬 Ada pesan baru', options);
+            }
+        }
+
+        if (this.state.first_call_chat == true) {
+            this.setState({ first_call_chat: false })
+        }
     }
 
     // async readNotif() {
@@ -132,8 +135,8 @@ class IndicatorChat extends Component {
                         Belum ada chat dengan distributor mana pun.
                     </DialogContentText>
                     <center>
-                        <button type="submit" style={{ width: '60%' }} className="btn btn-primary mt-4 mb-3" onClick={this.toggleModalChat}>
-                            Mengerti
+                        <button type="submit" style={{ width: '40%' }} className="btn btn-primary mt-4 mb-3" onClick={this.toggleModalChat}>
+                            Tutup
                         </button>
                     </center>
                 </DialogContent>

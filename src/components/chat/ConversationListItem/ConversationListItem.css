@@ -40,15 +40,38 @@
   margin: 0;
 }
 
+.text-right{
+  text-align: right;
+  font-size: 11px;
+}
+
+.conversation-list-wrap{
+  position: relative;
+}
+
 .indicator-newchat {
-  position: absolute;
-  right: 10px;
-  height: 15px;
+  /* position: absolute; */
+  position: relative;
+  float: right;
+  right: 0px;
+  height: 14px;
   font-size: 10px;
   padding: 0 5px;
   border-radius: 1000px;
   background:#8CC63E;
   color: white;  
-  font-weight: bold;
-  
+  font-weight: bold;  
+}
+
+.time{
+  right: 0px;
+  font-size: 10px;
+}
+
+.conversation-info-left{
+  width: 100%;
+}
+
+.conversation-info-right{
+  width: 20%;
 }

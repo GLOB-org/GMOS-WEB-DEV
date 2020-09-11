@@ -91,7 +91,7 @@ export default class ConversationList extends Component {
               "name": child.val().company_id_seller, 
               "text": "",
               "unread_message": 0, 
-              "last_timestamp": ""
+              "last_timestamp": new Date().getTime()
             });
             count++
           }
@@ -106,6 +106,7 @@ export default class ConversationList extends Component {
         }
 
         else {
+
           //order list conversation by timestamp
           dataListChat = dataListChat.sort(function (a, b) { return b.last_timestamp - a.last_timestamp })
 
@@ -146,12 +147,11 @@ export default class ConversationList extends Component {
         createRef.push({  
                         'company_id_buyer': Number(company_id_buyer),
                         'company_id_seller': Number(company_id_seller),
-                        'last_timestamp': "",
+                        'last_timestamp': new Date().getTime(),
                         'message': "",
                         'type': "user_to_sales",
                         'user_id_buyer': Number(user_id_buyer),
                         'user_id_seller': Number(user_id_seller)
-                      
         })
         .then(res => {
           
@@ -198,7 +198,8 @@ export default class ConversationList extends Component {
               id_seller: `${id_seller}`, 
               name: `${nama_seller}`,
               text: `${result.text}`,
-              unread_message: `${result.unread_message}`
+              unread_message: `${result.unread_message}`,
+              last_timestamp: `${result.last_timestamp}`
             };
           });
 
@@ -216,7 +217,16 @@ export default class ConversationList extends Component {
               get_name_seller = this.state.dataConversationList_tetap[i].name
             } 
           }
-          this.props.clickConversationList(this.props.company_id_seller, get_name_seller, this.state.dataChat,  this.state.dataConversationList_tetap, this.state.dataProduct)
+
+          // this.props.clickConversationList(this.props.company_id_seller, get_name_seller, this.state.dataChat,  this.state.dataConversationList_tetap, this.state.dataProduct)
+
+          if(this.state.personActive != '' || this.state.index_personActive != ''){
+            this.props.clickConversationList( this.state.id_personActive, this.state.personActive, this.state.dataChat, this.state.dataConversationList_tetap, this.state.dataProduct)
+          }
+          else if (this.state.personActive == '' && this.state.index_personActive == '') {
+            this.props.clickConversationList(this.props.company_id_seller, get_name_seller, this.state.dataChat,  this.state.dataConversationList_tetap, this.state.dataProduct)
+          }
+
         }
 
         else {
@@ -259,6 +269,7 @@ export default class ConversationList extends Component {
   render(){
 
     const clickRoom = (id_personChat, personChat, index) => {
+
       this.setState({
         id_personActive: id_personChat,
         personActive: personChat,

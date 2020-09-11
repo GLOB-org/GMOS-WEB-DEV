@@ -88,6 +88,7 @@
 
 .box-chat-message{
   margin-top: 5px;
+  padding: 10px;
 }
 
 .box-chat-photo{
@@ -127,4 +128,15 @@
   border-bottom-left-radius: 10px;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
+}
+
+.message.mine .bubble-container .bubble-product {
+  margin: 2px 0px;
+  background: #8CC63E;
+  color: white;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  max-width: 75%;
 }

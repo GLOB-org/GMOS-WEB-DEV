@@ -17,8 +17,6 @@ export default function Message(props) {
       showTimestamp
     } = props;
 
-    console.log(product)
-
     moment.locale('id')
     //cek hari ini
     var date_now = moment(new Date().getTime()).format('L')
@@ -67,7 +65,7 @@ export default function Message(props) {
                   <img className="box-chat-read" src={icon_read} />
                 </p>
                 <p className="bubble-time" style={{marginRight:'5px'}}>{chat_time}</p>
-                <div className="bubble" title={friendlyTimestamp}>
+                <div className="bubble-product" title={friendlyTimestamp}>
                     <div className="box_chat">
                       <div className="box-chat-header">
                         <img className="box-chat-photo" src={ product.foto } alt="" />

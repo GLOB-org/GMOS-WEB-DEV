@@ -47,7 +47,6 @@ import ShopPageCategoryDetailLang from './shop/ShopPageCategoryDetail-Lang';
 import ShopPageCategoryDetailAll from './shop/ShopPageCategoryDetail-All';
 import TransactionLayout from './transaction/TransactionLayout';
 
-
 // data stubs
 import theme from '../data/theme';
 
@@ -90,8 +89,11 @@ function Layout(props) {
                         <Route exact path={`${match.path}`} component={homeComponent} />
                         <Route exact path="/masuk" component={AccountPageLogin} />
                         <Route exact path="/daftar" component={AccountPageRegister} />
-                        <Route exact path="/daftarprodukall" component={ShopPageCategoryAll} />
-                        <Route exact path="/daftarprodukall/:productId" component={ShopPageProductAll} />
+                        {/* <Route exact path="/daftarprodukall" component={ShopPageCategoryAll} /> */}
+                        {checkLogin ?
+                            (<Route exact path="/daftarprodukall" component={ShopPageCategoryAll} />) :
+                            (<Redirect to="/masuk" />)
+                        }                        <Route exact path="/daftarprodukall/:productId" component={ShopPageProductAll} />
                         <Route exact path="/daftarprodukall-:categoryName" component={ShopPageCategoryDetailAll} />
 
                         {/* <Route

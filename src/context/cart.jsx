@@ -89,13 +89,21 @@ export default class CartContainer extends Component {
 
     loadDataNotif = async () => {
 
-        let query = encrypt("select barang_id, barang_nama, buyer_id, buyer_nama, " +
-            "seller_id, seller_nama, to_char(date, 'dd-MM-yyyy / HH24:MI') as date from gcm_notification_nego where read_flag = 'N' and source = 'seller' " +
-            "and now() >= date and buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " order by date desc")
+        let query = encrypt("select a.*, b.nama_perusahaan as seller_nama from " +
+            "(select a.barang_id, c.nama as barang_nama, a.buyer_id, d.nama_perusahaan as buyer_nama, a.seller_id, " +
+            "to_char(a.date, 'dd-MM-yyyy / HH24:MI') as date, a.status from gcm_notification_nego a " +
+            "inner join gcm_list_barang b on a.barang_id = b.id " +
+            "inner join gcm_master_barang c on b.barang_id = c.id " +
+            "inner join gcm_master_company d on a.buyer_id = d.id " +
+            "where a.read_flag = 'N' and a.source = 'seller' " +
+            "and now() >= a.date and a.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+            ") a " +
+            "inner join gcm_master_company b on a.seller_id = b.id order by a.date desc")
 
         await Axios.post(url.select, {
             query: query
         }).then(data => {
+
             this.setState({
                 notif: {
                     data_notif: data.data.data,
@@ -109,22 +117,54 @@ export default class CartContainer extends Component {
         })
     }
 
-    buildAlert = () => {
+    buildAlert = (key_notif) => {
         const timeout = 0
         const options = {
             autoClose: false,
             className: 'custom-toast',
             position: 'bottom-right',
-            // autoClose: 7000
+            // autoClose: 5000
         };
         setTimeout(function () {
-            toast.success('Ada balasan nego dari penjual', options);
+
+            if (key_notif == "nego") {
+                toast.success('Ada balasan nego dari penjual', options);
+            }
+            else if (key_notif == "nego_approved") {
+                toast.success('1 Negosiasi berhasil disepakati', options);
+            }
+
         }, timeout);
+
     }
 
     getNotifikasi = (get_message) => {
-        // this.loadDataNotif()
-        // this.buildAlert()
+        
+        if(get_message.data["firebase-messaging-msg-data"]){
+            var key_notif = get_message.data["firebase-messaging-msg-data"].data.key
+        }
+        else {
+            var key_notif = get_message.data.data.key
+        }
+
+        // try {
+        //     var key_notif = get_message.data["firebase-messaging-msg-data"].data.key
+        // }
+        // catch (err) {
+        //     console.log('error')
+        //     console.log(err)
+        // }
+
+        this.loadDataNotif()
+        this.buildAlert(key_notif)
+
+        if (key_notif == "nego_approved") {
+            this.loadDataCart()
+        }
+
+        if (window.location.pathname == '/transaksi/nego') {
+            window.location.reload()
+        }
     }
 
     sendNotifikasi = async (get_send_nego, get_barang_id, get_barang_nama, get_buyer_id,
@@ -135,17 +175,15 @@ export default class CartContainer extends Component {
         if (get_send_nego == true) {
 
             if (get_check_nego_auto == true) {
-                var query = encrypt("insert into gcm_notification_nego (barang_id, barang_nama, buyer_id, " +
-                    "buyer_nama, seller_id, seller_nama, source, date) values (" + get_barang_id + ",'" + get_barang_nama +
-                    "'," + get_buyer_id + ",(select nama_perusahaan from gcm_master_company where id = " + get_buyer_id +
-                    ")," + get_seller_id + ",'" + get_seller_nama + "', 'seller', now() + interval '1 hour')");
+                var query = encrypt("insert into gcm_notification_nego (barang_id, buyer_id, " +
+                    "seller_id, source, date, status) values (" + get_barang_id + "," + get_buyer_id +
+                    "," + get_seller_id + ",'seller', now() + interval '1 hour', 'nego')");
 
             }
             else {
-                var query = encrypt("insert into gcm_notification_nego (barang_id, barang_nama, buyer_id, " +
-                    "buyer_nama, seller_id, seller_nama, source) values (" + get_barang_id + ",'" + get_barang_nama +
-                    "'," + get_buyer_id + ",(select nama_perusahaan from gcm_master_company where id = " + get_buyer_id +
-                    ")," + get_seller_id + ",'" + get_seller_nama + "', 'buyer')");
+                var query = encrypt("insert into gcm_notification_nego (barang_id, buyer_id, " +
+                    "seller_id, source, status) values (" + get_barang_id + "," + get_buyer_id +
+                    "," + get_seller_id + ",'buyer', 'nego')");
 
             }
 

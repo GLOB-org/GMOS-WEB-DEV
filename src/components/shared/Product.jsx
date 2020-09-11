@@ -709,9 +709,9 @@ class Product extends Component {
                                         <strong>{product.nama_perusahaan}</strong>
                                     </li>
                                 </div>
-                                {/* <div className="col-xs-12 col-sm-12 col-md-12 col-lg-3">
+                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-3">
                                     <div id="btn-chat-product" className='btn btn-xs' onClick={this.toggleModalChat}> hubungi penjual </div>
-                                </div> */}
+                                </div>
                             </div>
                         </div>
 
@@ -1034,9 +1034,9 @@ class Product extends Component {
                                         <strong>{product.nama_perusahaan}</strong>
                                     </li>
                                 </div>
-                                {/* <div className="col-xs-12 col-sm-12 col-md-12 col-lg-3">
+                                <div className="col-xs-12 col-sm-12 col-md-12 col-lg-3">
                                     <div id="btn-chat-product" className='btn btn-xs' onClick={this.toggleModalChat}> hubungi penjual </div>
-                                </div> */}
+                                </div>
                             </div>
                         </div>
 

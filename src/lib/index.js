@@ -18,6 +18,6 @@ export const decrypt=(crypted)=>{
 }
 
 export const url={
-    select: 'https://2jn9dctkcb.execute-api.ap-southeast-1.amazonaws.com/default/gcm_select' ,
+    select: 'https://2jn9dctkcb.execute-api.ap-southeast-1.amazonaws.com/default/gcm_select',
     insert: 'https://jrs65kbpo5.execute-api.ap-southeast-1.amazonaws.com/default/gcm_insert'
 }

@@ -74,9 +74,16 @@ class MobileHeader extends Component {
 
     async loadDataNotif() {
         if (localStorage.getItem('Login') != null) {
-            let query = encrypt("select barang_id, barang_nama, buyer_id, buyer_nama, " +
-                "seller_id, seller_nama from gcm_notification_nego where read_flag = 'N' and source = 'seller' " +
-                "and buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " order by date desc")
+            let query = encrypt("select a.*, b.nama_perusahaan as seller_nama from " +
+                "(select a.barang_id, c.nama as barang_nama, a.buyer_id, d.nama_perusahaan as buyer_nama, a.seller_id, " +
+                "to_char(a.date, 'dd-MM-yyyy / HH24:MI') as date, a.status from gcm_notification_nego a " +
+                "inner join gcm_list_barang b on a.barang_id = b.id " +
+                "inner join gcm_master_barang c on b.barang_id = c.id " +
+                "inner join gcm_master_company d on a.buyer_id = d.id " +
+                "where a.read_flag = 'N' and a.source = 'seller' " +
+                "and now() >= a.date and a.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+                ") a " +
+                "inner join gcm_master_company b on a.seller_id = b.id order by a.date desc")
 
             await Axios.post(url.select, {
                 query: query
@@ -227,7 +234,7 @@ class MobileHeader extends Component {
                                         //         }
 
                                         //         return (
-                                                 
+
                                         //             <CartContext.Consumer>
                                         //                 {value => {
                                         //                     const load = value.notif.check_load_notif;

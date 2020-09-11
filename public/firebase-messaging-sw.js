@@ -17,19 +17,54 @@ firebase.initializeApp({
 const messaging = firebase.messaging()
 
 messaging.setBackgroundMessageHandler(payload => {
-    // console.log(payload)
-    console.log('background message')
-    // const notificationTitle = 'Background Message Title';
-    // // const notificationOptions = {
-    // //     body: 'Background Message body.',
-    // //     icon: '/firebase-logo.png'
-    // // };
-    // const notificationOptions = {
-    //     body: 'Background Message body.',
-    //     icon: '/firebase-logo.png'
-    // };
+    // console.log('[firebase-messaging-sw.js] Received background message ', payload);
+    self.clients.matchAll({
+        includeUncontrolled: true
+    }).then(function (clients) {
+        clients.forEach(function (client) {
+            client.postMessage(payload);
+        })
+    })
 
-    // return self.registration.showNotification(notificationTitle,
-    //     notificationOptions);
+    if (payload.data["firebase-messaging-msg-data"]) {
+        var key_notif = payload.data["firebase-messaging-msg-data"].key
+    } else {
+        var key_notif = payload.data.key
+    }
 
-})
+    var body_notif = ""
+    if (key_notif == "nego") {
+        body_notif = 'Ada balasan nego dari penjual'
+    } else if (key_notif == "nego_approved") {
+        body_notif = '1 Negosiasi berhasil disepakati'
+    }
+
+    const notificationTitle = 'GLOB';
+    const notificationOptions = {
+        body: body_notif,
+        icon: 'https://glob.co.id/admin/assets/images/inverse.png',
+        click_action: 'https://glob.co.id/transaksi/nego'
+    };
+
+    return self.registration.showNotification(notificationTitle,
+        notificationOptions);
+});
+
+// messaging.setBackgroundMessageHandler(payload => {
+//     // console.log(payload)
+//     console.log('background message reload')
+//     location.reload()
+//     // const notificationTitle = 'Background Message Title';
+//     // // const notificationOptions = {
+//     // //     body: 'Background Message body.',
+//     // //     icon: '/firebase-logo.png'
+//     // // };
+//     // const notificationOptions = {
+//     //     body: 'Background Message body.',
+//     //     icon: '/firebase-logo.png'
+//     // };
+
+//     // return self.registration.showNotification(notificationTitle,
+//     //     notificationOptions);
+
+// })

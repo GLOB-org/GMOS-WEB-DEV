@@ -41,9 +41,16 @@ class IndicatorNotification extends Component {
 
     async loadDataNotif() {
 
-        let query = encrypt("select barang_id, barang_nama, buyer_id, buyer_nama, " +
-            "seller_id, seller_nama, to_char(date, 'dd-MM-yyyy / HH24:MI') as date from gcm_notification_nego where read_flag = 'N' and source = 'seller' " +
-            "and now() >= date and buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " order by date desc")
+        let query = encrypt("select a.*, b.nama_perusahaan as seller_nama from "+
+        "(select a.barang_id, c.nama as barang_nama, a.buyer_id, d.nama_perusahaan as buyer_nama, a.seller_id, "+
+            "to_char(a.date, 'dd-MM-yyyy / HH24:MI') as date, a.status from gcm_notification_nego a "+
+	        "inner join gcm_list_barang b on a.barang_id = b.id "+
+	        "inner join gcm_master_barang c on b.barang_id = c.id "+
+	        "inner join gcm_master_company d on a.buyer_id = d.id "+
+	        "where a.read_flag = 'N' and a.source = 'seller' "+
+	        "and now() >= a.date and a.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+            ") a "+
+            "inner join gcm_master_company b on a.seller_id = b.id order by a.date desc")
 
         await Axios.post(url.select, {
             query: query
@@ -63,18 +70,21 @@ class IndicatorNotification extends Component {
         let dropdown_null;
 
         const items = this.state.data_notif.map((item, index) => {
-            let text = "Balasan negosiasi ";
+            let text_nego = "Balasan negosiasi ";
+            let text_approved = "Negosiasi berhasil disepakati"
 
             return (
                 <div>
-                    <label style={{ fontSize: '12px' }}><strong>{text}</strong></label>
+                    <label style={{ fontSize: '12px' }}><strong> {item.status === "nego" ? text_nego : text_approved } </strong></label>
                     <div className="address-card__row-title" ><label><strong>{item.seller_nama}</strong></label></div>
                     <div className="dropcart__product-name">
                         <label style={{ fontSize: '13px', fontWeight: '550' }}>{item.barang_nama}</label>
                     </div>
                     <div className="address-card__row-title mt-2">
-                        <img src={"/images/schedule-18.png"} style={{ marginRight: '5px' }} />
-                        <label>{item.date}</label>
+                        <img src={"/images/schedule-black-15dp.png"} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+                        <span style={{ verticalAlign: 'middle' }}>
+                            {item.date}
+                        </span>
                     </div>
                     <hr style={{ margin: '8px' }} />
                 </div>
@@ -119,18 +129,19 @@ class IndicatorNotification extends Component {
                         const load = value.notif.check_load_notif;
 
                         const items_update = value.notif.data_notif.map((item, index) => {
-                            let text = "Balasan negosiasi ";
+                            let text_nego = "Balasan negosiasi ";
+                            let text_approved = "Negosiasi berhasil disepakati"
 
                             return (
                                 <div>
-                                    <label style={{ fontSize: '12px' }}><strong>{text}</strong></label>
+                                    <label style={{ fontSize: '12px' }}><strong>{item.status === "nego" ? text_nego : text_approved }</strong></label>
                                     <div className="address-card__row-title" ><label><strong>{item.seller_nama}</strong></label></div>
                                     <div className="dropcart__product-name">
                                         <label style={{ fontSize: '13px', fontWeight: '550' }}>{item.barang_nama}</label>
                                     </div>
                                     <div className="address-card__row-title mt-2">
-                                        <img src={"/images/schedule-18.png"} style={{ marginRight: '5px' }} />
-                                        <label>{item.date}</label>
+                                        <img src={"/images/schedule-black-15dp.png"} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+                                        <span style={{ verticalAlign: 'middle' }}>{item.date}</span>
                                     </div>
                                     <hr style={{ margin: '8px' }} />
                                 </div>

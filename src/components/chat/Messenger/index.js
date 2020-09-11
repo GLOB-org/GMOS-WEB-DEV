@@ -16,6 +16,7 @@ export default class Messenger extends Component {
         productOnChat: [],
         keyRoom: '',
         messageChat:'',
+        seller_id:'',
         barang_id: '',
         barang_image: '',
         barang_nama: '',
@@ -54,7 +55,7 @@ export default class Messenger extends Component {
   render(){
 
     const clickRoom = async (id_person, person, dataChat, dataConversation, dataProduct) => {
-      
+
       var get_index
       var get_key_room
       var chat_key = []
@@ -70,6 +71,7 @@ export default class Messenger extends Component {
       }
 
       await this.setState({
+        seller_id: id_person,
         personChat: person,
         dataChat: dataChat[get_index],
         productOnChat: dataProduct,
@@ -171,7 +173,7 @@ export default class Messenger extends Component {
           'uid': "",
           'contain': message,
           'read': false,
-          'receiver': -1,
+          'receiver': Number(this.state.seller_id),
           'sender': Number(decrypt(localStorage.getItem("CompanyIDLogin"))),
           'timestamp':  {   
                             'date': get_date,
@@ -192,7 +194,7 @@ export default class Messenger extends Component {
           'uid': "",
           'contain': message,
           'read': false,
-          'receiver': -1,
+          'receiver': Number(this.state.seller_id),
           'sender': Number(decrypt(localStorage.getItem("CompanyIDLogin"))),
           'timestamp':  {   
                             'date': get_date,
@@ -264,7 +266,13 @@ export default class Messenger extends Component {
         <div className="preview-product" style={{display: this.state.display_preview}}>
           <img className="preview-product-photo" src={ this.state.barang_image } alt="" />
           <h1 className="preview-product-title">{ this.state.barang_nama }</h1>
-          <button className="hide-preview" onClick={()=> hidePreview_full()}>x</button>
+          {/* <button className="hide-preview" onClick={()=> hidePreview_full()}>
+            <span style={{textAlign: 'center', margin: 'auto'}}>x</span>
+          </button> */}
+          <span className="hide-preview" onClick={()=> hidePreview_full()}>
+            x
+          </span>
+
         </div>
 
         <Compose sendChat={sendChat}/>
