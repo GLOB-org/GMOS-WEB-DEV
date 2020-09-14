@@ -42,8 +42,8 @@ messaging.setBackgroundMessageHandler(payload => {
     const notificationTitle = 'GLOB';
     const notificationOptions = {
         body: body_notif,
-        icon: 'https://glob.co.id/admin/assets/images/inverse.png',
-        click_action: 'https://glob.co.id/transaksi/nego'
+        click_action: 'https://glob.co.id/transaksi/nego',
+        icon: 'https://glob.co.id/images/icon-glob.png'
     };
 
     return self.registration.showNotification(notificationTitle,

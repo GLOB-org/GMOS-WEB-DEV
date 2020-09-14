@@ -120,10 +120,10 @@ export default class CartContainer extends Component {
     buildAlert = (key_notif) => {
         const timeout = 0
         const options = {
-            autoClose: false,
+            // autoClose: false,
             className: 'custom-toast',
             position: 'bottom-right',
-            // autoClose: 5000
+            autoClose: 5000
         };
         setTimeout(function () {
 
