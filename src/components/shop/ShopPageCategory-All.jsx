@@ -84,8 +84,8 @@ class ShopPageCategory extends Component {
                 seller_id: data.data.data
             });
 
-            var get_produk = encrypt("SELECT nama, b.id, b.kode_barang, price, price_terendah, foto, category_id, " +
-                "b.company_id, berat, b.deskripsi, c.nama_perusahaan FROM gcm_master_company c, gcm_master_barang a  " +
+            var get_produk = encrypt("SELECT nama, b.id, b.kode_barang, price, price_terendah, foto, flag_foto, category_id, " +
+                "b.company_id, berat, b.deskripsi, c.kode_seller, c.nama_perusahaan FROM gcm_master_company c, gcm_master_barang a  " +
                 "inner join gcm_list_barang b on a.id=b.barang_id where a.status='A' and b.status='A' and b.company_id = c.id " +
                 "and b.company_id in(" + data.data.data[0].seller + ")  order by b.create_date desc, category_id asc, nama asc");
 

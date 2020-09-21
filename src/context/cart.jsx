@@ -65,7 +65,7 @@ export default class CartContainer extends Component {
     loadDataCart = async () => {
 
         let query = encrypt("SELECT a.id, a.history_nego_id, e.harga_final, d.nama_perusahaan, c.nama, c.berat, f.alias as satuan," +
-            "a.barang_id, b.price, b.foto, c.category_id, b.company_id as seller_id, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count, time_respon, " +
+            "a.barang_id, b.kode_barang, b.price, b.foto, b.flag_foto, c.category_id, b.company_id as seller_id, d.kode_seller, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count, time_respon, " +
             "case when now() < time_respon then 'no' end as status_time_respon, g.nominal as kurs " +
             "FROM  gcm_listing_kurs g, gcm_master_satuan f, gcm_master_cart a inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_company d " +
             "on b.company_id=d.id left join gcm_history_nego e on a.history_nego_id = e.id  where f.id = c.satuan and g.company_id = b.company_id and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
@@ -89,15 +89,14 @@ export default class CartContainer extends Component {
 
     loadDataNotif = async () => {
 
-        let query = encrypt("select a.*, b.nama_perusahaan as seller_nama from " +
-            "(select a.barang_id, c.nama as barang_nama, a.buyer_id, d.nama_perusahaan as buyer_nama, a.seller_id, " +
-            "to_char(a.date, 'dd-MM-yyyy / HH24:MI') as date, a.status from gcm_notification_nego a " +
+        let query = encrypt("select a.barang_id, a.nama_barang, a.buyer_id, a.buyer_nama, a.seller_id, to_char(a.date, 'dd-MM-yyyy / HH24:MI') as date, " +
+            "a.status, b.nama_perusahaan as seller_nama from (select a.barang_id, c.nama as nama_barang, a.buyer_id, " +
+            "d.nama_perusahaan as buyer_nama, a.seller_id, a.date, a.status " +
+            "from gcm_notification_nego a " +
             "inner join gcm_list_barang b on a.barang_id = b.id " +
             "inner join gcm_master_barang c on b.barang_id = c.id " +
             "inner join gcm_master_company d on a.buyer_id = d.id " +
-            "where a.read_flag = 'N' and a.source = 'seller' " +
-            "and now() >= a.date and a.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
-            ") a " +
+            "where a.read_flag = 'N' and a.source = 'seller' and now() >= a.date and a.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " ) a " +
             "inner join gcm_master_company b on a.seller_id = b.id order by a.date desc")
 
         await Axios.post(url.select, {
@@ -139,8 +138,8 @@ export default class CartContainer extends Component {
     }
 
     getNotifikasi = (get_message) => {
-        
-        if(get_message.data["firebase-messaging-msg-data"]){
+
+        if (get_message.data["firebase-messaging-msg-data"]) {
             var key_notif = get_message.data["firebase-messaging-msg-data"].data.key
         }
         else {
@@ -200,7 +199,7 @@ export default class CartContainer extends Component {
 
                 const body = {
                     nego_type: nego_type,
-                    timeout: 60000,
+                    timeout: 3600000,
                     id_cart: get_id_master_cart,
                     company_id_buyer: get_buyer_id,
                     company_id_seller: get_seller_id,

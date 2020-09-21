@@ -50,7 +50,7 @@ class IndicatorCart extends Component {
     async loadDataCart() {
 
         let query = encrypt("SELECT a.id, a.history_nego_id, e.harga_final, d.nama_perusahaan, c.nama, c.berat, f.alias as satuan," +
-            "a.barang_id, b.price, b.foto, c.category_id, b.company_id as seller_id, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count, time_respon, " +
+            "a.barang_id, b.kode_barang, b.price, b.foto, b.flag_foto, c.category_id, b.company_id as seller_id, d.kode_seller, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count, time_respon, " +
             "case when now() < time_respon then 'no' end as status_time_respon, g.nominal as kurs " +
             "FROM  gcm_listing_kurs g, gcm_master_satuan f, gcm_master_cart a inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_company d " +
             "on b.company_id=d.id left join gcm_history_nego e on a.history_nego_id = e.id  where f.id = c.satuan and g.company_id = b.company_id and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
@@ -103,7 +103,14 @@ class IndicatorCart extends Component {
 
         const items = this.state.data_cart.map((item, index) => {
             let options;
-            let image;
+            var image;
+
+            if (item.flag_foto === "Y") {
+                image = `https://glob.co.id/admin/assets/images/product/${item.seller_id}/${item.kode_barang}.png`
+            }
+            else {
+                image = 'https://glob.co.id/admin/assets/images/no_image.png'
+            }
 
             if (item.options) {
                 options = (
@@ -158,7 +165,7 @@ class IndicatorCart extends Component {
             return (
                 <div key={item.id} className="dropcart__product">
                     <div className="dropcart__product-image">
-                        <img src={item.foto} alt="" />
+                        <img src={image} alt="" />
                     </div>
 
                     <div className="dropcart__product-info">
@@ -275,7 +282,14 @@ class IndicatorCart extends Component {
 
                             const items_update = value.cart.data_cart.map((item, index) => {
                                 let options;
-                                let image;
+                                var image;
+
+                                if (item.flag_foto === "Y") {
+                                    image = `https://glob.co.id/admin/assets/images/product/${item.seller_id}/${item.kode_barang}.png`
+                                }
+                                else {
+                                    image = 'https://glob.co.id/admin/assets/images/no_image.png'
+                                }
 
                                 if (item.options) {
                                     options = (
@@ -329,7 +343,7 @@ class IndicatorCart extends Component {
                                 return (
                                     <div key={item.id} className="dropcart__product">
                                         <div className="dropcart__product-image">
-                                            <img src={item.foto} alt="" />
+                                            <img src={image} alt="" />
                                         </div>
 
                                         <div className="dropcart__product-info">

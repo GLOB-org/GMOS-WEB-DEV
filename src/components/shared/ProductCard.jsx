@@ -533,10 +533,19 @@ class ProductCard extends Component {
         badges = badges.length ? <div className="product-card__badges-list">{badges}</div> : null;
 
         if (product.foto && product.foto.length > 0) {
+
             image = (
                 <div className="product-card__image">
                     <Link to={`/daftarproduklangganan/${product.id}`}>
-                        <img src={product.foto} alt="" />
+                        {
+                            product.flag_foto === "Y" ?
+                                (
+                                    <img id="product_img" src={`https://glob.co.id/admin/assets/images/product/${product.company_id}/${product.kode_barang}.png`} alt="" />
+                                ) :
+                                (
+                                    <img id="product_img" src={`https://glob.co.id/admin/assets/images/no_image.png`} alt="" />
+                                )
+                        }
                     </Link>
                 </div>
             );

@@ -247,12 +247,8 @@ class ShopPageCart extends Component {
             "FROM gcm_master_cart a inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_company d " +
             "on b.company_id=d.id where a.company_id= " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status='A'")
 
-        // let query = encrypt("SELECT a.id, a.history_nego_id, e.harga_final, d.nama_perusahaan, c.nama, c.berat, f.alias as satuan, a.barang_id, b.price, b.foto, c.category_id, b.jumlah_min_beli, b.company_id as seller_id, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count, time_respon, g.nominal as kurs " +
-        //     "FROM  gcm_listing_kurs g, gcm_master_satuan f, gcm_master_cart a inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_company d " +
-        //     "on b.company_id=d.id left join gcm_history_nego e on a.history_nego_id = e.id  where f.id = c.satuan and g.company_id = b.company_id and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status='A' and now() between g.tgl_start and g.tgl_end order by a.create_date asc")
-
         let query = encrypt("SELECT a.id, a.history_nego_id, e.harga_final, d.nama_perusahaan, c.nama, c.berat, f.alias as satuan," +
-            "a.barang_id, b.price, b.foto, b.jumlah_min_beli, c.category_id, b.company_id as seller_id, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count, time_respon, " +
+            "a.barang_id, b.kode_barang, b.price, b.foto, b.flag_foto, b.jumlah_min_beli, c.category_id, b.company_id as seller_id, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count, time_respon, " +
             "case when now() < time_respon then 'no' end as status_time_respon, g.nominal as kurs " +
             "FROM  gcm_listing_kurs g, gcm_master_satuan f, gcm_master_cart a inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_company d " +
             "on b.company_id=d.id left join gcm_history_nego e on a.history_nego_id = e.id  where f.id = c.satuan and g.company_id = b.company_id and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
@@ -339,6 +335,15 @@ class ShopPageCart extends Component {
             var id_cb = get_indexpenjual.toString().concat(index.toString())
             var get_qty = data.qty
             var get_berat = data.berat
+            var image;
+
+            if (data.flag_foto === "Y") {
+                image = `https://glob.co.id/admin/assets/images/product/${data.seller_id}/${data.kode_barang}.png`
+            }
+            else {
+                image = 'https://glob.co.id/admin/assets/images/no_image.png'
+            }
+
             return (
                 <div style={{ display: 'contents' }}>
                     <tr className="cart-table__row">
@@ -346,7 +351,7 @@ class ShopPageCart extends Component {
                             <input type="checkbox" id={id_cb} onClick={() => this.checkBarang(id_cb, get_indexpenjual)} defaultChecked={this.state.checked} />
                         </td>
                         <td className="cart-table__column cart-table__column--image" style={{ border: 'none' }}>
-                            <img src={data.foto} className="detail-foto" />
+                            <img src={image} className="detail-foto" />
                         </td>
                         <td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
                             {data.nama}
@@ -475,6 +480,15 @@ class ShopPageCart extends Component {
                     var displaydist = "none"
                 }
 
+                var image;
+
+                if (item.flag_foto === "Y") {
+                    image = `https://glob.co.id/admin/assets/images/product/${item.seller_id}/${item.kode_barang}.png`
+                }
+                else {
+                    image = 'https://glob.co.id/admin/assets/images/no_image.png'
+                }
+
                 return (
                     <div style={{ display: 'contents' }}>
                         <tr className="cart-table__row" style={{ display: displaydist }}>
@@ -484,7 +498,7 @@ class ShopPageCart extends Component {
                         </tr>
                         <tr key={item.id} className="cart-table__row">
                             <td className="cart-table__column cart-table__column--image" style={{ border: 'none' }}>
-                                <img src={item.foto} alt="" />
+                                <img src={image} alt="" />
                             </td>
                             {/* <td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
                                 {item.nama}

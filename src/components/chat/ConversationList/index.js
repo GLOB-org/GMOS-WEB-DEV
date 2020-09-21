@@ -247,11 +247,15 @@ export default class ConversationList extends Component {
   }
 
   getProduct = async(id) =>{
-    let query = encrypt("select a.id, b.nama, a.foto, a.price, c.nominal as kurs, d.alias as satuan "+
-    "from gcm_list_barang a inner join gcm_master_barang b on a.barang_id = b.id inner join "+
-    "gcm_listing_kurs c on a.company_id = c.company_id inner join gcm_master_satuan d "+
-    "on b.satuan = d.id where a.id in (" + id + ") and now() between c.tgl_start and c.tgl_end")
-    
+    let query = encrypt(
+      "select a.id, a.kode_barang, e.kode_seller, b.nama, a.foto, a.price, c.nominal as kurs, d.alias as satuan " +
+      "from gcm_list_barang a " +
+      "inner join gcm_master_barang b on a.barang_id = b.id " +
+      "inner join gcm_listing_kurs c on a.company_id = c.company_id " +
+      "inner join gcm_master_satuan d on b.satuan = d.id " +
+      "inner join gcm_master_company e on a.company_id = e.id " +
+      "where a.id in (" + id + ") and now() between c.tgl_start and c.tgl_end")
+
     await Axios.post(url.select, {
       query: query
       }).then(data => {

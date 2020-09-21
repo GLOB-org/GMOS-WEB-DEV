@@ -645,12 +645,26 @@ class Product extends Component {
             'form-control-lg': 'xl' === 'lg',
         });
 
+        //check image size
+        var image;
+        var img = new Image();
+        img.src = `https://glob.co.id/admin/assets/images/product/${product.kode_seller}/${product.kode_barang}.png`;
+        var height = img.height;
+        var width = img.width;
+
+        if (height != 0 && width != 0) {
+            image = `https://glob.co.id/admin/assets/images/product/${product.kode_seller}/${product.kode_barang}.png`
+        }
+        else {
+            image = 'https://glob.co.id/admin/assets/images/no_image.png'
+        }
+
         if (this.state.status_cart != '') {
 
             return (
                 <div className={`product product--layout--${layout}`}>
                     <div className="product__content">
-                        <ProductGallery layout={layout} images={product.foto} ></ProductGallery>
+                        <ProductGallery layout={layout} images={image} ></ProductGallery>
                         <div className="product__info" style={{ marginBottom: '10px' }}>
                             <div className="product__wishlist-compare">
                                 <AsyncAction
@@ -908,7 +922,7 @@ class Product extends Component {
                         <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.toggleModalChat}>Chat</ModalHeader>
                         <div className="card-body">
                             <Messenger company_id_buyer={decrypt(localStorage.getItem('CompanyIDLogin'))} company_id_seller={product.company_id}
-                                barang_id={product.id} type={"barang"} barang_image={product.foto} barang_nama={product.nama} />
+                                barang_id={product.id} type={"barang"} barang_image={image} barang_nama={product.nama} />
                         </div>
                     </Modal>
 
@@ -975,7 +989,7 @@ class Product extends Component {
             return (
                 <div className={`product product--layout--${layout}`}>
                     <div className="product__content">
-                        <ProductGallery layout={layout} images={product.foto} ></ProductGallery>
+                        <ProductGallery layout={layout} images={image} ></ProductGallery>
                         <div className="product__info" style={{ marginBottom: '10px' }}>
                             <div className="product__wishlist-compare">
                                 <AsyncAction
@@ -1226,7 +1240,7 @@ class Product extends Component {
                         <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.toggleModalChat}>Chat</ModalHeader>
                         <div className="card-body">
                             <Messenger company_id_buyer={decrypt(localStorage.getItem('CompanyIDLogin'))} company_id_seller={product.company_id}
-                                barang_id={product.id} type={"barang"} barang_image={product.foto} barang_nama={product.nama} />
+                                barang_id={product.id} type={"barang"} barang_image={image} barang_nama={product.nama} />
                         </div>
                     </Modal>
 

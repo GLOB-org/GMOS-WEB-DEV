@@ -45,15 +45,10 @@ class ShopPageProductLangganan extends Component {
         var arraystring = []
         arraystring = this.props.match.params.productId.toString().split("-")
 
-        // let query = encrypt("SELECT a.nama, b.barang_id, b.id, price, price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable, foto, category_id, b.company_id, berat, " +
-        //     "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.nama_perusahaan, d.alias as satuan, e.nominal as kurs FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a " +
-        //     "inner join gcm_list_barang b on a.id=b.barang_id inner join gcm_listing_kurs e on b.company_id = e.company_id where b.status='A' " +
-        //     "and now() between e.tgl_start and e.tgl_end and b.company_id = c.id and a.satuan = d.id and b.id = " + arraystring[0] + " order by b.create_date desc, category_id asc, nama asc")
-
-        let query = encrypt("select a.nama, b.barang_id, b.id, price, price_terendah, " +
+        let query = encrypt("select a.nama, b.barang_id, b.id, b.kode_barang, price, price_terendah, " +
             "case when b.persen_nego_1 != 0 or b.persen_nego_2 != 0 or b.persen_nego_3 != 0 then true else false end as nego_auto, " +
-            "case when price = price_terendah then 'no' else 'yes' end as negotiable, foto, category_id, b.company_id, berat, " +
-            "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.nama_perusahaan, d.alias as satuan, e.nominal as kurs FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a " +
+            "case when price = price_terendah then 'no' else 'yes' end as negotiable, foto, flag_foto, category_id, b.company_id, berat, " +
+            "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.kode_seller,  c.nama_perusahaan, d.alias as satuan, e.nominal as kurs FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a " +
             "inner join gcm_list_barang b on a.id=b.barang_id inner join gcm_listing_kurs e on b.company_id = e.company_id where b.status='A' " +
             "and now() between e.tgl_start and e.tgl_end and b.company_id = c.id and a.satuan = d.id and b.id =  " + arraystring[0] + " order by b.create_date desc, category_id asc, nama asc")
 
@@ -65,7 +60,7 @@ class ShopPageProductLangganan extends Component {
                 product_detail_length: data.data.data.length,
             })
 
-            let getrelated_product = encrypt("SELECT a.nama, b.id, b.barang_id, b.kode_barang, d.alias as satuan, price, b.price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable,  b.jumlah_min_beli, b.jumlah_min_nego, foto, category_id, b.company_id, berat, b.deskripsi, c.nama_perusahaan, e.nominal as kurs " +
+            let getrelated_product = encrypt("SELECT a.nama, b.id, b.barang_id, b.kode_barang, d.alias as satuan, price, b.price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable,  b.jumlah_min_beli, b.jumlah_min_nego, foto, flag_foto, category_id, b.company_id, berat, b.deskripsi, c.kode_seller, c.nama_perusahaan, e.nominal as kurs " +
                 "FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a inner join gcm_list_barang b on a.id=b.barang_id " +
                 "inner join gcm_listing_kurs e on b.company_id = e.company_id inner join gcm_company_listing f on b.company_id = f.seller_id where b.status='A' and b.company_id = c.id and a.satuan = d.id " +
                 "and b.id not in(" + arraystring[0] + ") and f.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + "  and category_id=" + data.data.data[0].category_id + " and now() between e.tgl_start and e.tgl_end order by b.create_date desc, category_id asc, nama asc")
@@ -73,7 +68,7 @@ class ShopPageProductLangganan extends Component {
             Axios.post(url.select, {
                 query: getrelated_product
             }).then((data) => {
-            
+
                 this.setState({
                     related_product: data.data.data
                 })
@@ -82,19 +77,21 @@ class ShopPageProductLangganan extends Component {
                 if (related_product_length < 5) {
 
                     let id_get, total_get, nama_get, category_id_get, company_id_get;
-                    let nama_perusahaan_get, foto_get, price_get, price_terendah_get;
-                    let deskripsi_get, jumlah_min_beli_get, jumlah_min_nego_get;
+                    let kode_seller_get, nama_perusahaan_get, foto_get, flag_foto_get, price_get;
+                    let price_terendah_get, deskripsi_get, jumlah_min_beli_get, jumlah_min_nego_get;
                     let berat_get, satuan_get, kurs, kode_barang_get, negotiable_get;
 
                     for (var i = 0; i < (5 - related_product_length); i++) {
 
                         id_get = data.data.data[0].id;
                         kode_barang_get = data.data.data[0].kode_barang;
+                        kode_seller_get = data.data.data[0].kode_seller;
                         nama_get = data.data.data[0].nama;
                         category_id_get = data.data.data[0].category_id;
                         company_id_get = data.data.data[0].company_id;
                         nama_perusahaan_get = data.data.data[0].nama_perusahaan;
                         foto_get = data.data.data[0].foto;
+                        flag_foto_get = data.data.data[0].flag_foto;
                         price_get = data.data.data[0].price;
                         price_terendah_get = data.data.data[0].price_terendah;
                         deskripsi_get = data.data.data[0].deskripsi;
@@ -109,10 +106,10 @@ class ShopPageProductLangganan extends Component {
                             related_product: [...prevState.related_product, {
                                 id: id_get, kode_barang: kode_barang_get, nama: nama_get,
                                 category_id: category_id_get, company_id: company_id_get,
-                                nama_perusahaan: nama_perusahaan_get, foto: foto_get,
-                                price: price_get, price_terendah: price_terendah_get,
+                                kode_seller: kode_seller_get, nama_perusahaan: nama_perusahaan_get, foto: foto_get,
+                                flag_foto: flag_foto_get, price: price_get, price_terendah: price_terendah_get,
                                 deskripsi: deskripsi_get, jumlah_min_beli: jumlah_min_beli_get,
-                                jumlah_min_nego: jumlah_min_nego_get, berat: berat_get, 
+                                jumlah_min_nego: jumlah_min_nego_get, berat: berat_get,
                                 satuan: satuan_get, kurs: kurs, negotiable: negotiable_get
                             }]
                         }))
