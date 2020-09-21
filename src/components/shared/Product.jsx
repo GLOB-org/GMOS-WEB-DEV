@@ -330,6 +330,8 @@ class Product extends Component {
         const { quantity } = this.state;
         let prices;
 
+        console.log(product)
+
         if (product.compareAtPrice) {
             prices = (
                 <React.Fragment>
@@ -647,13 +649,9 @@ class Product extends Component {
 
         //check image size
         var image;
-        var img = new Image();
-        img.src = `https://glob.co.id/admin/assets/images/product/${product.kode_seller}/${product.kode_barang}.png`;
-        var height = img.height;
-        var width = img.width;
 
-        if (height != 0 && width != 0) {
-            image = `https://glob.co.id/admin/assets/images/product/${product.kode_seller}/${product.kode_barang}.png`
+        if (product.flag_foto === 'Y') {
+            image = `https://glob.co.id/admin/assets/images/product/${product.company_id}/${product.kode_barang}.png`
         }
         else {
             image = 'https://glob.co.id/admin/assets/images/no_image.png'

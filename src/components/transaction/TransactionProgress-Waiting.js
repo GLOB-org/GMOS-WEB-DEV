@@ -34,7 +34,10 @@ export default class InfoCompanyCard extends Component{
         Toast.loading('loading . . .', () => {
         }); 
 
-        let queryDetailWaiting = encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.harga, b.id, c.berat, d.alias as satuan, b.company_id as penjual, "+
+        let queryDetailWaiting = encrypt("select a.id, a.transaction_id, c.nama, a.qty, a.harga, b.id, c.berat, d.alias as satuan, b.company_id as penjual, "+
+        "case when b.flag_foto = 'Y' then "+
+        "(select concat('https://www.glob.co.id/admin/assets/images/product/', b.company_id,'/',b.kode_barang,'.png')) "+
+        "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
         "gmc.nama_perusahaan as nama_penjual, case when e.tgl_permintaan_kirim is not null then to_char(e.tgl_permintaan_kirim, 'dd-MM-yyyy') else '-' end as tgl_permintaan_kirim "+
         ", e.ppn_seller,  case when a.note is null or a.note = '' then '-' else a.note end as note from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
         "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_transaction e on "+

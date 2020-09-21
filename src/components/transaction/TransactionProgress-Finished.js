@@ -35,10 +35,10 @@ export default class InfoCompanyCard extends Component{
         Toast.loading('loading . . .', () => {
         }); 
 
-        // let queryDetailFinished = encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.qty_dipenuhi, a.harga, a.batch_number, a.harga_final, to_char(to_date(exp_date,'yyyy-MM-dd'), 'dd-MM-yyyy') as exp_date , b.id, c.berat, d.alias as satuan, b.company_id as penjual, gmc.nama_perusahaan as nama_penjual from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
-        // "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id where gmc.id = b.company_id and c.satuan = d.id and transaction_id='"+id+"' order by c.category_id asc, c.nama asc")
-
-        let queryDetailFinished = encrypt("select a.id, a.transaction_id, c.nama, b.foto, a.qty, a.qty_dipenuhi, a.harga, a.batch_number, "+
+        let queryDetailFinished = encrypt("select a.id, a.transaction_id, c.nama, a.qty, a.qty_dipenuhi, a.harga, a.batch_number, "+
+        "case when b.flag_foto = 'Y' then "+
+        "(select concat('https://www.glob.co.id/admin/assets/images/product/', b.company_id,'/',b.kode_barang,'.png')) "+
+        "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
         "a.harga_final,case when exp_date != '-' and exp_date is not null then to_char(to_date(exp_date,'yyyy-MM-dd'), 'dd-MM-yyyy') else '-' end as exp_date , b.id, c.berat, d.alias as satuan, b.company_id as penjual, gmc.nama_perusahaan as nama_penjual, "+
         "case when e.tgl_permintaan_kirim is not null then to_char(e.tgl_permintaan_kirim, 'dd-MM-yyyy') else '-' end as tgl_permintaan_kirim, "+
         "e.ppn_seller, case when a.note is null or a.note = '' then '-' else a.note end as note from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
@@ -162,6 +162,19 @@ export default class InfoCompanyCard extends Component{
         this.controlModal();
     }
 
+    displayTimeline = ()=>{
+        if(this.state.display_timeline == 'block'){
+            this.setState({
+                display_timeline: 'none'
+            })
+        }
+        else {
+            this.setState({
+                display_timeline: 'block'
+            })
+        }  
+    }
+
     render(){
     return(
 
@@ -178,7 +191,7 @@ export default class InfoCompanyCard extends Component{
                 <ModalBody id="modal-transaksi" style={{padding:'30px', paddingTop: '10px'}}>
                     <div className="row">
                         <div className="col-md-12">
-                            <button type="button" style={{float: 'right'}} className="btn btn-secondary btn-xs d-print-none" onClick={()=>this.setState({display_timeline: 'block'})}>Timeline Transaksi</button>
+                            <button type="button" style={{float: 'right'}} className="btn btn-secondary btn-xs d-print-none" onClick={()=>this.displayTimeline()}>Timeline Transaksi</button>
                         </div>
                     </div>
                     <div className="row">

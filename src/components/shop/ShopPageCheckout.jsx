@@ -19,7 +19,6 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-
 import { CartContext } from '../../context/cart';
 
 // data stubs
@@ -181,71 +180,6 @@ class ShopPageCheckout extends Component {
             // }
         }
 
-        // var id_alamat = event.target.value;
-        // if (event.target.checked) {
-        //     if (this.state.modalDaftarAlamat_jenis == 'Pengiriman') {
-        //         var update_all = "with new_order as (update gcm_master_alamat set shipto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + ')'
-        //         var queryUpdate = "update gcm_master_alamat set shipto_active = 'Y' where id = " + event.target.value
-        //     }
-        //     else if (this.state.modalDaftarAlamat_jenis == 'Penagihan') {
-        //         var update_all = "with new_order as (update gcm_master_alamat set billto_active = 'N' where company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + ')'
-        //         var queryUpdate = "update gcm_master_alamat set billto_active = 'Y' where id = " + event.target.value
-        //     }
-
-        //     Toast.loading('loading . . .', () => {
-        //     });
-
-        //     let set_query = encrypt(update_all.concat(queryUpdate))
-        //     console.log(decrypt(set_query))
-
-        //     Axios.post(url.select, {
-        //         query: set_query
-        //     }).then(data => {
-        //         this.setState({
-        //             modalDaftarAlamat: !this.state.modalDaftarAlamat
-        //         });
-
-        //         if (this.state.modalDaftarAlamat_jenis == 'Pengiriman') {
-        //             this.setState({
-        //                 selected_alamatpengiriman: id_alamat,
-        //                 shipto_alamat: this.state.data_alamat[index].alamat,
-        //                 shipto_provinsi: this.state.data_alamat[index].provinsi,
-        //                 shipto_kota: this.state.data_alamat[index].kota,
-        //                 shipto_kecamatan: this.state.data_alamat[index].kecamatan,
-        //                 shipto_kelurahan: this.state.data_alamat[index].kelurahan,
-        //                 shipto_kodepos: this.state.data_alamat[index].kodepos,
-        //                 shipto_notelp: this.state.data_alamat[index].no_telp
-        //             });
-        //             this.forceUpdate()
-        //         }
-        //         else if (this.state.modalDaftarAlamat_jenis == 'Penagihan') {
-        //             this.setState({
-        //                 selected_alamatpenagihan: id_alamat,
-        //                 billto_alamat: this.state.data_alamat[index].alamat,
-        //                 billto_provinsi: this.state.data_alamat[index].provinsi,
-        //                 billto_kota: this.state.data_alamat[index].kota,
-        //                 billto_kecamatan: this.state.data_alamat[index].kecamatan,
-        //                 billto_kelurahan: this.state.data_alamat[index].kelurahan,
-        //                 billto_kodepos: this.state.data_alamat[index].kodepos,
-        //                 billto_notelp: this.state.data_alamat[index].no_telp
-        //             });
-        //             this.forceUpdate()
-        //         }
-
-        //         this.reloadStateAlamat()
-
-        //         Toast.hide();
-        //         // Toast.success('Berhasil menetapkan alamat', 500, () => {
-        //         // });
-        //     }).catch(err => {
-        //         Toast.fail('Gagal menetapkan alamat', 1000, () => {
-        //         });
-        //         console.log('error' + err);
-        //         console.log(err);
-        //     })
-
-        // }
-        // this.forceUpdate()
     }
 
     submitDataPemesanan = () => {
@@ -376,7 +310,7 @@ class ShopPageCheckout extends Component {
             "FROM gcm_master_cart a inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_company d " +
             "on b.company_id=d.id inner join gcm_listing_kurs e on d.id = e.company_id where a.company_id= " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status='A' and now() between e.tgl_start and e.tgl_end order by d.id")
 
-        let query = encrypt("SELECT a.id, d.nama_perusahaan, c.nama, c.berat, a.barang_id, b.price, b.foto, c.category_id, b.company_id as seller_id, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count,  a.history_nego_id, e.harga_final, " +
+        let query = encrypt("SELECT a.id, d.nama_perusahaan, c.nama, c.berat, a.barang_id, b.kode_barang, b.price, b.foto, b.flag_foto, c.category_id, b.company_id as seller_id, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count,  a.history_nego_id, e.harga_final, " +
             "f.alias as satuan, a.shipto_id, a.billto_id, a.payment_id, h.payment_name, j.nominal as kurs, to_char(a.tgl_permintaan_kirim, 'yyyy-MM-dd') as tgl_permintaan_kirim, initcap(to_char(a.tgl_permintaan_kirim, 'dd-mon-yyyy')) as tgl_permintaan_kirim_edit, " +
             "case when now() < e.time_respon then 'no' end as status_time_respon, d.ppn_seller FROM gcm_listing_kurs j, gcm_seller_payment_listing i, gcm_master_payment h, gcm_payment_listing g, gcm_master_satuan f, gcm_master_cart a inner join gcm_list_barang b on a.barang_id = b.id inner join " +
             "gcm_master_barang c on b.barang_id = c.id inner join gcm_master_company d on b.company_id = d.id left join gcm_history_nego e on a.history_nego_id = e.id  where f.id = c.satuan and a.payment_id = g.id and g.payment_id = i.id and i.payment_id = h.id " +
@@ -651,16 +585,16 @@ class ShopPageCheckout extends Component {
         Toast.loading('loading . . .', () => {
         });
 
-        let check_mapping_alamat = encrypt("select shipto.nama_perusahaan_shipto, billto.nama_perusahaan_billto  from ( "+
-            "select   string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan_billto from (select distinct a.billto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a "+ 
-            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A')a "+
-            "inner join gcm_listing_alamat b on a.billto_id = b.id_master_alamat and a.company_id = b.id_buyer "+
-            "and a.seller_id = b.id_seller inner join gcm_master_company c on b.id_seller = c.id and b.kode_billto_customer is null "+
-            ") billto, ( "+
-            "select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan_shipto from (select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a "+
-            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A')a "+
-            "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat and a.company_id = b.id_buyer "+
-            "and a.seller_id = b.id_seller inner join gcm_master_company c on b.id_seller = c.id and b.kode_shipto_customer is null "+
+        let check_mapping_alamat = encrypt("select shipto.nama_perusahaan_shipto, billto.nama_perusahaan_billto  from ( " +
+            "select   string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan_billto from (select distinct a.billto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
+            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A')a " +
+            "inner join gcm_listing_alamat b on a.billto_id = b.id_master_alamat and a.company_id = b.id_buyer " +
+            "and a.seller_id = b.id_seller inner join gcm_master_company c on b.id_seller = c.id and b.kode_billto_customer is null " +
+            ") billto, ( " +
+            "select string_agg(distinct ''||c.nama_perusahaan||''  , ', ') as nama_perusahaan_shipto from (select distinct a.shipto_id, a.company_id, b.company_id as seller_id from gcm_master_cart a " +
+            "inner join gcm_list_barang b on a.barang_id = b.id  where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A')a " +
+            "inner join gcm_listing_alamat b on a.shipto_id = b.id_master_alamat and a.company_id = b.id_buyer " +
+            "and a.seller_id = b.id_seller inner join gcm_master_company c on b.id_seller = c.id and b.kode_shipto_customer is null " +
             ") shipto")
 
         await Axios.post(url.select, {
@@ -853,65 +787,6 @@ class ShopPageCheckout extends Component {
         })
     }
 
-    // rendergroup(get_param, get_indexpenjual) {
-
-    //     let grouping;
-    //     grouping = this.state.data_checkout.filter(filter => {
-    //         return filter.nama_perusahaan == get_param;
-    //     });
-
-    //     let datagroup_harganego
-    //     datagroup_harganego = grouping.filter(input => {
-    //         return input.nego_count > 0 && input.harga_final != null && input.history_nego_id != 0;
-    //     });
-
-    //     let datagroup_hargaasli
-    //     datagroup_hargaasli = grouping.filter(input => {
-    //         return input.nego_count == 0 || (input.nego_count > 0 && input.harga_final == 0);
-    //     });
-
-    //     let subtotalnego = datagroup_harganego.reduce((x, y) => x + Math.ceil(y.harga_final * y.qty * y.berat), 0)
-    //     let subtotalasli = datagroup_hargaasli.reduce((x, y) => x + Math.ceil(y.price * this.state.kurs * y.qty * y.berat), 0)
-    //     let subtotal = subtotalasli + subtotalnego
-
-    //     if (subtotal != 0) {
-    //         this.state.array_groupbarang.push(subtotal)
-    //     }
-
-    //     return grouping.map((data, index) => {
-    //         return (
-    //             <div style={{ display: 'contents' }}>
-    //                 <tr>
-    //                     <div className="row">
-    //                         <img src={data.foto} className="detail-foto col-md-2" style={{ padding: '10px 10px 10px 35px' }} />
-    //                         <div className="col-md-10" style={{ padding: '5px 0px 0px 10px' }}>
-    //                             <td style={{ border: 'none', fontSize: '13px', fontWeight: '500' }} >
-    //                                 <div className="address-card__row-title">
-    //                                     <label style={{ color: '#3d464d' }}><strong>{data.nama}</strong></label>
-    //                                 </div>
-    //                                 <div className="address-card__row-title">
-    //                                     <label style={{ color: '#3d464d', fontSize: '12px', fontWeight: '400' }}>{data.qty * data.berat} {' '}{data.satuan}</label>
-    //                                 </div>
-
-
-    //                                 {data.nego_count > 0 && data.harga_final != null && data.harga_final != 0 && data.history_nego_id != 0 ?
-    //                                     (<div className="address-card__row-title">
-    //                                         <label style={{ color: '#3d464d' }}><NumberFormat value={Math.round(data.harga_final * data.qty * data.berat)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></label>
-    //                                     </div>) :
-    //                                     (<div className="address-card__row-title">
-    //                                         <label style={{ color: '#3d464d' }}><NumberFormat value={Math.round(data.price * this.state.kurs * data.qty * data.berat)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></label>
-    //                                     </div>)
-    //                                 }
-    //                             </td>
-    //                         </div>
-    //                     </div>
-    //                 </tr>
-    //             </div>
-    //         )
-    //     })
-    // }
-
-
     // render group copy
     rendergroup(get_param, get_indexpenjual) {
 
@@ -939,11 +814,21 @@ class ShopPageCheckout extends Component {
         }
 
         return grouping.map((data, index) => {
+
+            var image;
+
+            if (data.flag_foto === "Y") {
+                image = `https://glob.co.id/admin/assets/images/product/${data.seller_id}/${data.kode_barang}.png`
+            }
+            else {
+                image = 'https://glob.co.id/admin/assets/images/no_image.png'
+            }
+
             return (
                 <div style={{ display: 'contents' }}>
                     <tr className="cart-table__row" >
                         <td className="cart-table__column cart-table__column--image" style={{ border: 'none', padding: '0px', verticalAlign: 'middle' }}>
-                            <img src={data.foto} alt="" />
+                            <img src={image} alt="" />
                         </td>
                         <td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
                             <tr style={{ width: '100%' }}>
@@ -991,96 +876,6 @@ class ShopPageCheckout extends Component {
             )
         })
     }
-
-
-    // --- flow marketplace ---
-
-    // renderItems() {
-
-    //     if (this.state.data_penjual.length == 1) {
-    //         var displaylabel = 'none'
-    //     }
-    //     else if (this.state.data_penjual.length > 1) {
-    //         var displaylabel = 'block'
-    //     }
-
-    //     if (this.state.data_penjual.length > 0) {
-    //         return this.state.data_penjual.map((data, index) => {
-    //             return (
-    //                 <Card style={{ marginTop: '0.6rem', paddingLeft: '0', paddingRight: '0' }}>
-    //                     <CardBody style={{ padding: '10px 0 0 0' }}>
-    //                         <table className="cart__table cart-table">
-    //                             <tr>
-    //                                 <td colSpan="5">
-    //                                     <label style={{ paddingLeft: '10px', fontSize: '13px', fontWeight: '500' }}>Distributor : <strong>{data.nama_perusahaan}</strong></label>
-    //                                 </td>
-    //                             </tr>
-    //                             <tbody>
-    //                                 {this.rendergroup(data.nama_perusahaan, index)}
-    //                             </tbody>
-    //                             <tr >
-    //                                 <td colSpan='2'>
-    //                                     <hr style={{ border: '1px solid #f0f0f0' }} />
-    //                                     <label id={'subtotal' + index} style={{ paddingLeft: '10px', paddingBottom: '10px', fontSize: '13px', fontWeight: '500' }}>Subtotal Harga : <NumberFormat value={this.state.array_groupbarang[index]} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></label>
-    //                                     <label className='labeldatapemesanan' style={{ float: 'right', paddingRight: '10px', paddingBottom: '10px', fontSize: '11px', fontWeight: '600', color: 'red', cursor: 'pointer', display: displaylabel }} onClick={() => this.toggleModalDataPemesanan(data.id)}>Lengkapi data pemesanan</label>
-    //                                 </td>
-    //                             </tr>
-    //                         </table>
-
-    //                     </CardBody>
-    //                 </Card>
-    //             );
-    //         });
-    //     }
-
-    //     else {
-    //         return (
-    //             <Card style={{ marginTop: '0.6rem', paddingLeft: '0', paddingRight: '0' }}>
-    //                 <CardBody style={{ padding: '10px 0 0 0' }}>
-
-    //                     <table className="cart__table cart-table">
-    //                         <tr>
-    //                             <td colSpan="5">
-    //                                 <div className="address-card__row-title" style={{ paddingLeft: '10px' }}><lines class="shine" style={{ width: '40%' }}></lines></div>
-    //                             </td>
-    //                         </tr>
-    //                         <tbody>
-    //                             <div style={{ display: 'contents' }}>
-    //                                 <tr>
-    //                                     <div className="row">
-    //                                         {/* <img src={data.foto} className="detail-foto col-md-2" style={{ padding: '10px 10px 10px 35px' }} /> */}
-    //                                         <div className="col-md-2" style={{ padding: '10px 10px 10px 35px' }}></div>
-    //                                         <div className="col-md-10" style={{ padding: '5px 0px 0px 10px' }}>
-    //                                             <div className="address-card__row-title">
-    //                                                 <lines class="shine" style={{ width: '50%' }}></lines>
-    //                                             </div>
-    //                                             <div className="address-card__row-title">
-    //                                                 <lines class="shine" style={{ width: '50%' }}></lines>
-    //                                             </div>
-    //                                             <div className="address-card__row-title">
-    //                                                 <lines class="shine" style={{ width: '50%' }}></lines>
-    //                                             </div>
-    //                                         </div>
-    //                                     </div>
-    //                                 </tr>
-    //                             </div>
-
-
-    //                         </tbody>
-    //                         <tr>
-    //                             <td colSpan="5">
-    //                                 <hr style={{ border: '1px solid #f0f0f0' }} />
-    //                                 <div className="address-card__row-title" style={{ paddingLeft: '10px', paddingBottom: '10px' }}><lines class="shine" style={{ width: '40%' }}></lines></div>
-    //                             </td>
-    //                         </tr>
-    //                     </table>
-
-    //                 </CardBody>
-    //             </Card>
-    //         );
-    //     }
-    // }
-
 
     // render copy
     renderItems() {
@@ -1242,167 +1037,7 @@ class ShopPageCheckout extends Component {
                 );
             });
         }
-
-        // else {
-        //     return (
-        //         <Card style={{ marginTop: '0.6rem', paddingLeft: '0', paddingRight: '0' }}>
-        //             <CardBody style={{ padding: '10px 0 0 0' }}>
-
-        //                 <table className="cart__table cart-table" >
-        //                     <tr>
-        //                         <td colSpan="5">
-        //                             <div className="address-card__row-title" style={{ paddingLeft: '10px' }}><lines class="shine" style={{ width: '40%' }}></lines></div>
-        //                         </td>
-        //                     </tr>
-        //                     <tbody>
-        //                         <div style={{ display: 'contents' }}>
-        //                             <tr>
-        //                                 <div className="row">
-        //                                     {/* <img src={data.foto} className="detail-foto col-md-2" style={{ padding: '10px 10px 10px 35px' }} /> */}
-        //                                     <div className="col-md-2" style={{ padding: '10px 10px 10px 35px' }}></div>
-        //                                     <div className="col-md-10" style={{ padding: '5px 0px 0px 10px' }}>
-        //                                         <div className="address-card__row-title">
-        //                                             <lines class="shine" style={{ width: '50%' }}></lines>
-        //                                         </div>
-        //                                         <div className="address-card__row-title">
-        //                                             <lines class="shine" style={{ width: '50%' }}></lines>
-        //                                         </div>
-        //                                         <div className="address-card__row-title">
-        //                                             <lines class="shine" style={{ width: '50%' }}></lines>
-        //                                         </div>
-        //                                     </div>
-        //                                 </div>
-        //                             </tr>
-        //                         </div>
-
-
-        //                     </tbody>
-        //                     <tr>
-        //                         <td colSpan="5">
-        //                             <hr style={{ border: '1px solid #f0f0f0' }} />
-        //                             <div className="address-card__row-title" style={{ paddingLeft: '10px', paddingBottom: '10px' }}><lines class="shine" style={{ width: '40%' }}></lines></div>
-        //                         </td>
-        //                     </tr>
-        //                 </table>
-
-        //             </CardBody>
-        //         </Card>
-        //     );
-        // }
     }
-
-
-    // --- flow tunggal gcm ---
-
-    // renderItems() {
-
-    //     if (this.state.data_checkout.length > 0) {
-    //         return this.state.data_checkout.map((data, index) => {
-    //             if (index == 0) {
-    //                 var margin = '0px'
-    //             }
-    //             else {
-    //                 var margin = '5px'
-    //             }
-
-    //             return (
-    //                 <table className="cart__table cart-table" style={{ marginTop: margin }}>
-    //                     <tbody className="cart-table__body">
-    //                         <tr className="cart-table__row">
-    //                             <td className="cart-table__column cart-table__column--image">
-    //                                 <img src={data.foto} alt="" />
-    //                             </td>
-    //                             <td className="cart-table__column cart-table__column--product">
-    //                                 <tr><span style={{ color: '#3d464d', fontSize: '14px', fontWeight: '500' }}>{data.nama}</span></tr>
-    //                                 <tr>
-    //                                     <label style={{ color: '#3d464d', fontSize: '13px', fontWeight: '500' }}>qty : {data.qty * data.berat} {' '}{data.satuan}</label>
-    //                                 </tr>
-    //                                 {data.nego_count > 0 && data.harga_final != null && data.harga_final != 0 && data.history_nego_id != 0 ?
-    //                                     (<tr>
-    //                                         <span style={{ color: '#3d464d', fontSize: '13px', fontWeight: '600' }}><NumberFormat value={Math.round(data.harga_final * data.qty * data.berat)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
-    //                                     </tr>) :
-    //                                     (<tr>
-    //                                         <span style={{ color: '#3d464d', fontSize: '13px', fontWeight: '600' }}><NumberFormat value={Math.round(data.price * this.state.kurs * data.qty * data.berat)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></span>
-    //                                     </tr>)
-    //                                 }
-    //                             </td>
-    //                         </tr>
-    //                     </tbody>
-    //                 </table>
-    //             );
-    //         });
-    //     }
-
-
-    // <img src={data.foto} className="detail-foto col-md-2" style={{ padding: '10px 10px 10px 35px' }} />
-    //     <div className="col-md-10" style={{ padding: '5px 0px 0px 10px' }}>
-    //         <td style={{ border: 'none', fontSize: '13px', fontWeight: '500' }} >
-    //             <div className="address-card__row-title">
-    //                 <label style={{ color: '#3d464d' }}><strong>{data.nama}</strong></label>
-    //             </div>
-    //             <div className="address-card__row-title">
-    //                 <label style={{ color: '#3d464d', fontSize: '12px', fontWeight: '400' }}>{data.qty * data.berat} {' '}{data.satuan}</label>
-    //             </div>
-
-
-    //             {data.nego_count > 0 && data.harga_final != null && data.harga_final != 0 && data.history_nego_id != 0 ?
-    //                 (<div className="address-card__row-title">
-    //                     <label style={{ color: '#3d464d' }}><NumberFormat value={Math.round(data.harga_final * data.qty * data.berat)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></label>
-    //                 </div>) :
-    //                 (<div className="address-card__row-title">
-    //                     <label style={{ color: '#3d464d' }}><NumberFormat value={Math.round(data.price * this.state.kurs * data.qty * data.berat)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></label>
-    //                 </div>)
-    //             }
-    //         </td>
-    //     </div>
-
-
-
-    //     else {
-    //         return (
-    //             <Card style={{ marginTop: '0.6rem', paddingLeft: '0', paddingRight: '0' }}>
-    //                 <CardBody style={{ padding: '10px 0 0 0' }}>
-
-    //                     <table className="cart__table cart-table">
-    //                         <tr>
-    //                             <td colSpan="5">
-    //                                 <div className="address-card__row-title" style={{ paddingLeft: '10px' }}><lines class="shine" style={{ width: '40%' }}></lines></div>
-    //                             </td>
-    //                         </tr>
-    //                         <tbody>
-    //                             <div style={{ display: 'contents' }}>
-    //                                 <tr>
-    //                                     <div className="row">
-    //                                         {/* <img src={data.foto} className="detail-foto col-md-2" style={{ padding: '10px 10px 10px 35px' }} /> */}
-    //                                         <div className="col-md-2" style={{ padding: '10px 10px 10px 35px' }}></div>
-    //                                         <div className="col-md-10" style={{ padding: '5px 0px 0px 10px' }}>
-    //                                             <div className="address-card__row-title">
-    //                                                 <lines class="shine" style={{ width: '50%' }}></lines>
-    //                                             </div>
-    //                                             <div className="address-card__row-title">
-    //                                                 <lines class="shine" style={{ width: '50%' }}></lines>
-    //                                             </div>
-    //                                             <div className="address-card__row-title">
-    //                                                 <lines class="shine" style={{ width: '50%' }}></lines>
-    //                                             </div>
-    //                                         </div>
-    //                                     </div>
-    //                                 </tr>
-    //                             </div>
-    //                         </tbody>
-    //                         <tr>
-    //                             <td colSpan="5">
-    //                                 <hr style={{ border: '1px solid #f0f0f0' }} />
-    //                                 <div className="address-card__row-title" style={{ paddingLeft: '10px', paddingBottom: '10px' }}><lines class="shine" style={{ width: '40%' }}></lines></div>
-    //                             </td>
-    //                         </tr>
-    //                     </table>
-
-    //                 </CardBody>
-    //             </Card>
-    //         );
-    //     }
-    // }
 
     renderSeller_Checkout() {
         return this.state.data_penjual.map((penjual, index) => {

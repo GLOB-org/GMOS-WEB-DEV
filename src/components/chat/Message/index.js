@@ -17,6 +17,8 @@ export default function Message(props) {
       showTimestamp
     } = props;
 
+    console.log(product)
+
     moment.locale('id')
     //cek hari ini
     var date_now = moment(new Date().getTime()).format('L')

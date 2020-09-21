@@ -107,8 +107,6 @@ class ShopPageCategory extends Component {
                     "order by b.create_date desc, category_id asc, nama asc");
             }
 
-            console.log(decrypt(get_produk))
-
             Axios.post(url.select, {
                 query: get_produk
             }).then(data => {
