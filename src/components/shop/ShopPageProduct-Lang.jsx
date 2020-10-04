@@ -213,7 +213,7 @@ class ShopPageProductLangganan extends Component {
                         }
                     </div>
 
-                    {cek_loaddata > 0 ? (
+                    {cek_loaddata > 0 && this.state.related_product.length > 0 ? (
                         <BlockProductsCarousel title="Produk Terkait" layout="grid-5" products={this.state.related_product}
                             ShopPageProduct={true} kurs={this.state.kurs} shoppage_category={this.state.shoppage_category} />
                     ) : (null

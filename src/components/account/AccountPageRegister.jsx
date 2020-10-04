@@ -9,7 +9,10 @@ import { Link } from 'react-router-dom';
 
 // third-party
 import { Helmet } from 'react-helmet-async';
-import { Button, FormFeedback, Input, InputGroup, InputGroupAddon, InputGroupText, Modal, ModalBody, ModalHeader } from 'reactstrap';
+import {
+    Button, FormFeedback, Input, InputGroup, InputGroupAddon, InputGroupText,
+    Modal, ModalBody, ModalHeader, Progress
+} from 'reactstrap';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -47,7 +50,8 @@ export default class AccountPageRegister extends Component {
             data_user: [],
             selectedPenjual: [],
             listTipeBisnis: [],
-            openListPenjual: false, openConfirmationUpload: false, openInfoBerkas: false,
+            openListPenjual: false, openConfirmationUpload: false, openUpload: false, openInfoBerkas: false,
+            progress_upload: 0,
             inputTipeRegister: '', empty_tiperegister: false,
             inputNamaPerusahaan: '', empty_namaperusahaan: false, KetTextNamaPerusahaan: '',
             inputTipeBisnis: '', empty_tipebisnis: false,
@@ -659,10 +663,10 @@ export default class AccountPageRegister extends Component {
                 var listPenjual = ''
                 if (this.state.inputTipeBisnis != '1') {
                     listPenjual = encrypt(" select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' and " +
-                        "(tipe_bisnis='1' or tipe_bisnis='" + this.state.inputTipeBisnis + "') order by nama_perusahaan");
+                        "(tipe_bisnis='1' or tipe_bisnis='" + this.state.inputTipeBisnis + "') and id !=9 order by nama_perusahaan");
                 }
                 else {
-                    listPenjual = encrypt(" select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' order by nama_perusahaan");
+                    listPenjual = encrypt(" select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' and id !=9 order by nama_perusahaan");
                 }
                 Axios.post(url.select, {
                     query: listPenjual
@@ -699,30 +703,67 @@ export default class AccountPageRegister extends Component {
     }
 
     handleUpload = () => {
+
+        this.setState({
+            openConfirmationUpload: !this.state.openConfirmationUpload,
+            openUpload: !this.state.openUpload
+        })
+
         const temp = this.state.inputUrl
         const tempName = temp.name
         const storageRef = storage.ref(`documents/` + tempName);
         const uploadTask = storageRef.put(temp)
 
         let x = this
+        var progress = 0
+        var progress_round = 0
+
         uploadTask.on('state_changed', (snapshot) => {
-            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            Toast.loading('loading . . .', () => {
-            });
-            // console.log('Upload is ' + progress + '% done');
+            progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progress_round = Math.ceil(Number(progress))
+            this.setState({ progress_upload: progress_round })
+            console.log('Upload is ' + progress_round + '% done');
+
+            if (progress == 100) {
+                uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) { 
+                    x.setState({
+                        inputUrl: downloadURL,
+                        status_upload: 'done',
+                        openUpload: false
+                    })
+                });
+            }
+
         }, (error) => {
             // Handle unsuccessful uploads
-            Toast.fail('Gagal mengunggah berkas !', 2500, () => {
+            Toast.fail('Gagal mengunggah berkas !', 3500, () => {
             });
+            this.setState({ openUpload: !this.state.openUpload })
         }, () => {
-            uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-                x.setState({
-                    inputUrl: downloadURL,
-                    status_upload: 'done',
-                    openConfirmationUpload: false
-                })
-                Toast.hide()
-            });
+            // if (progress == 100) {
+            //     console.log('sukses')
+            //     uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+            //         x.setState({
+            //             inputUrl: downloadURL,
+            //             status_upload: 'done',
+            //             openConfirmationUpload: false
+            //         })
+            //         console.log('get url')
+            //         Toast.hide()
+            //     });
+            // }
+            // else {
+            //     console.log('uploading')
+            // }
+            // uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+            //     console.log('tayo')
+            //     // x.setState({
+            //     //     inputUrl: downloadURL,
+            //     //     status_upload: 'done',
+            //     //     openConfirmationUpload: false
+            //     // })
+            //     // Toast.hide()
+            // });
         })
     }
 
@@ -1887,6 +1928,24 @@ export default class AccountPageRegister extends Component {
                                 Ya
                         </Button>
                             <Button color="light" onClick={() => this.setState({ openConfirmationUpload: false, file_upload: '' })}>
+                                Batal
+                        </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog
+                        open={this.state.openUpload}
+                        aria-labelledby="responsive-dialog-title">
+                        <DialogTitle id="responsive-dialog-title">Unggah Berkas</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>
+                                Mengunggah berkas :  <strong>{this.state.file_upload}</strong>.
+                            </DialogContentText>
+                            <div className="text-center">{this.state.progress_upload} %</div>
+                            <Progress color="success" animated value={this.state.progress_upload} />
+                        </DialogContent>
+                        <DialogActions>
+                            <Button color="light" onClick={() => this.setState({ openUpload: false, file_upload: '' })}>
                                 Batal
                         </Button>
                         </DialogActions>

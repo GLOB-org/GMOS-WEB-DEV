@@ -536,7 +536,40 @@ class ProductCard extends Component {
 
             image = (
                 <div className="product-card__image">
-                    <Link to={`/daftarproduklangganan/${product.id}`}>
+
+                    <AsyncAction
+                        render={({ run, loading }) => (
+                            <React.Fragment>
+                                {ShopPageProduct == true ?
+                                    (<Link to={`/${param_link}/${product.id}${"-"}${product.kode_barang}`} onClick={this.runReload}>
+                                        {
+                                            product.flag_foto === "Y" ?
+                                                (
+                                                    <img id="product_img" src={`https://glob.co.id/admin/assets/images/product/${product.company_id}/${product.kode_barang}.png`} alt="" />
+                                                ) :
+                                                (
+                                                    <img id="product_img" src={`https://glob.co.id/admin/assets/images/no_image.png`} alt="" />
+                                                )
+                                        }
+                                    </Link>) : (
+                                        <Link to={`/${param_link}/${product.id}${"-"}${product.kode_barang}`} >
+                                            {
+                                                product.flag_foto === "Y" ?
+                                                    (
+                                                        <img id="product_img" src={`https://glob.co.id/admin/assets/images/product/${product.company_id}/${product.kode_barang}.png`} alt="" />
+                                                    ) :
+                                                    (
+                                                        <img id="product_img" src={`https://glob.co.id/admin/assets/images/no_image.png`} alt="" />
+                                                    )
+                                            }
+                                        </Link>
+                                    )
+                                }
+                            </React.Fragment>
+                        )}
+                    />
+
+                    {/* <Link to={`/daftarproduklangganan/${product.id}`}>
                         {
                             product.flag_foto === "Y" ?
                                 (
@@ -546,7 +579,7 @@ class ProductCard extends Component {
                                     <img id="product_img" src={`https://glob.co.id/admin/assets/images/no_image.png`} alt="" />
                                 )
                         }
-                    </Link>
+                    </Link> */}
                 </div>
             );
         }

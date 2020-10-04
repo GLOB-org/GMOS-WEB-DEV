@@ -47,12 +47,20 @@ export default class InfoCompanyCard extends Component{
         };
    }
 
-   checkSubmit= async(get_username, get_no_hp, get_email)=>{
+   checkSubmit= async(get_username, get_no_hp, get_email, get_submit_type)=>{
+
+    if(get_submit_type == 'edit'){
+        var id_user = decrypt(localStorage.getItem('UserIDLogin'))
+        var param = "and id != " + id_user
+    }
+    else {
+        var param = ""
+    }
 
     let query = encrypt("select * from "+
-    "(select count (username) as check_username from gcm_master_user gmu where username like '"+get_username+"') a, "+
-    "(select count (no_hp) check_nohp from gcm_master_user gmu where no_hp like '"+get_no_hp+"') b, "+
-    "(select count (email) check_email from gcm_master_user gmu where email like '"+get_email+"') c")
+    "(select count (username) as check_username from gcm_master_user gmu where username like '"+get_username+"' "+param+") a, "+
+    "(select count (no_hp) check_nohp from gcm_master_user gmu where no_hp like '"+get_no_hp+"' "+param+") b, "+
+    "(select count (email) check_email from gcm_master_user gmu where email like '"+get_email+"' "+param+") c")
 
     Toast.loading('loading . . .', () => {});
 
@@ -149,24 +157,34 @@ export default class InfoCompanyCard extends Component{
         )
     {
 
-        await this.checkSubmit(this.state.inputUsername, this.state.inputHP, this.state.inputEmail)
+        await this.checkSubmit(this.state.inputUsername, this.state.inputHP, this.state.inputEmail, 'add')
 
         if(this.state.check_submit_false[0].check_username > 0){
-            Toast.info('username sudah digunakan pengguna lain !', 2500, () => {
+            this.setState({
+                empty_username: true,
+                KetTextUsername: "username telah digunakan"
             });
         }
 
-        else if(this.state.check_submit_false[0].check_nohp > 0){
-            Toast.info('nomor handphone sudah digunakan pengguna lain !', 2500, () => {
+        if(this.state.check_submit_false[0].check_nohp > 0){
+            this.setState({
+                empty_hp : true,
+                KetTextHP : "nomor handphone telah digunakan"
             });
         }
 
-        else if(this.state.check_submit_false[0].check_email > 0){
-            Toast.info('email sudah digunakan pengguna lain !', 2500, () => {
+        if(this.state.check_submit_false[0].check_email > 0){
+            this.setState({
+                empty_email: true,
+                KetTextEmail: "e-mail telah digunakan"
             });
         }
 
-        else {
+        else if (this.state.empty_username == false &&
+            this.state.empty_hp == false &&
+            this.state.empty_password == false &&
+            this.state.empty_email == false
+            ) {
             this.setState({ 
                 openConfirmation: !this.state.openConfirmation,
                 empty_namalengkap: false,
@@ -219,20 +237,26 @@ export default class InfoCompanyCard extends Component{
         this.state.empty_hp_edit == false &&
         this.state.empty_email_edit == false){
 
-        await this.checkSubmit(this.state.inputUsername, this.state.inputHP, this.state.inputEmail)
+        await this.checkSubmit(this.state.inputUsername_edit, this.state.inputHP_edit, this.state.inputEmail_edit, 'edit')
 
         if(this.state.check_submit_false[0].check_username > 0){
-            Toast.info('username sudah digunakan pengguna lain !', 2500, () => {
+            this.setState({
+                empty_username_edit: true,
+                KetTextUsername_edit : "username telah digunakan"
             });
         }
 
-        else if(this.state.check_submit_false[0].check_nohp > 0){
-            Toast.info('nomor handphone sudah digunakan pengguna lain !', 2500, () => {
+        if(this.state.check_submit_false[0].check_nohp > 0){
+            this.setState({
+                empty_hp_edit: true,
+                KetTextHP_edit : "nomor handphone telah digunakan"
             });
         }
 
-        else if(this.state.check_submit_false[0].check_email > 0){
-            Toast.info('email sudah digunakan pengguna lain !', 2500, () => {
+        if(this.state.check_submit_false[0].check_email > 0){
+            this.setState({
+                empty_email_edit: true,
+                KetTextEmail_edit : "e-mail telah digunakan"
             });
         }
 
@@ -346,17 +370,17 @@ export default class InfoCompanyCard extends Component{
             this.setState({ openTambahAkunRestrict: true }); 
         }
         else { if(this.state.modalOpenRegister == false){
-            let query_username = encrypt("select username from gcm_master_user")
+            // let query_username = encrypt("select username from gcm_master_user")
 
-            Axios.post(url.select, {
-                query: query_username
-            }).then(data => {
-                this.setState({ data_username: data.data.data });
-            }).catch(err => {
-                this.setState({ displaycatch: true });
-                // console.log('error' + err);
-                // console.log(err);
-            }) 
+            // Axios.post(url.select, {
+            //     query: query_username
+            // }).then(data => {
+            //     this.setState({ data_username: data.data.data });
+            // }).catch(err => {
+            //     this.setState({ displaycatch: true });
+            //     // console.log('error' + err);
+            //     // console.log(err);
+            // }) 
         }
         this.setState({ 
             modalOpenRegister: !this.state.modalOpenRegister,
@@ -384,18 +408,23 @@ export default class InfoCompanyCard extends Component{
     }
 
     toggleModalEditAkun =()=>{
-        let query_username = encrypt("select username from gcm_master_user")
-            Axios.post(url.select, {
-                query: query_username
-            }).then(data => {
-                this.setState({ data_username: data.data.data });
-            }).catch(err => {
-                this.setState({ displaycatch: true });
-                // console.log('error' + err);
-                // console.log(err);
-            }) 
+        // let query_username = encrypt("select username from gcm_master_user")
+        //     Axios.post(url.select, {
+        //         query: query_username
+        //     }).then(data => {
+        //         this.setState({ data_username: data.data.data });
+        //     }).catch(err => {
+        //         this.setState({ displaycatch: true });
+        //         // console.log('error' + err);
+        //         // console.log(err);
+        //     }) 
 
-        this.setState({  
+        this.setState({
+            empty_username_edit: false, KetTextUsername_edit: '',
+            empty_password_edit: false, empty_password_verif: false, 
+            KetTextPassword_edit: '', KetTextPassword_verif: '',
+            empty_email_edit: false,  KetTextEmail_edit: '',
+            empty_hp_edit: false, KetTextHP_edit: '',
             modalEditAkun: !this.state.modalEditAkun,
             inputUsername_edit: this.props.data.username,
             inputPassword_edit_old: decrypt(this.props.data.password),

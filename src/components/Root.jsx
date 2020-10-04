@@ -30,7 +30,7 @@ import { toast } from 'react-toastify';
 import CartContainer from '../context/cart';
 import { CartContext } from '../context/cart';
 
-//import { connect_socket } from "../response/index-response";
+// import { connect_socket } from "../response/index-response";
 import openSocket from "socket.io-client";
 
 class Root extends Component {
@@ -130,9 +130,16 @@ class Root extends Component {
                                 <ScrollContext>
                                     <Switch>
                                         <Route
+                                            path="/masuk"
+                                            render={(props) => (
+                                                <Layout {...props} headerLayout="compact" headerHide="yes" footerHide="yes" homeComponent={HomePageTwo} />
+                                            )}
+                                            component={AccountPageLogin}
+                                        />
+                                        <Route
                                             path="/"
                                             render={(props) => (
-                                                <Layout {...props} headerLayout="compact" homeComponent={HomePageTwo} />
+                                                <Layout {...props} headerLayout="compact" headerHide="no" footerHide="no" homeComponent={HomePageTwo} />
                                             )}
                                         />
                                         <Redirect to="/" />

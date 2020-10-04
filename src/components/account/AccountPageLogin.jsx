@@ -26,6 +26,7 @@ import PageHeader from '../shared/PageHeader';
 
 // data stubs
 import theme from '../../data/theme';
+import { toast } from 'react-toastify';
 
 export default class AccountPageLogin extends Component {
 
@@ -42,8 +43,11 @@ export default class AccountPageLogin extends Component {
             inputNoTelp: '', empty_NoTelp: false, KetTextNoTelp: '',
             inputTipeOTP: '', empty_TipeOTP: false, KetTextTipeOTP: '',
             openConfirmationOTP: false, openInsertOTP: false,
+            openLupaAkun: false,
             valueOTP: '', empty_valueOTP: '', KetTextvalueOTP: '',
             sendValueOTP: '',
+            valueEmail: '', empty_valueEmail: false, KetTextvalueEmail: '',
+            disabledLupaAkunBtn: true,
             displaycatch: false,
             timer: '',
             message_id: ''
@@ -58,7 +62,6 @@ export default class AccountPageLogin extends Component {
         } else {
             await this.setState({ test: false })
         }
-
     }
 
     getTokenFCM = () => {
@@ -77,6 +80,16 @@ export default class AccountPageLogin extends Component {
         }).catch((error) => {
             console.log('error get token')
             console.log(error)
+        })
+    }
+
+    ClickLupaAkun = () => {
+        this.setState({
+            valueEmail: '',
+            empty_valueEmail: false,
+            KetTextvalueEmail: '',
+            disabledLupaAkunBtn: true,
+            openLupaAkun: !this.state.openLupaAkun
         })
     }
 
@@ -211,6 +224,51 @@ export default class AccountPageLogin extends Component {
         }
     }
 
+    InputEmail_validation = async (event) => {
+        var get_input = event.target.value;
+        var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+        this.setState({ valueEmail: get_input });
+
+        if (get_input.match(mailformat) || get_input.length == 0) {
+
+            if (get_input.length > 0) {
+                this.setState({
+                    disabledLupaAkunBtn: false
+                })
+            }
+
+            this.setState({
+                empty_valueEmail: false,
+                KetTextvalueEmail: ""
+            });
+
+            // let check_email = this.state.data_user.filter(input_email => {
+            //     return input_email.email === event.target.value;
+            // });
+
+            // if (check_email != '') {
+            //     this.setState({
+            //         empty_emailakun: true,
+            //         KetEmailAkun: "Email telah terdaftar"
+            //     });
+            // }
+            // else {
+            //     this.setState({
+            //         empty_emailakun: false,
+            //         KetEmailAkun: ""
+            //     });
+            // }
+        }
+        else {
+            this.setState({
+                disabledLupaAkunBtn: true,
+                empty_valueEmail: true,
+                KetTextvalueEmail: "Tidak valid"
+            });
+        }
+    }
+
     Numeric_validation = (event) => {
         let get_input = event.target.value
         if (isNaN(Number(get_input))) {
@@ -250,7 +308,7 @@ export default class AccountPageLogin extends Component {
     }
 
     sendOtp = async () => {
-        let RootSendOtp = 'https://www.mospay.id/sendotp/message/sendmessage';
+        let RootSendOtp = 'https://www.emos.id/sendmessage/message/sendmessage';
 
         let x = this.generateOtp()
         let dataReturned = Object.create(null);
@@ -283,6 +341,55 @@ export default class AccountPageLogin extends Component {
 
     }
 
+    sendDataAkun = async () => {
+        let query = encrypt("select username, password from gcm_master_user where email like '" + this.state.valueEmail + "'");
+
+        Toast.loading('loading . . .', () => {
+        });
+
+        await Axios.post(url.select, {
+            query: query
+        }).then((data) => {
+            var data_length = data.data.data.length
+            if (data_length == 0) {
+                Toast.hide();
+                this.setState({
+                    empty_valueEmail: true,
+                    KetTextvalueEmail: "Email tidak terdaftar"
+                });
+            }
+            else if (data_length > 0) {
+
+                let url = 'https://glob.co.id/External/dataAkun';
+
+                let dataAkun = Object.create(null);
+                dataAkun = {
+                    email_receiver: this.state.valueEmail,
+                    username: data.data.data[0].username,
+                    password: data.data.data[0].password,
+                }
+
+                Axios.post(url, dataAkun).then(res => {
+                    Toast.hide()
+
+                    if (res.data.status === 'success') {
+                        Toast.success('Data akun berhasil dikirim', 2000, () => {
+                        });
+                        this.setState({ openLupaAkun: !this.state.openLupaAkun })
+                    }
+                    else {
+                        Toast.fail('Data akun gagal dikirim', 2000, () => {
+                        });
+                    }
+
+                }).catch(err => {
+                    // console.log(err);
+                })
+
+            }
+        })
+    }
+
     timerBtnKirimUlangOtp = () => {
         // setTimeout(() => this.setState({ isBtnWaitOtp: false }), 60000);
         // setTimeout(() => this.setState({ isBtnConfirmOtp: true }), 3600000);
@@ -309,54 +416,54 @@ export default class AccountPageLogin extends Component {
             Toast.loading('loading . . .', () => {
             });
 
-            await Axios.post(RootGetOtp, dataCheckGetOtp).then(res => {
+            // await Axios.post(RootGetOtp, dataCheckGetOtp).then(res => {
 
-                if (this.state.valueOTP === this.state.sendValueOTP) {
-                    let query = encrypt("update gcm_master_user set status='A', update_by=" + this.state.data[0].id +
-                        ", update_date = now(), no_hp_verif = true  where id = " + this.state.data[0].id)
+            if (this.state.valueOTP === this.state.sendValueOTP) {
+                let query = encrypt("update gcm_master_user set status='A', update_by=" + this.state.data[0].id +
+                    ", update_date = now(), no_hp_verif = true  where id = " + this.state.data[0].id)
 
-                    Axios.post(url.select, {
-                        query: query
-                    }).then(data => {
-                        // this.checkVerifiedUser()
-                        this.setState({
-                            openInsertOTP: false
-                        });
-                        Toast.hide()
-                        this.getTokenFCM()
-                        localStorage.setItem('Login', true);
-                        localStorage.setItem('UserLogin', encrypt(this.state.data[0].nama));
-                        localStorage.setItem('CompanyIDLogin', encrypt(this.state.data[0].company_id));
-                        localStorage.setItem('UserIDLogin', encrypt(this.state.data[0].id));
-                        localStorage.setItem('TipeBisnis', encrypt(this.state.data[0].tipe_bisnis.toString()));
-                        this.props.history.push('/')
-                        const Notif = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 2300,
-                            timerProgressBar: true,
-                            onOpen: (toast) => {
-                                //   toast.addEventListener('mouseenter', Swal.stopTimer)
-                                //   toast.addEventListener('mouseleave', Swal.resumeTimer)
-                            }
-                        })
-                        Notif.fire({
-                            icon: 'success',
-                            title: 'Selamat datang, ' + this.state.data[0].nama
-                        })
-                    }).catch(err => {
-                        // console.log('error');
-                        // console.log(err);
-                    })
-                }
-                else {
-                    Toast.fail('Kode OTP salah !', 2000, () => {
+                Axios.post(url.select, {
+                    query: query
+                }).then(data => {
+                    // this.checkVerifiedUser()
+                    this.setState({
+                        openInsertOTP: false
                     });
-                }
-            }).catch(err => {
-                // console.log(err);
-            })
+                    Toast.hide()
+                    this.getTokenFCM()
+                    localStorage.setItem('Login', true);
+                    localStorage.setItem('UserLogin', encrypt(this.state.data[0].nama));
+                    localStorage.setItem('CompanyIDLogin', encrypt(this.state.data[0].company_id));
+                    localStorage.setItem('UserIDLogin', encrypt(this.state.data[0].id));
+                    localStorage.setItem('TipeBisnis', encrypt(this.state.data[0].tipe_bisnis.toString()));
+                    this.props.history.push('/')
+                    const Notif = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2300,
+                        timerProgressBar: true,
+                        onOpen: (toast) => {
+                            //   toast.addEventListener('mouseenter', Swal.stopTimer)
+                            //   toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    })
+                    Notif.fire({
+                        icon: 'success',
+                        title: 'Selamat datang, ' + this.state.data[0].nama
+                    })
+                }).catch(err => {
+                    // console.log('error');
+                    // console.log(err);
+                })
+            }
+            else {
+                Toast.fail('Kode OTP salah !', 2000, () => {
+                });
+            }
+            // }).catch(err => {
+            //     // console.log(err);
+            // })
 
         }
     }
@@ -467,7 +574,7 @@ export default class AccountPageLogin extends Component {
                                                 </InputGroup>
                                             </div>
 
-                                            <div className="form-group">
+                                            <div className="form-group" style={{ marginBottom: '7px' }}>
                                                 <label htmlFor="login-email">Password</label>
                                                 <InputGroup>
                                                     <Input
@@ -487,7 +594,7 @@ export default class AccountPageLogin extends Component {
                                                     <FormFeedback>Masukkan password Anda</FormFeedback>
                                                 </InputGroup>
                                             </div>
-
+                                            <label className="text-lupaakun" onClick={this.ClickLupaAkun}>lupa akun</label>
                                         </form>
                                         <button onClick={this.ClickLogin} className="btn btn-primary mt-2 mt-md-3 mt-lg-4 float-right" >
                                             OK
@@ -614,6 +721,40 @@ export default class AccountPageLogin extends Component {
                                 Konfirmasi
                             </Button>
                             <button className="btn btn-light" onClick={() => { this.setState({ openInsertOTP: false }) }}>
+                                Batal
+                            </button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog
+                        maxWidth="xs"
+                        open={this.state.openLupaAkun}
+                        aria-labelledby="responsive-dialog-title">
+                        <DialogTitle id="responsive-dialog-title">Lupa Akun</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>
+                                <label><center>Data akun Anda akan dikirimkan melalui email yang terdaftar. Masukkan alamat email : </center></label>
+                            </DialogContentText>
+                            <InputGroup>
+                                <Input
+                                    id="input-email"
+                                    type="text"
+                                    spellCheck="false"
+                                    autoComplete="off"
+                                    className="form-control"
+                                    invalid={this.state.empty_valueEmail}
+                                    value={this.state.valueEmail}
+                                    onChange={event => this.InputEmail_validation(event)}
+                                />
+                                <FormFeedback>{this.state.KetTextvalueEmail}</FormFeedback>
+                            </InputGroup>
+
+                        </DialogContent>
+                        <DialogActions>
+                            <Button color="primary" disabled={this.state.disabledLupaAkunBtn} onClick={this.sendDataAkun}>
+                                Kirim
+                            </Button>
+                            <button className="btn btn-light" onClick={() => { this.setState({ openLupaAkun: !this.state.openLupaAkun }) }}>
                                 Batal
                             </button>
                         </DialogActions>

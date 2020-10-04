@@ -260,7 +260,7 @@ class Product extends Component {
         })
     }
 
-    componentDidMount() {
+    componentWillMount() {
         if (localStorage.getItem('CompanyIDLogin') != null) {
             let query_alamat = encrypt(" select id, shipto_active, billto_active from gcm_master_alamat where company_id = '" + decrypt(localStorage.getItem('CompanyIDLogin')) + "' and flag_active = 'A' and ( shipto_active = 'Y' or billto_active = 'Y')")
             Axios.post(url.select, {
@@ -330,7 +330,7 @@ class Product extends Component {
         const { quantity } = this.state;
         let prices;
 
-        console.log(product)
+        console.log("hide_harga : " + hide_harga)
 
         if (product.compareAtPrice) {
             prices = (
@@ -722,7 +722,11 @@ class Product extends Component {
                                     </li>
                                 </div>
                                 <div className="col-xs-12 col-sm-12 col-md-12 col-lg-3">
-                                    <div id="btn-chat-product" className='btn btn-xs' onClick={this.toggleModalChat}> hubungi penjual </div>
+                                    {cek_login == null || hide_harga == true ?
+                                        <div id="btn-chat-product" className='btn btn-xs' onClick={() => { this.setState({ openresponlangganan: true }) }}> hubungi penjual </div>
+                                        :
+                                        <div id="btn-chat-product" className='btn btn-xs' onClick={this.toggleModalChat}> hubungi penjual </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -1047,7 +1051,11 @@ class Product extends Component {
                                     </li>
                                 </div>
                                 <div className="col-xs-12 col-sm-12 col-md-12 col-lg-3">
-                                    <div id="btn-chat-product" className='btn btn-xs' onClick={this.toggleModalChat}> hubungi penjual </div>
+                                    {cek_login == null || hide_harga == true ?
+                                        <div id="btn-chat-product" className='btn btn-xs' onClick={() => { this.setState({ openresponlangganan: true }) }}> hubungi penjual </div>
+                                        :
+                                        <div id="btn-chat-product" className='btn btn-xs' onClick={this.toggleModalChat}> hubungi penjual </div>
+                                    }
                                 </div>
                             </div>
                         </div>

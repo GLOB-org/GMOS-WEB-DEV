@@ -184,7 +184,15 @@ class ShopPageProductNonLangganan extends Component {
                                 <ProductTabs withSidebar />
                             </div>
 
-                            <BlockProductsCarousel title="Produk Terkait" layout="grid-4-sm" products={products} withSidebar />
+                            {this.state.related_product.length > 0 ?
+                                (
+                                    <BlockProductsCarousel title="Produk Terkait" layout="grid-4-sm" products={this.state.related_product} withSidebar />
+                                ) :
+                                (
+                                    null
+                                )
+                            }
+
                         </div>
                         {sidebarPosition === 'end' && sidebar}
                     </div>
@@ -240,7 +248,7 @@ class ShopPageProductNonLangganan extends Component {
                         }
                     </div>
 
-                    {cek_loaddata > 0 ? (
+                    {cek_loaddata > 0 && this.state.related_product.length > 0 ? (
                         <BlockProductsCarousel title="Produk Terkait" layout="grid-5" products={this.state.related_product} shoppage_category={this.state.shoppage_category}
                             ShopPageProduct={true} kurs={this.state.kurs} />
                     ) : (

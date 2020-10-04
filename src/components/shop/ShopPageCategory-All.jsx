@@ -111,7 +111,7 @@ class ShopPageCategory extends Component {
     }
 
     get_sellerfilter = () => {
-        let get_seller = encrypt("select id, nama_perusahaan from gcm_master_company gmc where id in (" + this.state.seller_id[0].seller + ") order by nama_perusahaan")
+        let get_seller = encrypt("select distinct id, nama_perusahaan from gcm_master_company gmc where id in (" + this.state.seller_id[0].seller + ") order by nama_perusahaan")
 
         Axios.post(url.select, {
             query: get_seller

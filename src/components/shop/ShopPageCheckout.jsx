@@ -20,6 +20,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { CartContext } from '../../context/cart';
+import openSocket from "socket.io-client";
 
 // data stubs
 import payments from '../../data/shopPayments';
@@ -306,9 +307,14 @@ class ShopPageCheckout extends Component {
             openresponkurs: false
         });
 
-        let get_penjual = encrypt("SELECT distinct(d.id), d.nama_perusahaan, e.nominal as kurs, d.ppn_seller " +
-            "FROM gcm_master_cart a inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_company d " +
-            "on b.company_id=d.id inner join gcm_listing_kurs e on d.id = e.company_id where a.company_id= " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status='A' and now() between e.tgl_start and e.tgl_end order by d.id")
+        let get_penjual = encrypt("SELECT distinct(d.id), d.nama_perusahaan, f.id_sales, e.nominal as kurs, d.ppn_seller " +
+            "FROM gcm_master_cart a " +
+            "inner join gcm_list_barang b on a.barang_id = b.id " +
+            "inner join gcm_master_barang c on b.barang_id = c.id " +
+            "inner join gcm_master_company d on b.company_id = d.id " +
+            "inner join gcm_listing_kurs e on d.id = e.company_id " +
+            "left join gcm_company_listing_sales f on f.seller_id = d.id and f.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " " +
+            "where a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status = 'A' and now() between e.tgl_start and e.tgl_end order by d.id")
 
         let query = encrypt("SELECT a.id, d.nama_perusahaan, c.nama, c.berat, a.barang_id, b.kode_barang, b.price, b.foto, b.flag_foto, c.category_id, b.company_id as seller_id, d.nama_perusahaan as nama_seller, qty, harga_konsumen, a.harga_sales, nego_count,  a.history_nego_id, e.harga_final, " +
             "f.alias as satuan, a.shipto_id, a.billto_id, a.payment_id, h.payment_name, j.nominal as kurs, to_char(a.tgl_permintaan_kirim, 'yyyy-MM-dd') as tgl_permintaan_kirim, initcap(to_char(a.tgl_permintaan_kirim, 'dd-mon-yyyy')) as tgl_permintaan_kirim_edit, " +
@@ -580,6 +586,24 @@ class ShopPageCheckout extends Component {
         })
     }
 
+    sendResponsAdmin = () => {
+        const socket = openSocket("https://transaction-socket.herokuapp.com");
+
+        var length = this.state.data_penjual.length
+        for (var i = 0; i < length; i++) {
+            var get_seller = this.state.data_penjual[i].id
+            var get_sales = this.state.data_penjual[i].id_sales
+            var receiver = get_seller + "-" + get_sales
+
+            socket.emit("new_transaction", {
+                receiver_id: receiver,
+                type: 'buy'
+            })
+
+        }
+
+    }
+
     submitTransaksi = async () => {
 
         Toast.loading('loading . . .', () => {
@@ -754,7 +778,6 @@ class ShopPageCheckout extends Component {
         var final_query = encrypt("with new_insert1 as (" + query_transaction + "  ), new_insert2 as (" + query_detail +
             " returning transaction_id) select distinct transaction_id from new_insert2")
 
-
         await Axios.post(url.select, {
             query: final_query
         }).then(async (data) => {
@@ -776,6 +799,7 @@ class ShopPageCheckout extends Component {
                 transaction_status: 'success',
                 openrespontransaksi: false
             });
+            // this.sendResponsAdmin()
             window.scrollTo(0, 0);
             this.forceUpdate()
         }).catch(err => {

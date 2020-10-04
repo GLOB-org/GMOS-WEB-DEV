@@ -51,7 +51,7 @@ import TransactionLayout from './transaction/TransactionLayout';
 import theme from '../data/theme';
 
 function Layout(props) {
-    const { match, match_category, headerLayout, homeComponent } = props;
+    const { match, match_category, headerLayout, homeComponent, headerHide, footerHide } = props;
     const checkLogin = localStorage.getItem('Login');
 
     return (
@@ -68,13 +68,20 @@ function Layout(props) {
             <MobileMenu />
 
             <div className="site">
-                <header className="site__header d-lg-none">
-                    <MobileHeader />
-                </header>
 
-                <header className="site__header d-lg-block d-none">
-                    <Header layout={headerLayout} />
-                </header>
+                {headerHide != 'yes' ?
+                    (<header className="site__header d-lg-none">
+                        <MobileHeader />
+                    </header>) :
+                    (null)
+                }
+
+                {headerHide != 'yes' ?
+                    (<header className="site__header d-lg-block d-none">
+                        <Header layout={headerLayout} />
+                    </header>) :
+                    (null)
+                }
 
                 <div className="site__body">
                     {/* {!checkLogin ?
@@ -280,9 +287,14 @@ function Layout(props) {
                     </Switch>
                 </div>
 
-                <footer className="site__footer">
-                    <Footer />
-                </footer>
+                {footerHide != 'yes' ?
+                    (<footer className="site__footer">
+                        <Footer />
+                    </footer>) :
+                    (null)
+                }
+
+
             </div>
         </React.Fragment>
     );
