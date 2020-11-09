@@ -51,7 +51,7 @@ export default class InfoCompanyCard extends Component{
 
     clearForm(){
         this.setState({ 
-            inputUrl: '', previewFoto: 'none', imgfotoUpload: '',
+            inputUrl: '', previewFoto: 'none',
             inputNama: '', emptyNama: false, KetTextNama: '',
             inputBank: '', emptyBank: false, KetTextBank: '',
             inputTanggalBayar: '', emptyTanggalBayar: false, KetTextTanggalBayar: ''
@@ -70,31 +70,30 @@ export default class InfoCompanyCard extends Component{
         this.setState({ isOpen: !this.state.isOpen });
     }
 
-    detailWaiting = async(id) => {
+    detailStatus = async(id) => {
 
         Toast.loading('loading . . .', () => {
         }); 
 
-        let queryDetailWaiting = encrypt("select a.id, a.transaction_id, c.nama, a.qty, a.harga, b.id, c.berat, d.alias as satuan, b.company_id as penjual, "+
-        "case when b.flag_foto = 'Y' then (select concat('https://www.glob.co.id/admin/assets/images/product/', b.company_id,'/',b.kode_barang,'.png')) else "+
-        "'https://glob.co.id/admin/assets/images/no_image.png' end as foto, gmc.nama_perusahaan as nama_penjual, " +
-        "case when e.tgl_permintaan_kirim is not null then to_char(e.tgl_permintaan_kirim, 'dd-MM-yyyy') else '-' end as tgl_permintaan_kirim , e.ppn_seller, "+
-        "e.payment_id, case when a.note is null or a.note = '' then '-' else a.note end as note, case when status_payment = 'UNPAID' then case when id_list_bank is null "+
-        "then 'menunggu pembayaran' else 'menunggu verifikasi' end else 'pembayaran selesai' end as payment_status, e.id_transaction_ref, e.foto_transaction_ref, "+
-        "to_char(case when h.durasi = '0' then e.create_date + interval '2 days' else e.create_date + (h.durasi || ' days')::interval end , 'dd-MM-yyyy / HH24:MI') as date_last_payment "+
-        "from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on "+
-        "b.barang_id=c.id inner join gcm_master_transaction e on e.id_transaction = a.transaction_id "+
-        "inner join gcm_payment_listing f on f.seller_id = b.company_id and e.payment_id = f.id inner join gcm_seller_payment_listing g on g.seller_id = b.company_id "+
-        "and f.payment_id = g.id inner join gcm_master_payment h on g.payment_id = h.id where gmc.id = b.company_id and c.satuan = d.id and transaction_id='" + id +"' order by c.category_id asc, c.nama asc")
+        let queryDetail = encrypt("select a.id, a.transaction_id, c.nama, a.qty, a.harga, b.id, c.berat, d.alias as satuan, b.company_id as penjual, "+
+        "case when b.flag_foto = 'Y' then "+
+        "(select concat('https://www.glob.co.id/admin/assets/images/product/', b.company_id,'/',b.kode_barang,'.png')) "+
+        "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
+        "gmc.nama_perusahaan as nama_penjual, case when e.tgl_permintaan_kirim is not null then to_char(e.tgl_permintaan_kirim, 'dd-MM-yyyy') else '-' end as tgl_permintaan_kirim "+
+        ", e.ppn_seller, case when a.note is null or a.note = '' then '-' else a.note end as note, case when status_payment = 'UNPAID' then case when id_list_bank is null "+
+        "then 'menunggu pembayaran' else 'menunggu verifikasi' end else 'pembayaran selesai' end as payment_status, e.id_transaction_ref, e.foto_transaction_ref " +
+        "from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
+        "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_transaction e on "+
+        "e.id_transaction = a.transaction_id where gmc.id = b.company_id and c.satuan = d.id and transaction_id='" + id +"' order by c.category_id asc, c.nama asc")
 
         await Axios.post(url.select,{
-            query: queryDetailWaiting
+            query: queryDetail
         }).then(data=>{
           this.setState({
             temp: data.data.data,
             penjual: data.data.data[0].nama_penjual,
             tgl_permintaan_kirim: data.data.data[0].tgl_permintaan_kirim,
-            tgl_last_bayar: data.data.data[0].date_last_payment,
+            payment_status: data.data.data[0].payment_status,
             PO_reference: data.data.data[0].id_transaction_ref,
             imgPO_reference: data.data.data[0].foto_transaction_ref,
             ppn_seller: data.data.data[0].ppn_seller
@@ -126,36 +125,9 @@ export default class InfoCompanyCard extends Component{
         await Axios.post(url.select,{
             query: queryPayment
         }).then(data=>{
-
-            var status_bayar = this.state.temp[0].payment_status
-            if(data.data.data[0].payment_name == 'Advance Payment'){
-              this.setState({
-                  payment_status: status_bayar
-              })
-            }  
-            else {
-               
-                this.setState({
-                    displayBtnKonfirmasiBayar: 'none'
-                })  
-
-                if(status_bayar == 'menunggu pembayaran' || status_bayar == 'menunggu verifikasi' ){
-                    this.setState({
-                        payment_status: 'belum bayar'
-                    })
-                }
-                else {
-                    this.setState({
-                        payment_status: status_bayar
-                    })  
-                }
-             
-            }
-
-            this.setState({
-                payment_name: data.data.data[0].payment_name
-            })
-
+          this.setState({
+            payment_name: data.data.data[0].payment_name
+        });
         }).catch(err=>{
             console.log('error');
             console.log(err);
@@ -258,7 +230,6 @@ export default class InfoCompanyCard extends Component{
     handleDeleteFoto = (e) => {
         this.setState({
             fotoUpload : '',
-            imgfotoUpload: '',
             previewFoto: 'none'
         })
         document.getElementById('pilihfile').value = null
@@ -429,6 +400,7 @@ export default class InfoCompanyCard extends Component{
         }
     }
 
+
     toggleImagePO = () => {
         if(this.state.displayImagePO == 'none'){    
             this.setState({
@@ -548,8 +520,6 @@ export default class InfoCompanyCard extends Component{
             "where status = 'WAITING' and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and id_transaction = '" + this.props.data.id_transaction + "'" )
         }
 
-        console.log(decrypt(query))
-
         Axios.post(url.select,{
             query: query
         }).then(data=>{
@@ -611,17 +581,11 @@ export default class InfoCompanyCard extends Component{
     return(
 
         <div style={{display:'contents'}}>
-            <tr id='rowTransactionWaiting' style={{fontSize:'13px', color:'#3D464D'}}>
-                <td style={{textAlign: 'center'}}>
-                    <strong>
-                        <span data-toggle="tooltip" title="Lihat detail">
-                            <label id='idTransaction' onClick={()=>this.detailWaiting(this.props.data.id_transaction)}>{this.props.data.id_transaction}</label>
-                        </span>
-                    </strong>
-                </td>
-                <td style={{textAlign: 'center'}}>{this.props.data.create_date_edit}</td>
-                <td style={{textAlign: 'right'}}><NumberFormat value={Number(this.props.data.totaltrx_tax)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></td>
-            </tr> 
+        <tr id='rowTransactionWaiting' style={{fontSize:'13px', color:'#3D464D'}}>
+            <td style={{textAlign: 'center'}}><strong><label id='idTransaction' onClick={()=>this.detailStatus(this.props.data.id_transaction)}>{this.props.data.id_transaction}</label></strong></td>
+            <td style={{textAlign: 'center'}}>{this.props.data.create_date_edit}</td>
+            <td style={{textAlign: 'right'}}><NumberFormat value={Number(this.props.data.totaltrx_tax)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></td>
+        </tr> 
         
             <Modal isOpen={this.state.isOpen} size="xl">
                 <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.controlModal.bind(this)}>Detail Transaksi</ModalHeader>
@@ -844,35 +808,9 @@ export default class InfoCompanyCard extends Component{
                 <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.toggleInfoPembayaran}>Info Pembayaran</ModalHeader>
                 <div className="card-body">
                     <div className="row">
-                        <div className="col-md-12 d-flex mb-3">
-                            <div style={{border: '2px solid #8CC63E', borderRadius: '5px', padding:'10px'}}>
-                                <div className="address-card__row" >
-                                    <center>
-                                        <div className="address-card__row-title">Total Transaksi</div>
-                                        <span style={{fontSize:'17px', fontWeight: 'bold'}}>
-                                            <NumberFormat value={Number(this.props.data.totaltrx) + (Math.ceil(Number(this.props.data.total) * (Number(this.state.ppn_seller/100)))) } displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
-                                        </span>
-                                        <div className="address-card__row-title">
-                                            <span style={{color: 'red', fontSize: '10px'}}>
-                                                {this.state.payment_name == 'Advance Payment' ?
-                                                    (<span>Lakukan pembayaran dan konfirmasi pembayaran sebelum</span>) :
-                                                    (<span>Lakukan pembayaran pada</span>)
-                                                } 
-                                                <strong>
-                                                    <span style={{fontSize: '11px'}}>{'  '}{this.state.tgl_last_bayar}</span>
-                                                </strong>
-                                            </span>
-                                        </div>
-                                    </center>
-                                </div>
-                            </div>
-                        </div> 
-                    </div>
-                    <label style={{fontSize: '12px', fontWeight: '700', textDecoration: 'underline'}}>Petunjuk Pembayaran</label>
-                    <div className="row">
                         <div className="col-md-12 d-flex" style={{fontSize: '12px', fontWeight: '500'}}>
                             <ol style={{padding: '0 0 0 10px'}}>
-                                <li>Silakan lakukan transfer sesuai total transkasi ke rekening bank berikut ini :</li>
+                                <li>Silakan lakukan transfer ke rekening bank berikut ini :</li>
                                 <div style={{border: '1px solid #f5f5f5', backgroundColor: '#f5f5f5', borderRadius: '5px', padding:'10px', margin: '5px 0px'}}>
                                     {listBank}
                                 </div>         
@@ -883,7 +821,7 @@ export default class InfoCompanyCard extends Component{
                     </div>
                     <div className="row" style={{display: this.state.displayBtnKonfirmasiBayar}}>
                         <div className="col-md-12 d-flex">
-                            <button id="btnRegister" type="submit" onClick={this.toggleUnggahBuktiBayar} block className="btn btn-primary ">
+                            <button id="btnRegister" type="submit" onClick={this.toggleUnggahBuktiBayar} block className="btn btn-primary mt-12 mt-md-2 mt-lg-3">
                                 Konfirmasi Pembayaran
                             </button>
                         </div>

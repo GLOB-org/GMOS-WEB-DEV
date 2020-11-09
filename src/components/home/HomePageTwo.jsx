@@ -21,8 +21,18 @@ import posts from '../../data/blogPosts';
 import products from '../../data/shopProducts';
 import theme from '../../data/theme';
 
-
 class HomePageTwo extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            display_overlay: 'block'
+        };
+    }
+
+    clickOverlay = () => {
+        this.setState({ display_overlay: 'none' })
+    }
 
     render() {
         const columns = [
@@ -41,43 +51,61 @@ class HomePageTwo extends Component {
         ];
 
         const checkLogin = localStorage.getItem('Login');
+        if (checkLogin) {
+            if (this.state.display_overlay == 'none') {
+                var display_overlay = 'none'
+            }
+            else {
+                var display_overlay = 'block'
+            }
+
+        }
+        else {
+            var display_overlay = 'none'
+        }
 
         return (
-            <React.Fragment>
-                <Helmet>
-                    <title>{`Beranda — ${theme.name}`}</title>
-                </Helmet>
 
-                <BlockSlideShow />
+            // <div className="overlay-notification" onClick={this.clickOverlay} style={{ display: display_overlay }}>
 
-                <BlockFeatures layout="boxed" />
+                <React.Fragment>
 
-                {/* <BlockTabbedProductsCarousel title="Produk Unggulan" layout="grid-5" rows={2} /> */}
+                    <Helmet>
+                        <title>{`Beranda — ${theme.name}`}</title>
+                    </Helmet>
 
-                {/* <BlockProducts
+                    <BlockSlideShow />
+
+                    <BlockFeatures layout="boxed" />
+
+                    {/* <BlockTabbedProductsCarousel title="Produk Unggulan" layout="grid-5" rows={2} /> */}
+
+                    {/* <BlockProducts
                     title="Terlaris"
                     layout="large-last"
                     featuredProduct={products[0]}
                     products={products.slice(1, 7)}
                 /> */}
 
-                {checkLogin ?
-                    (<BlockTabbedProductsCarousel title="Produk Langganan Terlaris" layout="grid-5" rows={1} />) :
-                    (<BlockTabbedProductsCarousel title="Produk Terlaris" layout="grid-5" rows={1} />)
-                }
+                    {checkLogin ?
+                        (<BlockTabbedProductsCarousel title="Produk Langganan Terlaris" layout="grid-5" rows={1} />) :
+                        (<BlockTabbedProductsCarousel title="Produk Terlaris" layout="grid-5" rows={1} />)
+                    }
 
-                <BlockBanner />
+                    <BlockBanner />
 
-                {/* <BlockCategories title="Categories" layout="compact" categories={categories} /> */}
+                    {/* <BlockCategories title="Categories" layout="compact" categories={categories} /> */}
 
-                {/* <BlockTabbedProductsCarousel title="New Arrivals" layout="grid-5" /> */}
+                    {/* <BlockTabbedProductsCarousel title="New Arrivals" layout="grid-5" /> */}
 
-                <BlockPosts title="Latest News" layout="grid-nl" posts={posts} />
+                    <BlockPosts title="Latest News" layout="grid-nl" posts={posts} />
 
-                <BlockBrands />
+                    <BlockBrands />
 
-                {/* <BlockProductColumns columns={columns} /> */}
-            </React.Fragment>
+                    {/* <BlockProductColumns columns={columns} /> */}
+                </React.Fragment>
+            // </div>
+
         );
     }
 }

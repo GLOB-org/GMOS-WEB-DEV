@@ -38,7 +38,7 @@ class BlockSlideShow extends Component {
                 ltr: 'images/slides/banner1.jpg',
                 rtl: 'images/slides/banner1.jpg',
             },
-            image_full: {   
+            image_full: {
                 ltr: 'images/slides/banner1.jpg',
                 rtl: 'images/slides/banner1.jpg',
             },
@@ -141,6 +141,7 @@ class BlockSlideShow extends Component {
             const image = (withDepartments ? slide.image_classic : slide.image_full)[direction];
 
             return (
+
                 <div key={index} className="block-slideshow__slide">
                     <div
                         className="block-slideshow__slide-image block-slideshow__slide-image--desktop"
@@ -172,23 +173,23 @@ class BlockSlideShow extends Component {
         });
 
         return (
-            <div className={blockClasses}>
-                <div className="container">
-                    <div className="row">
-                        {withDepartments && (
-                            <div className="col-3 d-lg-block d-none" ref={this.setDepartmentsAreaRef} />
-                        )}
+                <div className={blockClasses} >
+                    <div className="container">
+                        <div className="row">
+                            {withDepartments && (
+                                <div className="col-3 d-lg-block d-none" ref={this.setDepartmentsAreaRef} />
+                            )}
 
-                        <div className={layoutClasses}>
-                            <div className="block-slideshow__body">
-                                <StroykaSlick {...slickSettings}>
-                                    {slides}
-                                </StroykaSlick>
+                            <div className={layoutClasses}>
+                                <div className="block-slideshow__body">
+                                    <StroykaSlick {...slickSettings}>
+                                        {slides}
+                                    </StroykaSlick>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
         );
     }
 }

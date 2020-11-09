@@ -555,14 +555,17 @@ class Product extends Component {
                                 "values (" + input_nego + "," + respon_nego + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null," + set_harga_final + ",null,null,null,null, now() + interval '1 hour') returning id ")
                         }
                         else if (this.state.nego_auto == false) {
-                            if (input_nego > price_terendah) {
-                                var set_harga_final = input_nego
-                                respon_nego = input_nego
-                            }
-                            else {
-                                var set_harga_final = 0
-                                respon_nego = harga_sales
-                            }
+                            // if (input_nego > price_terendah) {
+                            //     var set_harga_final = input_nego
+                            //     respon_nego = input_nego
+                            // }
+                            // else {
+                            //     var set_harga_final = 0
+                            //     respon_nego = harga_sales
+                            // }
+
+                            var set_harga_final = 0
+                            respon_nego = harga_sales
 
                             var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, harga_final, updated_by_2, updated_by_3, updated_date_2, updated_date_3, time_respon)" +
                                 "values (" + input_nego + "," + respon_nego + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null," + set_harga_final + ",null,null,null,null,null) returning id ")
@@ -583,14 +586,17 @@ class Product extends Component {
                                 }
                             }
                             else {
-                                if (document.getElementById("inputNego").value.split('.').join("") >= price_terendah) {
-                                    var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, harga_sales = harga_konsumen " +
-                                        ", history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
-                                    approve_nego_auto = true
-                                }
-                                else {
-                                    var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
-                                }
+                                // if (document.getElementById("inputNego").value.split('.').join("") >= price_terendah) {
+                                //     var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, harga_sales = harga_konsumen " +
+                                //         ", history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
+                                //     approve_nego_auto = true
+                                // }
+                                // else {
+                                //     var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
+                                // }
+
+                                var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
+
                             }
 
                             this.setState({

@@ -33,11 +33,18 @@ messaging.setBackgroundMessageHandler(payload => {
     }
 
     var body_notif = ""
-    if (key_notif == "nego") {
+    if (key_notif == "nego_seller") {
         body_notif = 'Ada balasan nego dari penjual'
-    } else if (key_notif == "nego_approved") {
+    } else if (key_notif == "nego_approved_seller" || key_notif == "nego_approved_buyer") {
         body_notif = '1 Negosiasi berhasil disepakati'
+    } 
+    else {
+        body_notif = "Notifikasi"
     }
+    
+    // else if (key_notif == "transaksi"){
+    //     body_notif = 'Ada transaksi baru'
+    // } 
 
     const notificationTitle = 'GLOB';
     const notificationOptions = {

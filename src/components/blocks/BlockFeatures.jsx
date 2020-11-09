@@ -17,7 +17,7 @@ export default function BlockFeatures(props) {
     const { layout } = props;
 
     return (
-        <div className={`block block-features block-features--layout--${layout}`}>
+        <div className={`block block-features block-features--layout--${layout}`} >
             <div className="container">
                 <div className="block-features__list">
                     <div className="block-features__item">

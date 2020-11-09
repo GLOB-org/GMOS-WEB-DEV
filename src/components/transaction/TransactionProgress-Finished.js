@@ -10,7 +10,8 @@ export default class InfoCompanyCard extends Component{
         super(props);
         this.state={
             temp: [],
-            ship_to_id:'',bill_to_id:'', payment_id: '', payment_name: '',
+            ship_to_id:'',bill_to_id:'',
+            payment_id: '', payment_name: '', payment_status: '', 
             shipto_alamat: '', billto_alamat: '',
             shipto_kelurahan: '', billto_kelurahan: '',
             shipto_kecamatan: '', billto_kecamatan: '',
@@ -19,7 +20,8 @@ export default class InfoCompanyCard extends Component{
             shipto_kodepos: '', billto_kodepos: '',
             shipto_notelp: '', billto_notelp: '',
             isOpen: false, total_trx_final: '', display_timeline: 'none',
-            penjual: '', ppn_seller: ''
+            penjual: '', ppn_seller: '',
+            displayImagePO: 'none'
         }
     }
 
@@ -35,13 +37,26 @@ export default class InfoCompanyCard extends Component{
         Toast.loading('loading . . .', () => {
         }); 
 
+        // let queryDetailFinished = encrypt("select a.id, a.transaction_id, c.nama, a.qty, a.qty_dipenuhi, a.harga, a.batch_number, "+
+        // "case when b.flag_foto = 'Y' then "+
+        // "(select concat('https://www.glob.co.id/admin/assets/images/product/', b.company_id,'/',b.kode_barang,'.png')) "+
+        // "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
+        // "a.harga_final,case when exp_date != '-' and exp_date is not null then to_char(to_date(exp_date,'yyyy-MM-dd'), 'dd-MM-yyyy') else '-' end as exp_date , b.id, c.berat, d.alias as satuan, b.company_id as penjual, gmc.nama_perusahaan as nama_penjual, "+
+        // "case when e.tgl_permintaan_kirim is not null then to_char(e.tgl_permintaan_kirim, 'dd-MM-yyyy') else '-' end as tgl_permintaan_kirim, "+
+        // "e.ppn_seller, case when a.note is null or a.note = '' then '-' else a.note end as note from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
+        // "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id "+
+        // "inner join gcm_master_transaction e on e.id_transaction = a.transaction_id "+
+        // "where gmc.id = b.company_id and c.satuan = d.id and transaction_id='" + id + "' order by c.category_id asc, c.nama asc")
+
         let queryDetailFinished = encrypt("select a.id, a.transaction_id, c.nama, a.qty, a.qty_dipenuhi, a.harga, a.batch_number, "+
         "case when b.flag_foto = 'Y' then "+
         "(select concat('https://www.glob.co.id/admin/assets/images/product/', b.company_id,'/',b.kode_barang,'.png')) "+
         "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
         "a.harga_final,case when exp_date != '-' and exp_date is not null then to_char(to_date(exp_date,'yyyy-MM-dd'), 'dd-MM-yyyy') else '-' end as exp_date , b.id, c.berat, d.alias as satuan, b.company_id as penjual, gmc.nama_perusahaan as nama_penjual, "+
         "case when e.tgl_permintaan_kirim is not null then to_char(e.tgl_permintaan_kirim, 'dd-MM-yyyy') else '-' end as tgl_permintaan_kirim, "+
-        "e.ppn_seller, case when a.note is null or a.note = '' then '-' else a.note end as note from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
+        "e.ppn_seller, case when a.note is null or a.note = '' then '-' else a.note end as note , case when status_payment = 'UNPAID' then case when id_list_bank is null "+
+        "then 'menunggu pembayaran' else 'menunggu verifikasi' end else 'pembayaran selesai' end as payment_status, e.id_transaction_ref, e.foto_transaction_ref "+
+        "from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join "+
         "gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id "+
         "inner join gcm_master_transaction e on e.id_transaction = a.transaction_id "+
         "where gmc.id = b.company_id and c.satuan = d.id and transaction_id='" + id + "' order by c.category_id asc, c.nama asc")
@@ -52,6 +67,9 @@ export default class InfoCompanyCard extends Component{
           this.setState({
             temp: data.data.data,
             penjual: data.data.data[0].nama_penjual,
+            tgl_permintaan_kirim: data.data.data[0].tgl_permintaan_kirim,
+            PO_reference: data.data.data[0].id_transaction_ref,
+            imgPO_reference: data.data.data[0].foto_transaction_ref,
             ppn_seller: data.data.data[0].ppn_seller
         });
 
@@ -94,6 +112,27 @@ export default class InfoCompanyCard extends Component{
         await Axios.post(url.select,{
             query: queryPayment
         }).then(data=>{
+
+          var status_bayar = this.state.temp[0].payment_status
+          if(data.data.data[0].payment_name == 'Advance Payment'){
+            this.setState({
+                payment_status: status_bayar
+            })
+          }  
+          else {
+            if(status_bayar == 'menunggu pembayaran' || status_bayar == 'menunggu verifikasi' ){
+                this.setState({
+                    payment_status: 'belum bayar'
+                })
+            }
+            else {
+                this.setState({
+                    payment_status: status_bayar
+                })  
+            }
+           
+          }
+
           this.setState({
             payment_name: data.data.data[0].payment_name
         });
@@ -175,12 +214,31 @@ export default class InfoCompanyCard extends Component{
         }  
     }
 
+    toggleImagePO = () => {
+        if(this.state.displayImagePO == 'none'){    
+            this.setState({
+                displayImagePO: 'block'
+            })
+        }
+        else {
+            this.setState({
+                displayImagePO: 'none'
+            })
+        }
+    }
+
     render(){
     return(
 
         <div style={{display:'contents'}}>
         <tr id='rowTransactionFinished' style={{fontSize:'13px', color:'#3D464D'}}>
-            <td style={{textAlign: 'center'}}><strong><label id='idTransaction' onClick={()=>this.detailFinished(this.props.data.id_transaction)}>{this.props.data.id_transaction}</label></strong></td>
+            <td style={{textAlign: 'center'}}>
+                <strong>
+                    <span data-toggle="tooltip" title="Lihat detail">
+                        <label id='idTransaction' onClick={()=>this.detailFinished(this.props.data.id_transaction)}>{this.props.data.id_transaction}</label>
+                    </span>
+                </strong>
+            </td>            
             <td style={{textAlign: 'center'}}>{this.props.data.create_date_edit}</td>
             <td style={{textAlign: 'center'}}>{this.props.data.date_finished}</td>
             <td style={{textAlign: 'right'}}><NumberFormat value={Number(this.props.data.totaltrx_tax_final)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></td>
@@ -220,41 +278,93 @@ export default class InfoCompanyCard extends Component{
                             </div> 
                         </div>
                     </div>
+                    <div className="row mt-2">   
+                        <div className="col-md-4">
+                            <div className="address-card__row">
+                                <div className="address-card__row-title">Nomor PO Pembeli</div>
+                                <span style={{fontWeight: '500'}}>
+                                {this.state.PO_reference === null ?
+                                    (<div className="address-card__row-content">
+                                        <span style={{fontSize: '12px'}}>
+                                            <strong>-</strong>
+                                        </span>
+                                    </div>) :
+                                    (<div className="address-card__row-content" >
+                                        <span style={{fontSize: '14px'}}><strong>{this.state.PO_reference}</strong></span>
+                                        <span data-toggle="tooltip" title="Lihat file PO" onClick={this.toggleImagePO} style={{cursor: 'pointer'}}>
+                                            <i class="far fa-file-image fa-md ml-2"></i>
+                                        </span>
+                                    </div>)
+                                }
+                                </span>
+                            </div> 
+                        </div>
+                    </div>
                     <hr style={{ borderWidth: '1px'}}/>       
-                    <div className="row" style={{marginTop: '5px'}}>
+                    <div className="row">
                         <div className="col-md-4">
                             <div className="address-card__row">
                                 <div className="address-card__row-title">Metode Pembayaran</div>
-                                    <span style={{fontSize: '12px', fontWeight: '500'}}>
-                                        <div className="address-card__row-content">{this.state.payment_name}</div>
-                                    </span>    
-                                </div> 
+                                <span style={{fontSize: '12px', fontWeight: '500'}}>
+                                    <div className="address-card__row-content">{this.state.payment_name}</div>
+                                </span>    
                             </div>
-                            <div className="col-md-4 mt-2 mt-sm-2 mt-md-0 mt-lg-0 mt-xl-0">
+                        </div>
+                        <div className="col-md-4">
+                            <div className="address-card__row">
+                                <div className="address-card__row-title">Status Pembayaran</div>
+                                <span style={{fontSize: '12px', fontWeight: '500'}}>
+                                    <div className="address-card__row-content">{this.state.payment_status}</div>
+                                </span>    
+                            </div>
+                        </div>
+                        {/* <div className="col-md-4">
+                            <div className="address-card__row">
+                                <button type="button" className="btn btn-primary btn-xs d-print-none" 
+                                    onClick={this.toggleInfoPembayaran}>
+                                    <i class="fas fa-receipt mr-2"></i>
+                                    info pembayaran
+                                </button>
+                            </div> 
+                        </div> */}
+                    </div>
+
+                    <hr style={{ borderWidth: '1px'}}/> 
+
+                    <div className="row">
+                        <div className="col-md-4">
+                            <div className="address-card__row">
+                                <div className="address-card__row-title">Permintaan Kirim</div>
+                                <span style={{fontSize: '12px', fontWeight: '500'}}>
+                                    <div className="address-card__row-content">{this.state.tgl_permintaan_kirim}</div>
+                                </span>    
+                            </div> 
+                        </div>
+                        <div className="col-md-4 d-print-none">
                             <div className="address-card__row">
                                 <div className="address-card__row-title">Alamat Pengiriman</div>
-                                    <span style={{fontSize: '12px', fontWeight: '500'}}>
-                                        <div className="address-card__row-content">{this.state.shipto_alamat}</div>
-                                        <div className="address-card__row-content">{'Kel. '}{this.state.shipto_kelurahan}{', Kec. '}{this.state.shipto_kecamatan}</div>
-                                        <div className="address-card__row-content">{this.state.shipto_kota}</div>
-                                        <div className="address-card__row-content">{this.state.shipto_provinsi}{', '}{this.state.shipto_kodepos}</div>
-                                        <div className="address-card__row-content">{'Telepon : '}{this.state.shipto_notelp}</div>
-                                    </span>    
-                                </div> 
-                            </div>
-                        <div className="col-md-4 mt-2 mt-sm-2 mt-md-0 mt-lg-0 mt-xl-0">
+                                <span style={{fontSize: '12px', fontWeight: '500'}}>
+                                    <div className="address-card__row-content">{this.state.shipto_alamat}</div>
+                                    <div className="address-card__row-content">{'Kel. '}{this.state.shipto_kelurahan}{', Kec. '}{this.state.shipto_kecamatan}</div>
+                                    <div className="address-card__row-content">{this.state.shipto_kota}</div>
+                                    <div className="address-card__row-content">{this.state.shipto_provinsi}{', '}{this.state.shipto_kodepos}</div>
+                                    <div className="address-card__row-content">{'Telepon : '}{this.state.shipto_notelp}</div>
+                                </span>    
+                            </div>  
+                        </div>
+                        <div className="col-md-4">
                             <div className="address-card__row">
                                 <div className="address-card__row-title">Alamat Penagihan</div>
-                                    <span style={{fontSize: '12px', fontWeight: '500'}}>
+                                <span style={{fontSize: '12px', fontWeight: '500'}}>
                                     <div className="address-card__row-content">{this.state.billto_alamat}</div>
                                     <div className="address-card__row-content">{'Kel. '}{this.state.billto_kelurahan}{', Kec. '}{this.state.billto_kecamatan}</div>
                                     <div className="address-card__row-content">{this.state.billto_kota}</div>
                                     <div className="address-card__row-content">{this.state.billto_provinsi}{', '}{this.state.billto_kodepos}</div>
                                     <div className="address-card__row-content">{'Telepon : '}{this.state.billto_notelp}</div>
-                                    </span>   
+                                </span>   
                             </div>  
                         </div>
-                    </div>  
+                    </div>   
 
                     <div id="timeline_transaksi" style={{display: this.state.display_timeline}}>
                         <hr style={{ borderWidth: '1px'}}/>  
@@ -351,7 +461,7 @@ export default class InfoCompanyCard extends Component{
                     </table>
                     <div className="row justify-content-end pt-3 pt-md-3">
                         <div className="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                            <button type="button" className="btn btn-primary btn-xs d-print-none mb-3" onClick={()=>this.props.printInvoice("modal-transaksi", this.props.data.id_transaction)}>
+                            <button type="button" className="btn btn-light btn-xs d-print-none mb-3" onClick={()=>this.props.printInvoice("modal-transaksi", this.props.data.id_transaction)}>
                                 <i class="fas fa-print" style={{ marginRight: '5px' }}></i>
                                 Cetak Invoice
                             </button>
@@ -412,6 +522,14 @@ export default class InfoCompanyCard extends Component{
                     </div>
                 </ModalBody>
             </Modal>
+
+            {/* Modal file PO */}
+            <div id="myModalPO" class="modalPO" style={{display : this.state.displayImagePO}}>
+                <span class="close-modalPO" onClick={this.toggleImagePO}>&times;</span>
+                <img class="modalPO-content" id="img01" src={this.state.imgPO_reference}/>
+                <div id="modalPO-caption"></div>
+            </div>
+
         </div>    
     )
    } 

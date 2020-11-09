@@ -10,7 +10,8 @@ import { Link } from 'react-router-dom';
 // third-party
 import { Helmet } from 'react-helmet-async';
 import {
-    Button, FormFeedback, Input, InputGroup, InputGroupAddon, InputGroupText,
+    Button, Card, CardHeader, CardFooter, CardBody, CardTitle, CardText,
+    FormFeedback, Input, InputGroup, InputGroupAddon, InputGroupText,
     Modal, ModalBody, ModalHeader, Progress
 } from 'reactstrap';
 import Dialog from '@material-ui/core/Dialog';
@@ -18,6 +19,8 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import * as JSZip from 'jszip'
+import { saveAs } from "file-saver";
 
 // application
 import PageHeader from '../shared/PageHeader';
@@ -74,6 +77,7 @@ export default class AccountPageRegister extends Component {
             inputUsername: '', empty_username: false, KetTextUsername: '',
             inputPassword: '', empty_password: false, KetTextPassword: '',
             inputRepassword: '', empty_repassword: false, KetTextRePassword: '',
+            inputTipePendaftar: 'perusahaan',
             icon_pass: 'fa fa-eye-slash',
             icon_repass: 'fa fa-eye-slash',
             inputUrl: '',
@@ -82,9 +86,125 @@ export default class AccountPageRegister extends Component {
             isSuksesRegister: false,
             display_alert: 'none', display_ppn_seller: 'none',
             file_upload: '',
-            status_upload: ''
+            status_upload: '',
+            block_upload: false,
+            file_KTP: '', inputKTP: '', emptyKTP: false, KetTextKTP: '', previewKTP: 'none', display_formKTP: 'none',
+            file_NPWP: '', inputNPWP: '', emptyNPWP: false, KetTextNPWP: '', previewNPWP: 'none', display_formNPWP: 'none',
+            file_SIUP: '', inputSIUP: '', emptySIUP: false, KetTextSIUP: '', previewSIUP: 'none', display_formSIUP: 'none',
+            file_GXP: '', inputGXP: '', emptyGXP: false, KetTextGXP: '', previewGXP: 'none', display_formGXP: 'none',
+            file_PBF: '', inputPBF: '', emptyPBF: false, KetTextPBF: '', previewPBF: 'none', display_formPBF: 'none'
         };
         this.handleTempDocument = this.handleTempDocument.bind(this);
+    }
+
+    checkInputFormUnggahBerkas = () => {
+        if (this.state.inputTipePendaftar == 'perusahaan') {
+            if (this.state.file_NPWP == '') {
+                this.setState({
+                    emptyNPWP: true,
+                    KetTextNPWP: 'wajib diisi',
+                    block_upload: true
+                })
+            }
+            if (this.state.file_SIUP == '') {
+                this.setState({
+                    emptySIUP: true,
+                    KetTextSIUP: 'wajib diisi',
+                    block_upload: true
+                })
+            }
+
+            if (this.state.inputTipeBisnis == '1') {
+
+                if (this.state.file_GXP == '') {
+                    this.setState({
+                        emptyGXP: true,
+                        KetTextGXP: 'wajib diisi',
+                        block_upload: true
+                    })
+                }
+
+                if (this.state.file_NPWP != '' && this.state.file_SIUP != '' && this.state.file_GXP != '') {
+                    this.setState({
+                        block_upload: false
+                    })
+                }
+            }
+            else {
+                if (this.state.file_NPWP != '' && this.state.file_SIUP != '') {
+                    this.setState({
+                        block_upload: false
+                    })
+                }
+            }
+
+        }
+        else {
+            if (this.state.file_KTP == '') {
+                this.setState({
+                    emptyKTP: true,
+                    KetTextKTP: 'wajib diisi',
+                    block_upload: true
+                })
+            }
+            if (this.state.file_NPWP == '') {
+                this.setState({
+                    emptyNPWP: true,
+                    KetTextNPWP: 'wajib diisi',
+                    block_upload: true
+                })
+            }
+            if (this.state.file_NPWP != '' && this.state.file_KTP != '') {
+                this.setState({
+                    block_upload: false
+                })
+            }
+        }
+    }
+
+    checkFormUnggahBerkas = () => {
+
+        if (this.state.inputTipePendaftar == 'perusahaan') {
+            if (this.state.inputTipeBisnis == '1') {
+                this.setState({
+                    display_formNPWP: 'block',
+                    display_formSIUP: 'block',
+                    display_formGXP: 'block',
+                    display_formPBF: 'block',
+                    display_formKTP: 'none'
+                })
+            }
+
+            else {
+                this.setState({
+                    display_formNPWP: 'block',
+                    display_formSIUP: 'block',
+                    display_formGXP: 'none',
+                    display_formPBF: 'none',
+                    display_formKTP: 'none'
+                })
+            }
+        }
+        else {
+            this.setState({
+                display_formNPWP: 'block',
+                display_formSIUP: 'none',
+                display_formGXP: 'none',
+                display_formPBF: 'none',
+                display_formKTP: 'block'
+            })
+        }
+
+    }
+
+    clearStateFormUnggahBerkas = () => {
+        this.setState({
+            file_KTP: '', inputKTP: '', emptyKTP: false, KetTextKTP: '', previewKTP: 'none',
+            file_NPWP: '', inputNPWP: '', emptyNPWP: false, KetTextNPWP: '', previewNPWP: 'none',
+            file_SIUP: '', inputSIUP: '', emptySIUP: false, KetTextSIUP: '', previewSIUP: 'none',
+            file_GXP: '', inputGXP: '', emptyGXP: false, KetTextGXP: '', previewGXP: 'none',
+            file_PBF: '', inputPBF: '', emptyPBF: false, KetTextPBF: '', previewPBF: 'none'
+        })
     }
 
     clearState = () => {
@@ -189,10 +309,15 @@ export default class AccountPageRegister extends Component {
             disable_kecamatan_ket: 'sedang memuat data...'
         });
 
-        let querykecamatan = encrypt("select id, nama from gcm_master_kecamatan where id_city = '" + id_kota + "' order by nama asc")
+        // let querykecamatan = encrypt("select id, nama from gcm_master_kecamatan where id_city = '" + id_kota + "' order by nama asc")
+
+        let queryKecamatan = encrypt("select c.* from gcm_location_province a " +
+            "inner join gcm_location_city b on a.id = b.province_id " +
+            "inner join gcm_master_kecamatan c on b.id = c.id_city " +
+            "where a.id = '" + this.state.inputProvinsi + "' and b.id = '" + id_kota + "' order by nama asc")
 
         Axios.post(url.select, {
-            query: querykecamatan
+            query: queryKecamatan
         }).then(data => {
             this.setState({
                 listKecamatan: data.data.data,
@@ -220,15 +345,22 @@ export default class AccountPageRegister extends Component {
         });
 
         //query get kelurahan
-        let querykelurahan = encrypt("select * from gcm_master_kelurahan where id_kecamatan = '" + id_kecamatan + "' order by nama asc")
+        // let querykelurahan = encrypt("select * from gcm_master_kelurahan where id_kecamatan = '" + id_kecamatan + "' order by nama asc")
+
+        let queryKelurahan = encrypt("select d.* from gcm_location_province a " +
+            "inner join gcm_location_city b on a.id = b.province_id " +
+            "inner join gcm_master_kecamatan c on b.id = c.id_city " +
+            "inner join gcm_master_kelurahan d on c.id = d.id_kecamatan " +
+            "where a.id = '" + this.state.inputProvinsi + "' and b.id = '" + this.state.inputKota + "' and c.id = '" + id_kecamatan + "' order by nama asc")
 
         Axios.post(url.select, {
-            query: querykelurahan
+            query: queryKelurahan
         }).then(data => {
             this.setState({
                 listKelurahan: data.data.data,
                 disable_kelurahan_ket: ''
             });
+
         }).catch(err => {
             this.setState({
                 displaycatch: true,
@@ -662,12 +794,14 @@ export default class AccountPageRegister extends Component {
 
                 var listPenjual = ''
                 if (this.state.inputTipeBisnis != '1') {
-                    listPenjual = encrypt(" select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' and " +
+                    listPenjual = encrypt("select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' and " +
                         "(tipe_bisnis='1' or tipe_bisnis='" + this.state.inputTipeBisnis + "') and id !=9 order by nama_perusahaan");
                 }
                 else {
-                    listPenjual = encrypt(" select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' and id !=9 order by nama_perusahaan");
+                    listPenjual = encrypt("select id, nama_perusahaan from gcm_master_company where type = 'S' and seller_status='A' and id !=9 order by nama_perusahaan");
+
                 }
+
                 Axios.post(url.select, {
                     query: listPenjual
                 }).then(data => {
@@ -678,8 +812,8 @@ export default class AccountPageRegister extends Component {
                     Toast.hide()
                     this.controlListPenjual()
                 }).catch(err => {
-                    // console.log('error');
-                    // console.log(err);
+                    Toast.fail('Gagal mengambil data distributor !', 3000, () => {
+                    });
                 })
             }
             else {
@@ -710,7 +844,7 @@ export default class AccountPageRegister extends Component {
         })
 
         const temp = this.state.inputUrl
-        const tempName = temp.name
+        const tempName = new Date().getTime() + ".zip"
         const storageRef = storage.ref(`documents/` + tempName);
         const uploadTask = storageRef.put(temp)
 
@@ -722,49 +856,75 @@ export default class AccountPageRegister extends Component {
             progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
             progress_round = Math.ceil(Number(progress))
             this.setState({ progress_upload: progress_round })
-            console.log('Upload is ' + progress_round + '% done');
-
-            if (progress == 100) {
-                uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) { 
-                    x.setState({
-                        inputUrl: downloadURL,
-                        status_upload: 'done',
-                        openUpload: false
-                    })
-                });
-            }
-
-        }, (error) => {
-            // Handle unsuccessful uploads
+        }, (err) => {
+            // var errorCode = err.code;
+            // var errorMessage = err.message;
             Toast.fail('Gagal mengunggah berkas !', 3500, () => {
             });
             this.setState({ openUpload: !this.state.openUpload })
+
         }, () => {
-            // if (progress == 100) {
-            //     console.log('sukses')
-            //     uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-            //         x.setState({
-            //             inputUrl: downloadURL,
-            //             status_upload: 'done',
-            //             openConfirmationUpload: false
-            //         })
-            //         console.log('get url')
-            //         Toast.hide()
-            //     });
-            // }
-            // else {
-            //     console.log('uploading')
-            // }
-            // uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-            //     console.log('tayo')
-            //     // x.setState({
-            //     //     inputUrl: downloadURL,
-            //     //     status_upload: 'done',
-            //     //     openConfirmationUpload: false
-            //     // })
-            //     // Toast.hide()
-            // });
+            uploadTask.snapshot.ref.getDownloadURL()
+                .then(function (downloadURL) {
+                    x.setState({
+                        inputUrl: downloadURL,
+                        status_upload: 'done',
+                        openInfoBerkas: false,
+                        openUpload: false
+                    })
+                })
         })
+
+        // uploadTask.on('state_changed', (snapshot) => {
+        //     progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        //     progress_round = Math.ceil(Number(progress))
+        //     this.setState({ progress_upload: progress_round })
+        //     console.log('Upload is ' + progress_round + '% done');
+
+        //     if (progress == 100) {
+        //         uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+        //             console.log('generate url')
+        //             console.log(downloadURL)
+        //             console.log('generate url after')
+        //             x.setState({
+        //                 inputUrl: downloadURL,
+        //                 status_upload: 'done',
+        //                 openUpload: false
+        //             })
+        //         });
+        //     }
+
+        // }, (error) => {
+        //     // Handle unsuccessful uploads
+        //     Toast.fail('Gagal mengunggah berkas !', 3500, () => {
+        //     });
+        //     this.setState({ openUpload: !this.state.openUpload })
+        // }, () => {
+        //     // if (progress == 100) {
+        //     //     console.log('sukses')
+        //     //     uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+        //     //         x.setState({
+        //     //             inputUrl: downloadURL,
+        //     //             status_upload: 'done',
+        //     //             openConfirmationUpload: false
+        //     //         })
+        //     //         console.log('get url')
+        //     //         Toast.hide()
+        //     //     });
+        //     // }
+        //     // else {
+        //     //     console.log('uploading')
+        //     // }
+        //     // uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+        //     //     console.log('tayo')
+        //     //     // x.setState({
+        //     //     //     inputUrl: downloadURL,
+        //     //     //     status_upload: 'done',
+        //     //     //     openConfirmationUpload: false
+        //     //     // })
+        //     //     // Toast.hide()
+        //     // });
+        // })
     }
 
     inputNamaPerusahaan = (event) => {
@@ -1156,6 +1316,37 @@ export default class AccountPageRegister extends Component {
         this.forceUpdate()
     }
 
+    toggleFormUnggahBerkas = () => {
+        this.setState({
+            openInfoBerkas: !this.state.openInfoBerkas
+        })
+
+        //clear state
+        this.setState({
+            inputTipePendaftar: 'perusahaan',
+            block_upload: false,
+        })
+
+        this.clearStateFormUnggahBerkas()
+
+    }
+
+    togglePilihBerkas = () => {
+        if (this.state.inputTipeBisnis === '') {
+            Toast.info('Silakan pilih tipe bisnis terlebih dahulu !', 3000, () => {
+            });
+            this.setState({
+                empty_tipebisnis: true
+            })
+        }
+        else {
+            this.checkFormUnggahBerkas()
+            this.setState({
+                openInfoBerkas: !this.state.openInfoBerkas
+            })
+        }
+    }
+
     username_validation = async (event) => {
         const get_input = event.target.value
         this.setState({ inputUsername: event.target.value });
@@ -1181,32 +1372,247 @@ export default class AccountPageRegister extends Component {
         }
     }
 
-    handleTempDocument(e) {
-        const media_file = e.target.files[0]
-        const filename = media_file.name
-        let last_dot = filename.lastIndexOf('.')
-        let ext = filename.slice(last_dot + 1)
-
-        if (ext == 'zip' || ext == 'rar') {
-            this.setState({ inputUrl: e.target.files[0] })
-            var name = document.getElementById('pilihfile');
+    handleDeleteFile = (id) => {
+        if (id === 'deleteKTP') {
+            document.getElementById('inputKTP').value = null
             this.setState({
-                file_upload: name.files.item(0).name,
-                openConfirmationUpload: true,
-                openInfoBerkas: false
+                file_KTP: '',
+                file_previewKTP: '',
+                previewKTP: 'none'
+            })
+        }
+        else if (id === 'deleteNPWP') {
+            document.getElementById('inputNPWP').value = null
+            this.setState({
+                file_NPWP: '',
+                file_previewNPWP: '',
+                previewNPWP: 'none'
+            })
+        }
+        else if (id === 'deleteSIUP') {
+            document.getElementById('inputSIUP').value = null
+            this.setState({
+                file_SIUP: '',
+                file_previewSIUP: '',
+                previewSIUP: 'none'
+            })
+        }
+        else if (id === 'deleteGXP') {
+            document.getElementById('inputGXP').value = null
+            this.setState({
+                file_GXP: '',
+                file_previewGXP: '',
+                previewGXP: 'none'
+            })
+        }
+        else if (id === 'deletePBF') {
+            document.getElementById('inputPBF').value = null
+            this.setState({
+                file_PBF: '',
+                file_previewPBF: '',
+                previewPBF: 'none'
+            })
+        }
+        else {
+            document.getElementById('inputKTP').value = null
+            document.getElementById('inputNPWP').value = null
+            document.getElementById('inputSIUP').value = null
+            document.getElementById('inputGXP').value = null
+            document.getElementById('inputPBF').value = null
+            this.setState({
+                file_previewKTP: '',
+                previewKTP: 'none',
+                file_previewNPWP: '',
+                previewNPWP: 'none',
+                file_previewSIUP: '',
+                previewSIUP: 'none',
+                file_previewGXP: '',
+                previewGXP: 'none',
+                file_previewPBF: '',
+                previewPBF: 'none'
+            })
+        }
+    }
+
+    handleInsertFile = (e) => {
+
+        if (e.target.value !== '') {
+            this.setState({
+                [e.target.name]: e.target.value
+            })
+
+            var arraySplit = e.target.files[0].name.split(".")
+            var fileExtension = arraySplit[arraySplit.length - 1]
+            var image_Ext = ["jpg", "jpeg", "png"]
+
+            if (e.target.name === 'inputKTP') {
+                this.setState({
+                    file_KTP: e.target.files[0],
+                    file_name_KTP: e.target.files[0].name,
+                    file_previewKTP: URL.createObjectURL(e.target.files[0]),
+                    emptyKTP: false, KetTextKTP: ''
+                })
+
+                if (image_Ext.includes(fileExtension)) {
+                    this.setState({
+                        previewKTP: 'block'
+                    })
+                }
+                else {
+                    this.setState({
+                        previewKTP: 'none'
+                    })
+                }
+
+            }
+            else if (e.target.name === 'inputNPWP') {
+                this.setState({
+                    file_NPWP: e.target.files[0],
+                    file_name_NPWP: e.target.files[0].name,
+                    file_previewNPWP: URL.createObjectURL(e.target.files[0]),
+                    emptyNPWP: false, KetTextNPWP: ''
+                })
+                if (image_Ext.includes(fileExtension)) {
+                    this.setState({
+                        previewNPWP: 'block'
+                    })
+                }
+                else {
+                    this.setState({
+                        previewNPWP: 'none'
+                    })
+                }
+            }
+            else if (e.target.name === 'inputSIUP') {
+                this.setState({
+                    file_SIUP: e.target.files[0],
+                    file_name_SIUP: e.target.files[0].name,
+                    file_previewSIUP: URL.createObjectURL(e.target.files[0]),
+                    emptySIUP: false, KetTextSIUP: ''
+                })
+                if (image_Ext.includes(fileExtension)) {
+                    this.setState({
+                        previewSIUP: 'block'
+                    })
+                }
+                else {
+                    this.setState({
+                        previewSIUP: 'none'
+                    })
+                }
+            }
+            else if (e.target.name === 'inputGXP') {
+                this.setState({
+                    file_GXP: e.target.files[0],
+                    file_name_GXP: e.target.files[0].name,
+                    file_previewGXP: URL.createObjectURL(e.target.files[0]),
+                    emptyGXP: false, KetTextGXP: ''
+                })
+                if (image_Ext.includes(fileExtension)) {
+                    this.setState({
+                        previewGXP: 'block'
+                    })
+                }
+                else {
+                    this.setState({
+                        previewGXP: 'none'
+                    })
+                }
+            }
+            else if (e.target.name === 'inputPBF') {
+                this.setState({
+                    file_PBF: e.target.files[0],
+                    file_name_PBF: e.target.files[0].name,
+                    file_previewPBF: URL.createObjectURL(e.target.files[0]),
+                    emptyPBF: false, KetTextPBF: ''
+                })
+                if (image_Ext.includes(fileExtension)) {
+                    this.setState({
+                        previewPBF: 'block'
+                    })
+                }
+                else {
+                    this.setState({
+                        previewPBF: 'none'
+                    })
+                }
+            }
+
+        }
+        // else if (e.target.value === '') {
+        //     this.setState({
+        //         fotoUpload: '',
+        //     })
+        // }
+    }
+
+    async handleTempDocument(e) {
+
+        await this.checkInputFormUnggahBerkas()
+
+        if (this.state.block_upload == false) {
+            let x = this
+            var zip = new JSZip();
+            var folder = zip.folder("berkas pendaftaran");
+
+            if (this.state.file_KTP != '') {
+                folder.file(this.state.file_name_KTP, this.state.file_KTP, { base64: true });
+            }
+            if (this.state.file_NPWP != '') {
+                folder.file(this.state.file_name_NPWP, this.state.file_NPWP, { base64: true });
+            }
+            if (this.state.file_SIUP != '') {
+                folder.file(this.state.file_name_SIUP, this.state.file_SIUP, { base64: true });
+            }
+            if (this.state.file_GXP != '') {
+                folder.file(this.state.file_name_GXP, this.state.file_GXP, { base64: true });
+            }
+            if (this.state.file_PBF != '') {
+                folder.file(this.state.file_name_PBF, this.state.file_PBF, { base64: true });
+            }
+
+            zip.generateAsync({ type: "blob" })
+                .then(function (content) {
+                    // console.log(content)
+                    // see FileSaver.js
+                    // saveAs(content, "zipdong.zip");
+                    x.setState({ inputUrl: content })
+                    // this.setState({ inputUrl: e.target.files[0] })
+                });
+            // const media_file = e.target.files[0]
+            // const filename = media_file.name
+            // let last_dot = filename.lastIndexOf('.')
+            // let ext = filename.slice(last_dot + 1)
+
+            // if (ext == 'zip' || ext == 'rar') {
+            // this.setState({ inputUrl: e.target.files[0] })
+            // var name = document.getElementById('pilihfile');
+            this.setState({
+                // file_upload: name.files.item(0).name,
+                openConfirmationUpload: true
             });
+            // }
+
+            // else {
+            //     Toast.info('Silakan pilih berkas bertipe rar / zip !', 2500, () => {
+            //     });
+            // }
         }
 
-        else {
-            Toast.info('Silakan pilih berkas bertipe rar / zip !', 2500, () => {
-            });
-        }
-        // alert(document.getElementById('pilihfile').files.item(0).type)
     }
 
     handleFileSelect = (e) => {
         e.preventDefault();
         this.fileSelector.click();
+    }
+
+    handleTipePendaftar = async (event) => {
+        await this.setState({
+            inputTipePendaftar: event.target.value
+        })
+        this.checkFormUnggahBerkas()
+        this.handleDeleteFile("deleteAll")
+        this.clearStateFormUnggahBerkas()
     }
 
     componentDidMount() {
@@ -1635,18 +2041,17 @@ export default class AccountPageRegister extends Component {
 
                                         {this.state.status_upload == '' ?
                                             (<div>
-                                                <label style={{ fontSize: '13px', fontWeight: '500', color: 'red' }}>* Unggah kelengkapan berkas (bertipe rar/zip) </label><br />
+                                                <label style={{ fontSize: '13px', fontWeight: '500', color: 'red' }}>* Unggah kelengkapan berkas pendaftaran </label><br />
                                                 <Grid container spacing={2}>
                                                     <Grid item xs={10}>
-                                                        <label class="btn btn-primary btn-sm mt-1" onClick={() => this.setState({ openInfoBerkas: !this.state.openInfoBerkas })}>Pilih Berkas</label>
-                                                        {/* <label for="pilihfile" class="btn btn-primary btn-sm mt-1" >Pilih Berkas</label>
-                                                        <input type="file" id="pilihfile" accept=".zip, .rar" style={{ display: 'none' }} onChange={this.handleTempDocument}></input> */}
+                                                        <label class="btn btn-primary btn-sm mt-1" onClick={this.togglePilihBerkas}>Pilih Berkas</label>
+                                                        {/* <label class="btn btn-primary btn-sm mt-1" onClick={() => this.handleTempDocument()}>Pilih Berkas</label> */}
                                                     </Grid>
                                                 </Grid>
                                             </div>) :
                                             (<div className="alert alert-success mt-3">
                                                 <span style={{ color: '#3d464d', fontSize: '14px', fontWeight: '500' }}>
-                                                    Berkas yang diunggah : {' '}<strong>{this.state.file_upload}</strong>
+                                                    Berhasil mengunggah berkas pendaftaran.
                                                 </span>
                                             </div>)
                                         }
@@ -1874,7 +2279,7 @@ export default class AccountPageRegister extends Component {
                                 <button id='lanjutdaftar' onClick={() => this.handleDaftarBuyerLanjutan()}
                                     className="btn btn-primary mt-2 mt-md-3 mt-lg-4" type="submit" style={{ marginTop: '15px', marginRight: '5px' }} >Lanjut
                                 </button>
-                                <button id='lanjutdaftar' onClick={this.controlListPenjual.bind(this)}
+                                <button onClick={this.controlListPenjual.bind(this)}
                                     className="btn btn-light mt-2 mt-md-3 mt-lg-4" type="submit" style={{ marginTop: '15px' }} >Batal
                                 </button>
 
@@ -1884,6 +2289,258 @@ export default class AccountPageRegister extends Component {
                     </Modal>
 
                     <Modal isOpen={this.state.openInfoBerkas} size="md" centered>
+                        <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={this.toggleFormUnggahBerkas}>Unggah Berkas</ModalHeader>
+                        <div className="card-body">
+                            <div className="row">
+                                <div className="col-md-12 ">
+                                    <form>
+                                        <div className="form-group" style={{ marginBottom: '0' }}>
+                                            <label>Tipe Pendaftar</label>
+                                            <div className="row">
+                                                <div className="col-md-6 col-sm-6 col-xs-12">
+                                                    <label className="payment-methods__item-header">
+                                                        <span className="payment-methods__item-radio input-radio">
+                                                            <span className="input-radio__body">
+                                                                <input
+                                                                    type="radio"
+                                                                    className="input-radio__input"
+                                                                    name="input-tipe_register"
+                                                                    value="perusahaan"
+                                                                    onChange={this.handleTipePendaftar}
+                                                                    defaultChecked="true"
+                                                                />
+                                                                <span className="input-radio__circle" />
+                                                            </span>
+                                                        </span>
+                                                        <span className="payment-methods__item-title" style={{ fontSize: '12px', fontWeight: '500' }}>Perusahaan</span>
+                                                    </label>
+                                                </div>
+                                                <div className="col-md-6 col-sm-6 col-xs-12">
+                                                    <label className="payment-methods__item-header">
+                                                        <span className="payment-methods__item-radio input-radio">
+                                                            <span className="input-radio__body">
+                                                                <input
+                                                                    type="radio"
+                                                                    className="input-radio__input"
+                                                                    name="input-tipe_register"
+                                                                    value="perorangan"
+                                                                    onChange={this.handleTipePendaftar}
+                                                                />
+                                                                <span className="input-radio__circle" />
+                                                            </span>
+                                                        </span>
+                                                        <span className="payment-methods__item-title" style={{ fontSize: '12px', fontWeight: '500' }}>Perorangan</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: this.state.display_formKTP }}>
+                                            <div className="form-group">
+                                                <label>KTP</label>
+                                                <InputGroup>
+                                                    <Input
+                                                        id="inputKTP"
+                                                        name="inputKTP"
+                                                        className="form-control"
+                                                        type="file"
+                                                        invalid={this.state.emptyKTP}
+                                                        onChange={this.handleInsertFile}
+                                                        style={{ cursor: 'pointer', fontSize: '12px', paddingTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                    </Input>
+                                                    <FormFeedback>{this.state.KetTextKTP}</FormFeedback>
+                                                </InputGroup>
+                                            </div>
+
+                                            <div className="form-group" style={{ display: this.state.previewKTP }}>
+                                                <InputGroup>
+                                                    <div className="innerdiv-upload center-side">
+                                                        <img src={(this.state.file_previewKTP == '') ? "images/default_image_not_found.jpg" : this.state.file_previewKTP} alt="" height="110" width="110" />
+                                                    </div>
+                                                </InputGroup>
+                                                <InputGroup>
+                                                    <label class="btn btn-light btn-sm mt-2 center-side" onClick={() => this.handleDeleteFile("deleteKTP")} style={{ width: '120px' }}>
+                                                        <i class="fas fa-trash fa-xs mr-2"></i>
+                                                            hapus
+                                                    </label>
+                                                </InputGroup>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: this.state.display_formNPWP }}>
+                                            <div className="form-group">
+                                                <label>NPWP atau SPPKP</label>
+                                                <InputGroup>
+                                                    <InputGroup>
+                                                        <Input
+                                                            id="inputNPWP"
+                                                            name="inputNPWP"
+                                                            className="form-control"
+                                                            type="file"
+                                                            invalid={this.state.emptyNPWP}
+                                                            onChange={this.handleInsertFile}
+                                                            style={{ cursor: 'pointer', fontSize: '12px', paddingTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                        </Input>
+                                                        <FormFeedback>{this.state.KetTextNPWP}</FormFeedback>
+                                                    </InputGroup>
+                                                </InputGroup>
+                                            </div>
+
+                                            <div className="form-group" style={{ display: this.state.previewNPWP }}>
+                                                <center>
+                                                    <InputGroup>
+                                                        <div className="innerdiv-upload center-side">
+                                                            <img src={(this.state.file_previewNPWP == '') ? "images/default_image_not_found.jpg" : this.state.file_previewNPWP} alt="" height="110" width="110" />
+                                                        </div>
+                                                    </InputGroup>
+                                                    <InputGroup>
+                                                        <label class="btn btn-light btn-sm mt-2 center-side" onClick={() => this.handleDeleteFile("deleteNPWP")} style={{ width: '120px' }}>
+                                                            <i class="fas fa-trash fa-xs mr-2"></i>
+                                                    hapus
+                                                    </label>
+                                                    </InputGroup>
+                                                </center>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: this.state.display_formSIUP }}>
+                                            <div className="form-group">
+                                                <label>SIUP atau SIUI</label>
+                                                <InputGroup>
+                                                    <InputGroup>
+                                                        <Input
+                                                            id="inputSIUP"
+                                                            name="inputSIUP"
+                                                            className="form-control"
+                                                            type="file"
+                                                            invalid={this.state.emptySIUP}
+                                                            onChange={this.handleInsertFile}
+                                                            style={{ cursor: 'pointer', fontSize: '12px', paddingTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                        </Input>
+                                                        <FormFeedback>{this.state.KetTextSIUP}</FormFeedback>
+                                                    </InputGroup>
+                                                </InputGroup>
+                                            </div>
+
+                                            <div className="form-group" style={{ display: this.state.previewSIUP }}>
+                                                <center>
+                                                    <InputGroup>
+                                                        <div className="innerdiv-upload center-side">
+                                                            <img src={(this.state.file_previewSIUP == '') ? "images/default_image_not_found.jpg" : this.state.file_previewSIUP} alt="" height="110" width="110" />
+                                                        </div>
+                                                    </InputGroup>
+                                                    <InputGroup>
+                                                        <label class="btn btn-light btn-sm mt-2 center-side" onClick={() => this.handleDeleteFile("deleteSIUP")} style={{ width: '120px' }}>
+                                                            <i class="fas fa-trash fa-xs mr-2"></i>
+                                                    hapus
+                                                    </label>
+                                                    </InputGroup>
+                                                </center>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: this.state.display_formGXP }}>
+                                            <div className="form-group">
+                                                <label>Sertifikat GXP
+                                                    <span style={{ fontSize: '11px' }}>{' '}(CPOB atau CDOB)</span>
+                                                </label>
+                                                <InputGroup>
+                                                    <InputGroup>
+                                                        <Input
+                                                            id="inputGXP"
+                                                            name="inputGXP"
+                                                            className="form-control"
+                                                            type="file"
+                                                            invalid={this.state.emptyGXP}
+                                                            onChange={this.handleInsertFile}
+                                                            style={{ cursor: 'pointer', fontSize: '12px', paddingTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                        </Input>
+                                                        <FormFeedback>{this.state.KetTextGXP}</FormFeedback>
+                                                    </InputGroup>
+                                                </InputGroup>
+                                            </div>
+
+                                            <div className="form-group" style={{ display: this.state.previewGXP }}>
+                                                <center>
+                                                    <InputGroup>
+                                                        <div className="innerdiv-upload center-side">
+                                                            <img src={(this.state.file_previewGXP == '') ? "images/default_image_not_found.jpg" : this.state.file_previewGXP} alt="" height="110" width="110" />
+                                                        </div>
+                                                    </InputGroup>
+                                                    <InputGroup>
+                                                        <label class="btn btn-light btn-sm mt-2 center-side" onClick={() => this.handleDeleteFile("deleteGXP")} style={{ width: '120px' }}>
+                                                            <i class="fas fa-trash fa-xs mr-2"></i>
+                                                    hapus
+                                                    </label>
+                                                    </InputGroup>
+                                                </center>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: this.state.display_formPBF }}>
+                                            <div className="form-group">
+                                                <label>Surat Izin PBF
+                                                    <span style={{ fontSize: '11px' }}>{' '}(untuk pendaftar PBF / trader)</span>
+                                                </label>
+                                                <InputGroup>
+                                                    <InputGroup>
+                                                        <Input
+                                                            id="inputPBF"
+                                                            name="inputPBF"
+                                                            className="form-control"
+                                                            type="file"
+                                                            invalid={this.state.emptyPBF}
+                                                            onChange={this.handleInsertFile}
+                                                            style={{ cursor: 'pointer', fontSize: '12px', paddingTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                        </Input>
+                                                        <FormFeedback>{this.state.KetTextPBF}</FormFeedback>
+                                                    </InputGroup>
+                                                </InputGroup>
+                                            </div>
+
+                                            <div className="form-group" style={{ display: this.state.previewPBF }}>
+                                                <center>
+                                                    <InputGroup>
+                                                        <div className="innerdiv-upload center-side">
+                                                            <img src={(this.state.file_previewPBF == '') ? "images/default_image_not_found.jpg" : this.state.file_previewPBF} alt="" height="110" width="110" />
+                                                        </div>
+                                                    </InputGroup>
+                                                    <InputGroup>
+                                                        <label class="btn btn-light btn-sm mt-2 center-side" onClick={() => this.handleDeleteFile("deletePBF")} style={{ width: '120px' }}>
+                                                            <i class="fas fa-trash fa-xs mr-2"></i>
+                                                    hapus
+                                                    </label>
+                                                    </InputGroup>
+                                                </center>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                            {/* <div className="row">
+                                <div className="col-md-12 d-flex"> */}
+                            {/* <button id="btnRegister" type="submit" onClick={this.handleConfirmationUnggah} block className="btn btn-primary mt-12 mt-md-2 mt-lg-3">
+                                        Unggah
+                                    </button> */}
+                            <div style={{ float: 'right' }} >
+                                <label for="pilihfile" class="btn btn-primary btn-sm mt-1" onClick={this.handleTempDocument} >Unggah</label>
+                            </div>
+                            {/* </div>
+                            </div> */}
+                        </div>
+                        {/* <ModalBody>
+                            
+                        </ModalBody>
+                        <ModalBody>
+                            <div style={{ float: 'right' }} >
+                                <label for="pilihfile" class="btn btn-primary btn-sm mt-1" >Lanjut pilih Berkas</label>
+                                <input type="file" id="pilihfile" accept=".zip, .rar" style={{ display: 'none' }} onChange={this.handleTempDocument}></input>
+                            </div>
+                        </ModalBody> */}
+                    </Modal>
+
+                    {/* <Modal isOpen={this.state.openInfoBerkas} size="md" centered>
                         <ModalHeader className="modalHeaderCustom stickytopmodal" toggle={() => this.setState({ openInfoBerkas: !this.state.openInfoBerkas })}>Informasi Kelengkapan Berkas</ModalHeader>
                         <ModalBody>
                             <div className="address-card__row-content" style={{ fontSize: '13px', fontWeight: '600' }}>Pelanggan Perorangan</div>
@@ -1911,16 +2568,15 @@ export default class AccountPageRegister extends Component {
                                 <input type="file" id="pilihfile" accept=".zip, .rar" style={{ display: 'none' }} onChange={this.handleTempDocument}></input>
                             </div>
                         </ModalBody>
-                    </Modal>
+                    </Modal> */}
 
                     <Dialog
                         open={this.state.openConfirmationUpload}
                         aria-labelledby="responsive-dialog-title">
-                        <DialogTitle id="responsive-dialog-title">Unggah Berkas</DialogTitle>
+                        <DialogTitle id="responsive-dialog-title">Konfirmasi Unggah Berkas</DialogTitle>
                         <DialogContent>
                             <DialogContentText>
-                                Berkas yang Anda pilih :  <strong>{this.state.file_upload}</strong>.
-                                Unggah sekarang ?
+                                Berkas yang diunggah tidak dapat diubah. Lanjutkan unggah berkas ?
                             </DialogContentText>
                         </DialogContent>
                         <DialogActions>
@@ -1939,15 +2595,15 @@ export default class AccountPageRegister extends Component {
                         <DialogTitle id="responsive-dialog-title">Unggah Berkas</DialogTitle>
                         <DialogContent>
                             <DialogContentText>
-                                Mengunggah berkas :  <strong>{this.state.file_upload}</strong>.
+                                Sedang mengunggah berkas, mohon tunggu sampai proses selesai
                             </DialogContentText>
                             <div className="text-center">{this.state.progress_upload} %</div>
                             <Progress color="success" animated value={this.state.progress_upload} />
                         </DialogContent>
                         <DialogActions>
-                            <Button color="light" onClick={() => this.setState({ openUpload: false, file_upload: '' })}>
+                            {/* <Button color="light" onClick={() => this.setState({ openUpload: false, file_upload: '' })}>
                                 Batal
-                        </Button>
+                            </Button> */}
                         </DialogActions>
                     </Dialog>
 
@@ -1962,7 +2618,10 @@ export default class AccountPageRegister extends Component {
                                     <i class="fas fa-check-circle fa-3x mb-4" style={{ color: '#8CC63E' }}></i>
                                 </center>
                                 <DialogContentText>
-                                    <center>Silakan masuk untuk melakukan proses aktivasi akun Anda.</center>
+                                    <center>
+                                        <label>Informasi aktif berlangganan ke distributor akan dikirim melalui e-mail.</label>
+                                        <label>Silakan masuk untuk melakukan proses aktivasi akun Anda.</label>
+                                    </center>
                                 </DialogContentText>
                                 <center>
                                     <Link to="/masuk" className="btn btn-primary mt-4 mb-3" >menuju Halaman Masuk</Link>

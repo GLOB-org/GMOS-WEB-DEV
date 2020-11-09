@@ -1000,34 +1000,32 @@ class ProductCard extends Component {
 
                                 this.setState({ id_mastercart: data.data.data[0].id })
 
-                                if (document.getElementById("inputNego").value.split('.').join("") >= (product.price_terendah * product.kurs)) {
-                                    var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, harga_final ,updated_by_2, updated_by_3, updated_date_2, updated_date_3, time_respon)" +
-                                        "values (" + document.getElementById("inputNego").value.split('.').join("") + "," + document.getElementById("inputNego").value.split('.').join("") + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null," + document.getElementById("inputNego").value.split('.').join("") + ",null,null,null,null,null) returning id ")
-                                }
+                                // if (document.getElementById("inputNego").value.split('.').join("") >= (product.price_terendah * product.kurs)) {
+                                //     var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, harga_final ,updated_by_2, updated_by_3, updated_date_2, updated_date_3, time_respon)" +
+                                //         "values (" + document.getElementById("inputNego").value.split('.').join("") + "," + document.getElementById("inputNego").value.split('.').join("") + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null," + document.getElementById("inputNego").value.split('.').join("") + ",null,null,null,null,null) returning id ")
+                                // }
 
-                                else {
-                                    // var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, updated_by_2, updated_by_3, updated_date_2, updated_date_3)" +
-                                    //     "values (" + document.getElementById("inputNego").value.split('.').join("") + "," + Math.ceil((product.price_terendah * kurs)) + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null,null,null,null,null) returning id ")
-                                    var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, updated_by_2, updated_by_3, updated_date_2, updated_date_3)" +
+                                // else {
+                                //     var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, updated_by_2, updated_by_3, updated_date_2, updated_date_3)" +
+                                //         "values (" + document.getElementById("inputNego").value.split('.').join("") + "," + Math.ceil((product.price * product.kurs)) + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null,null,null,null,null) returning id ")
+                                // }
+
+                                var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, updated_by_2, updated_by_3, updated_date_2, updated_date_3)" +
                                         "values (" + document.getElementById("inputNego").value.split('.').join("") + "," + Math.ceil((product.price * product.kurs)) + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null,null,null,null,null) returning id ")
-
-                                }
-
-
-                                // var history_nego = encrypt("insert into gcm_history_nego (harga_nego, harga_sales, notes, created_by, updated_by, updated_date, harga_nego_2, harga_sales_2, harga_nego_3, harga_sales_3, updated_by_2, updated_by_3, updated_date_2, updated_date_3)" +
-                                //     "values (" + document.getElementById("inputNego").value.split('.').join("") + "," + Math.ceil((product.price * kurs)) + ",''," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) + ",now(), null,null,null,null,null,null,null,null) returning id ")
 
                                 //insert ke gcm_history_nego
                                 await Axios.post(url.select, {
                                     query: history_nego
                                 }).then(async (data) => {
 
-                                    if (document.getElementById("inputNego").value.split('.').join("") >= (product.price_terendah * product.kurs)) {
-                                        var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, harga_sales = harga_konsumen  , history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
-                                    }
-                                    else {
-                                        var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
-                                    }
+                                    // if (document.getElementById("inputNego").value.split('.').join("") >= (product.price_terendah * product.kurs)) {
+                                    //     var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, harga_sales = harga_konsumen  , history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
+                                    // }
+                                    // else {
+                                    //     var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
+                                    // }
+
+                                    var update_mastercart = encrypt("update gcm_master_cart set nego_count = 1, history_nego_id = " + data.data.data[0].id + " where id = " + this.state.id_mastercart)
 
                                     await Axios.post(url.select, {
                                         query: update_mastercart
@@ -1035,15 +1033,17 @@ class ProductCard extends Component {
                                         Toast.hide();
                                         if (this.state.nego_auto == false) {
 
-                                            if (document.getElementById("inputNego").value.split('.').join("") >= (product.price_terendah * product.kurs)) {
-                                                await this.setState({ displaynegosuccess: true })
-                                                // Toast.success('Berhasil mengirim nego', 2000, () => {
-                                                // });
-                                            }
-                                            else {
-                                                Toast.success('Berhasil mengirim nego', 2000, () => {
-                                                });
-                                            }
+                                            // if (document.getElementById("inputNego").value.split('.').join("") >= (product.price_terendah * product.kurs)) {
+                                            //     await this.setState({ displaynegosuccess: true })
+                                            // }
+                                            // else {
+                                            //     Toast.success('Berhasil mengirim nego', 2000, () => {
+                                            //     });
+                                            // }
+
+                                            Toast.success('Berhasil mengirim nego', 2000, () => {
+                                            });
+
                                         }
                                         this.toggleModalnego();
                                         document.getElementById("inputNego").value = ''

@@ -39,6 +39,7 @@ class ShopPageCheckout extends Component {
             data_checkoutgrouping: [],
             data_penjual: [],
             id_penjual_string: '',
+            id_sales_string: '',
             data_penjual_length: '',
             data_payment: [],
             data_payment_filter: [],
@@ -76,6 +77,9 @@ class ShopPageCheckout extends Component {
             total_harga_asli: '',
             total_ongkir: '', total_ppn: '',
             transaction_status: '',
+            send_notifikasi: false,
+            id_sales_notifikasi: '',
+            company_id_seller_notifikasi: ''
         };
     }
 
@@ -326,17 +330,21 @@ class ShopPageCheckout extends Component {
             query: get_penjual
         }).then(async (data) => {
             var id_penjual_string = ''
+            var id_sales_string = ''
             for (var i = 0; i < data.data.data.length; i++) {
                 id_penjual_string = id_penjual_string.concat(data.data.data[i].id)
+                id_sales_string = id_sales_string.concat(data.data.data[i].id_sales)
                 if (i < data.data.data.length - 1) {
                     id_penjual_string = id_penjual_string.concat(',')
+                    id_sales_string = id_sales_string.concat(',')
                 }
             }
 
             await this.setState({
                 data_penjual: data.data.data,
                 data_penjual_length: data.data.data.length,
-                id_penjual_string: id_penjual_string
+                id_penjual_string: id_penjual_string,
+                id_sales_string: id_sales_string
             });
 
             this.forceUpdate()
@@ -775,8 +783,8 @@ class ShopPageCheckout extends Component {
             query_detail = query_detail.substring(0, query_detail.length - 1)
         }
 
-        var final_query = encrypt("with new_insert1 as (" + query_transaction + "  ), new_insert2 as (" + query_detail +
-            " returning transaction_id) select distinct transaction_id from new_insert2")
+        var final_query = encrypt("with new_insert1 as (" + query_transaction + " returning id_transaction ), new_insert2 as (" + query_detail +
+            " returning transaction_id) select distinct id_transaction from new_insert1")
 
         await Axios.post(url.select, {
             query: final_query
@@ -784,7 +792,7 @@ class ShopPageCheckout extends Component {
 
             var get_id_transaction = ""
             for (var i = 0; i < data.data.data.length; i++) {
-                get_id_transaction = get_id_transaction.concat(data.data.data[i].transaction_id)
+                get_id_transaction = get_id_transaction.concat(data.data.data[i].id_transaction)
                 if (i < data.data.data.length - 1) {
                     get_id_transaction = get_id_transaction.concat(" - ")
                 }
@@ -797,9 +805,9 @@ class ShopPageCheckout extends Component {
             await Toast.hide()
             await this.setState({
                 transaction_status: 'success',
-                openrespontransaksi: false
+                openrespontransaksi: false,
+                send_notifikasi: true
             });
-            // this.sendResponsAdmin()
             window.scrollTo(0, 0);
             this.forceUpdate()
         }).catch(err => {
@@ -1659,8 +1667,13 @@ class ShopPageCheckout extends Component {
                                     {/* <Link to="/transaksi/daftartransaksi"><strong>{this.state.label_id_transaction}</strong></Link> */}
                                     <strong>{this.state.label_id_transaction}</strong>
                                 </div>
+                                <div className="alert mt-5" style={{ maxWidth: '550px', margin: '0 auto', backgroundColor: '#f0f0f0' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: '500' }}>
+                                        <strong>Informasi pembayaran</strong> dapat Anda lihat pada detail transaksi di menu daftar transaksi
+                                    </span>
+                                </div>
                                 <div className="block-empty__actions">
-                                    <Link to="/daftarproduklangganan" className="btn btn-primary btn-sm">Kembali belanja</Link>
+                                    <Link to="/daftarproduklangganan" className="btn btn-primary btn-sm mt-2">Kembali belanja</Link>
                                 </div>
                             </div>
                         </div>
@@ -1843,13 +1856,17 @@ class ShopPageCheckout extends Component {
                     <DialogTitle id="responsive-dialog-title">Konfirmasi Buat Pesanan</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            Periksa kembali data pemesanan Anda! Tetap lanjutkan pemesanan ?
+                            Periksa kembali data pemesanan Anda, data pemesanan yang telah dibuat tidak dapat diubah. Tetap lanjutkan pemesanan ?
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <CartContext.Consumer>
                             {(value) => (
-                                <Button color="primary" onClick={async () => { await this.submitTransaksi(); await value.loadDataCart(); }}>
+                                <Button color="primary" onClick={async () => {
+                                    await this.submitTransaksi();
+                                    await value.loadDataCart();
+                                    await value.sendNotifikasiTrx(this.state.send_notifikasi, this.state.id_sales_string, this.state.id_penjual_string)
+                                }}>
                                     Lanjutkan
                                 </Button>
                             )}

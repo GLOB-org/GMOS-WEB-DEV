@@ -25,6 +25,7 @@ import TransactionReceived from './TransactionProgress-Received';
 import TransactionComplained from './TransactionProgress-Complained';
 import TransactionFinished from './TransactionProgress-Finished';
 import TransactionCanceled from './TransactionProgress-Canceled';
+import TransactionDetailGlobal from './TransactionProgress-Global';
 
 export default class TransactionProgress extends Component {
 
@@ -94,7 +95,9 @@ export default class TransactionProgress extends Component {
             set_complained: '', set_complained_query: '',
             displaycatch: false,
             openFilter: false,
-            date_from: '', date_to: ''
+            date_from: '', date_to: '',
+            nama_foto: '',
+            foto: ''
         };
     }
 
@@ -262,7 +265,8 @@ export default class TransactionProgress extends Component {
                     })
 
                     let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='CANCELED', id_cancel_reason = 2, " +
-                        "date_canceled = create_date + interval '2 days', cancel_reason = 'melewati batas waktu pembayaran' where id_transaction in (" + data.data.data[0].id_transaction + ")")
+                        "date_canceled = create_date + interval '2 days', cancel_reason = 'melewati batas waktu pembayaran' where tanggal_bayar is null " +
+                        " and id_list_bank is null and pemilik_rekening is null and  id_transaction in (" + data.data.data[0].id_transaction + ")")
 
                     Axios.post(url.select, {
                         query: query_update_limit_time_bayar
@@ -316,8 +320,8 @@ export default class TransactionProgress extends Component {
             //     "inner join gcm_master_payment d on c.payment_id = d.id " +
             //     "where a.status = 'WAITING' and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and now() > a.create_date + interval '48 hours' and d.id = 2))"
 
-            let query_transaction = "select a.id_transaction, status,  a.create_date, to_char(a.create_date, 'dd-MM-yyyy / HH24:MI') as create_date_edit, to_char(a.date_ongoing, 'dd-MM-yyyy / HH24:MI') as date_ongoing, " +
-                "to_char (a.date_shipped, 'dd-MM-yyyy / HH24:MI') as date_shipped, to_char(a.date_received, 'dd-MM-yyyy / HH24:MI') as date_received, to_char(a.date_complained, 'dd-MM-yyyy / HH24:MI') as date_complained, " +
+            let query_transaction = "select a.id_transaction, status,  a.create_date, to_char(a.create_date, 'dd-MM-yyyy / HH24:MI') as create_date_edit, " +
+                "to_char(a.date_ongoing, 'dd-MM-yyyy / HH24:MI') as date_ongoing, to_char (a.date_shipped, 'dd-MM-yyyy / HH24:MI') as date_shipped, to_char(a.date_received, 'dd-MM-yyyy / HH24:MI') as date_received, to_char(a.date_complained, 'dd-MM-yyyy / HH24:MI') as date_complained, " +
                 "to_char(a.date_finished, 'dd-MM-yyyy / HH24:MI') as date_finished, to_char(a.date_canceled, 'dd-MM-yyyy / HH24:MI') as date_canceled, sum(harga) as total, a.ongkos_kirim, " +
                 "case when a.ongkos_kirim is null then (sum(harga)) + 0  else (sum(harga)) + a.ongkos_kirim  end as totaltrx , " +
                 "case when a.ongkos_kirim is null then (sum(harga)) + ((sum(harga) * a.ppn_seller/100)) + 0  else (sum(harga)) + ((sum(harga) * a.ppn_seller/100)) + a.ongkos_kirim  end as totaltrx_tax, " +
@@ -325,7 +329,6 @@ export default class TransactionProgress extends Component {
                 "sum(b.harga_final) + a.ongkos_kirim as totaltrx_final from gcm_master_transaction a inner join gcm_transaction_detail b on a.id_transaction=b.transaction_id where a.company_id= " + decrypt(localStorage.getItem('CompanyIDLogin')) + " group by a.id_transaction, status, " +
                 "a.create_date, a.date_ongoing, a.date_shipped, a.date_received, a.date_complained, a.date_finished, a.date_canceled, a.ongkos_kirim, a.ppn_seller order by a.create_date desc"
 
-            // let final_query = encrypt(query_limit_time_bayar.concat(query_transaction))
             let final_query = encrypt(query_transaction)
 
             await Axios.post(url.select, {
@@ -1695,6 +1698,13 @@ export default class TransactionProgress extends Component {
         this.forceUpdate()
     }
 
+    uploadImage = (nama_foto, foto) => {
+        this.setState({
+            nama_foto: nama_foto,
+            foto: foto
+        })
+    }
+
     printDiv = (divName, fileName) => {
         var printContents = document.getElementById(divName).innerHTML;
         var originalContents = document.body.innerHTML;
@@ -1865,9 +1875,15 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionWaiting" style={{ display: 'none' }}>
                                                 {this.state.data_waiting.slice(this.state.sliceX_waiting, this.state.sliceY_waiting).map((value) => {
-                                                    return (<TransactionWaiting data={value} status='Waiting' printInvoice={this.printDiv}/>)
+                                                    return (<TransactionWaiting data={value} status='Waiting' printInvoice={this.printDiv} upload_image={this.uploadImage}
+                                                        nama_foto_upload={this.state.nama_foto} foto_upload={this.state.foto} />)
                                                 })
                                                 }
+                                                {/* {this.state.data_waiting.slice(this.state.sliceX_waiting, this.state.sliceY_waiting).map((value) => {
+                                                    return (<TransactionDetailGlobal data={value} status='Waiting' printInvoice={this.printDiv} upload_image={this.uploadImage}
+                                                        nama_foto_upload={this.state.nama_foto} foto_upload={this.state.foto} />)
+                                                    })
+                                                } */}
                                             </div>
 
                                             <tr>
@@ -1925,7 +1941,7 @@ export default class TransactionProgress extends Component {
                                             <div id="contentShimmerTransactionOngoing" style={{ display: 'none' }}>
                                                 {this.state.data_ongoing.slice(this.state.sliceX_ongoing, this.state.sliceY_ongoing).map((value) => {
                                                     return (<TransactionOngoing data={value} printInvoice={this.printDiv}
-                                                        />)
+                                                    />)
                                                 })
                                                 }
                                             </div>
@@ -2181,7 +2197,7 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionFinished" style={{ display: 'none' }}>
                                                 {this.state.data_finished.slice(this.state.sliceX_finished, this.state.sliceY_finished).map((value) => {
-                                                    return (<TransactionFinished data={value} printInvoice={this.printDiv}/>)
+                                                    return (<TransactionFinished data={value} printInvoice={this.printDiv} />)
                                                 })
                                                 }
                                             </div>
@@ -2241,7 +2257,7 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionCanceled" style={{ display: 'none' }}>
                                                 {this.state.data_canceled.slice(this.state.sliceX_canceled, this.state.sliceY_canceled).map((value) => {
-                                                    return (<TransactionCanceled data={value} printInvoice={this.printDiv}/>)
+                                                    return (<TransactionCanceled data={value} printInvoice={this.printDiv} />)
                                                 })
                                                 }
                                             </div>

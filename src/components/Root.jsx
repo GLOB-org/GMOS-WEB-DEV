@@ -23,7 +23,7 @@ import { localeChange } from '../store/locale';
 import Layout from './Layout';
 import HomePageOne from './home/HomePageOne';
 import HomePageTwo from './home/HomePageTwo';
-import AccountPageLogin from './account/AccountPageLogin';
+import AccountPageResetPassword from './account/AccountPageResetPassword';
 import Swal from 'sweetalert2'
 import { toast } from 'react-toastify';
 
@@ -130,11 +130,11 @@ class Root extends Component {
                                 <ScrollContext>
                                     <Switch>
                                         <Route
-                                            path="/masuk"
+                                            path="/reset-password"
                                             render={(props) => (
                                                 <Layout {...props} headerLayout="compact" headerHide="yes" footerHide="yes" homeComponent={HomePageTwo} />
                                             )}
-                                            component={AccountPageLogin}
+                                            component={AccountPageResetPassword}
                                         />
                                         <Route
                                             path="/"

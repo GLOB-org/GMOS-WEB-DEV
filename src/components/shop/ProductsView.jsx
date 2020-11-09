@@ -166,7 +166,6 @@ class ProductsView extends Component {
             ));
         }
 
-
         const viewOptionsClasses = classNames('view-options', {
             'view-options--offcanvas--always': offcanvas === 'always',
             'view-options--offcanvas--mobile': offcanvas === 'mobile',
@@ -209,7 +208,7 @@ class ProductsView extends Component {
                         {productsList.length > 0 ? (
                             <div className="view-options__legend" style={{marginLeft: '0px'}}>Menampilkan {productsList.length} dari {this.props.totalproducts} produk</div>
                         ) : (
-                                <div ></div>
+                                null
                             )
                         }
 

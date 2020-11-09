@@ -57,6 +57,7 @@ class IndicatorNotification extends Component {
             this.setState({
                 data_notif: data.data.data
             });
+
         }).catch(err => {
             console.log('error' + err);
             console.log(err);
@@ -77,7 +78,7 @@ class IndicatorNotification extends Component {
                     <label style={{ fontSize: '12px' }}><strong> {item.status === "nego" ? text_nego : text_approved} </strong></label>
                     <div className="address-card__row-title" ><label><strong>{item.seller_nama}</strong></label></div>
                     <div className="dropcart__product-name">
-                        <label style={{ fontSize: '13px', fontWeight: '550' }}>{item.barang_nama}</label>
+                        <label style={{ fontSize: '13px', fontWeight: '550' }}>{item.nama_barang}</label>
                     </div>
                     <div className="address-card__row-title mt-2">
                         <img src={"/images/schedule-black-15dp.png"} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
@@ -136,7 +137,7 @@ class IndicatorNotification extends Component {
                                     <label style={{ fontSize: '12px' }}><strong>{item.status === "nego" ? text_nego : text_approved}</strong></label>
                                     <div className="address-card__row-title" ><label><strong>{item.seller_nama}</strong></label></div>
                                     <div className="dropcart__product-name">
-                                        <label style={{ fontSize: '13px', fontWeight: '550' }}>{item.barang_nama}</label>
+                                        <label style={{ fontSize: '13px', fontWeight: '550' }}>{item.nama_barang}</label>
                                     </div>
                                     <div className="address-card__row-title mt-2">
                                         <img src={"/images/schedule-black-15dp.png"} style={{ marginRight: '5px', verticalAlign: 'middle' }} />

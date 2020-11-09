@@ -20,6 +20,7 @@ export const CartContext = React.createContext(
         loadDataCart: () => { },
         loadDataNotif: () => { },
         sendNotifikasi: () => { },
+        sendNotifikasiTrx: () => { },
     }
 );
 
@@ -41,7 +42,8 @@ export default class CartContainer extends Component {
             setRoomID: this.setRoomID,
             loadDataCart: this.loadDataCart,
             loadDataNotif: this.loadDataNotif,
-            sendNotifikasi: this.sendNotifikasi
+            sendNotifikasi: this.sendNotifikasi,
+            sendNotifikasiTrx: this.sendNotifikasiTrx,
         };
     }
 
@@ -117,6 +119,7 @@ export default class CartContainer extends Component {
     }
 
     buildAlert = (key_notif) => {
+
         const timeout = 0
         const options = {
             // autoClose: false,
@@ -146,13 +149,7 @@ export default class CartContainer extends Component {
             var key_notif = get_message.data.data.key
         }
 
-        // try {
-        //     var key_notif = get_message.data["firebase-messaging-msg-data"].data.key
-        // }
-        // catch (err) {
-        //     console.log('error')
-        //     console.log(err)
-        // }
+        console.log(get_message)
 
         this.loadDataNotif()
         this.buildAlert(key_notif)
@@ -168,8 +165,6 @@ export default class CartContainer extends Component {
 
     sendNotifikasi = async (get_send_nego, get_barang_id, get_barang_nama, get_buyer_id,
         get_seller_id, get_seller_nama, get_token, get_check_nego_auto, get_id_master_cart) => {
-        const data_token_buyer = []
-        const data_token_seller = []
 
         if (get_send_nego == true) {
 
@@ -211,68 +206,27 @@ export default class CartContainer extends Component {
                     })
 
 
-                // if (get_token.length > 0) {
-                //     if (get_check_nego_auto == true) {
-                //         for (var i = 0; i < get_token.length; i++) {
-                //             if (get_token[i].company_id == Number(decrypt(localStorage.getItem('CompanyIDLogin')))) {
-                //                 data_token_buyer.push(get_token[i].token)
-                //             }
-                //             else {
-                //                 data_token_seller.push(get_token[i].token)
-                //             }
-                //         }
-
-                //         const body_buyer = {
-                //             token: data_token_buyer,
-                //             timeout: 300000,
-                //             id_cart: get_id_master_cart
-                //         }
-
-                //         const body_seller = {
-                //             token: data_token_seller,
-                //             timeout: 0,
-                //             id_cart: get_id_master_cart
-                //         }
-
-                //         // send to buyer
-                //         Axios.post("https://glob.co.id/External/sendNotification", body_buyer)
-                //             .then(res => {
-                //                 console.log('send to buyer')
-                //                 console.log(res);
-                //             })
-
-                //         // send to seller    
-                //         if (data_token_seller.length > 0) {
-                //             Axios.post("https://glob.co.id/External/sendNotification", body_seller)
-                //                 .then(res => {
-                //                     console.log('send to seller')
-                //                     console.log(res);
-                //                 })
-                //         }
-                //     }
-                //     else {
-                //         for (var i = 0; i < get_token.length; i++) {
-                //             data_token_seller.push(get_token[i].token)
-                //         }
-
-                // const body = {
-                //     token: data_token_seller,
-                //     timeout: 300000,
-                //     id_cart: get_id_master_cart
-                // }
-
-                // Axios.post("https://glob.co.id/External/sendNotification", body)
-                //     .then(res => {
-                //         console.log(res);
-                //     })
-                //     }
-
-                // }
-
             }).catch(err => {
                 console.log('error' + err);
                 console.log(err);
             })
+        }
+
+    }
+
+    sendNotifikasiTrx = (get_send_notifikasi, get_id_sales, get_company_id_seller) => {
+
+        if (get_send_notifikasi == true) {
+
+            const body = {
+                id_sales: get_id_sales,
+                company_id_seller: get_company_id_seller
+            }
+
+            Axios.post("https://glob.co.id/External/sendNotificationTrx", body)
+                .then(res => {
+                    // console.log(res);
+                })
         }
 
     }

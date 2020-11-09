@@ -42,6 +42,8 @@ export default class AccountPageLogin extends Component {
             statusVerified: 'wait', noHandphoneVerified: '',
             inputNoTelp: '', empty_NoTelp: false, KetTextNoTelp: '',
             inputTipeOTP: '', empty_TipeOTP: false, KetTextTipeOTP: '',
+            disabledInputKodeVerifikasi: true,
+            disabledInputOTPtype: true,
             openConfirmationOTP: false, openInsertOTP: false,
             openLupaAkun: false,
             valueOTP: '', empty_valueOTP: '', KetTextvalueOTP: '',
@@ -50,6 +52,7 @@ export default class AccountPageLogin extends Component {
             disabledLupaAkunBtn: true,
             displaycatch: false,
             timer: '',
+            waiting_timer: true,
             message_id: ''
         };
     }
@@ -102,7 +105,7 @@ export default class AccountPageLogin extends Component {
             this.setState({ empty_password: true });
         }
         if (document.getElementById("login-username").value != '' && document.getElementById("login-password").value != '') {
-            let Login = "select a.id, a.nama as nama, b.id as company_id, tipe_bisnis, a.status, listing_id from gcm_master_user a " +
+            let Login = "select a.id, a.nama as nama, b.id as company_id, tipe_bisnis, a.status, listing_id, a.no_hp from gcm_master_user a " +
                 "inner join gcm_master_company b on a.company_id = b.id where b.type = 'B' and username='" + document.getElementById("login-username").value + "' " +
                 "and password ='" + encrypt(document.getElementById("login-password").value) + "'";
 
@@ -143,7 +146,10 @@ export default class AccountPageLogin extends Component {
 
                     }
                     else if (data.data.data[0].status == 'I') {
-                        this.setState({ openOTP: true })
+                        this.setState({
+                            openOTP: true,
+                            no_hp_registered: data.data.data[0].no_hp
+                        })
                     }
                 }
                 else {
@@ -184,6 +190,22 @@ export default class AccountPageLogin extends Component {
             KetTextTipeOTP: '',
             inputTipeOTP: event.target.value
         });
+    }
+
+    handleOTPtype = (id) => {
+
+        if (id === 'otp-wa-box') {
+            document.getElementById('otp-wa-box').style.border = "3px solid #8CC63E";
+            document.getElementById('otp-sms-box').style.border = "1px solid black";
+            this.setState({ inputTipeOTP: 'WA' })
+        }
+        else {
+            document.getElementById('otp-sms-box').style.border = "3px solid #8CC63E";
+            document.getElementById('otp-wa-box').style.border = "1px solid black";
+            this.setState({ inputTipeOTP: 'SMS' })
+        }
+
+        this.setState({ disabledInputOTPtype: false })
     }
 
     handleWhitespace = (event) => {
@@ -296,26 +318,45 @@ export default class AccountPageLogin extends Component {
     }
 
     printCountDown = () => {
-        let count1 = 60;
+        let count = 30;
         let myTimer = setInterval(() => {
-            this.setState({ timer: 'Kirim ulang OTP ? Tunggu ' + count1 + ' detik' })
-            count1--;
-            if (count1 === 0) {
+            this.setState({
+                timer: count,
+                waiting_timer: true
+            })
+            count--;
+            if (count === 0) {
                 clearInterval(myTimer);
-                this.setState({ timer: 'Kirim ulang OTP' })
+                setTimeout(() => {
+                    this.setState({ waiting_timer: false })
+                }, 1000);
             }
         }, 1000);
     }
 
     sendOtp = async () => {
-        let RootSendOtp = 'https://www.emos.id/sendmessage/message/sendmessage';
 
         let x = this.generateOtp()
+
+        //config insert otp
+        let url = 'https://glob.co.id/External/insertOTP';
+
+        let dataAkun = Object.create(null);
+        dataAkun = {
+            tujuan: this.state.no_hp_registered,
+            kode: x,
+            username: "",
+            tipe: "akun"
+        }
+
+        //config send otp
+        let RootSendOtp = 'https://www.emos.id/sendmessage/message/sendmessage';
+
         let dataReturned = Object.create(null);
         dataReturned = {
             otptype: this.state.inputTipeOTP,
-            nohp: this.state.inputNoTelp,
-            message: 'Yth. pelanggan GLOB di nomor ' + this.state.inputNoTelp + '. Berikut OTP Anda: ' + x +
+            nohp: this.state.no_hp_registered,
+            message: 'Yth. pelanggan GLOB di nomor ' + this.state.no_hp_registered + '. Berikut OTP Anda: ' + x +
                 '. Gunakan OTP ini untuk aktivasi akun Anda. Terima kasih.',
             userid: 'GMOS001',
             key: 'z25k4at3jzob718iqceofgor6a1tbm'
@@ -327,16 +368,58 @@ export default class AccountPageLogin extends Component {
             }
         };
 
-        await Axios.post(RootSendOtp, dataReturned, axiosConfig).then(res => {
-            let status = res.data.successCode
-            let messageid = res.data.messageID
-            this.setState({
-                message_id: messageid,
-                sendValueOTP: x
-            })
+        Toast.loading('loading . . .', () => {
+        });
+
+        Axios.post(url, dataAkun).then(res => {
+
+            if (res.data.status_insert === 'success') {
+
+                Axios.post(RootSendOtp, dataReturned, axiosConfig).then(res => {
+                    Toast.hide();
+                    let status = res.data.successCode
+
+                    if (status === '0') {
+                        // set kosong input kode verif
+                        if (this.state.openInsertOTP == true) {
+                            for (var i = 1; i <= 6; i++) {
+                                document.getElementById('codeBox' + i).value = ""
+                            }
+                        }
+
+                        this.setState({
+                            sendValueOTP: x,
+                            openConfirmationOTP: false,
+                            openInsertOTP: true
+                        });
+                        setTimeout(() => {
+                            this.timerBtnKirimUlangOtp()
+
+                        }, 1000);
+
+                    }
+                    else {
+                        Toast.hide();
+                        Toast.fail('Kode OTP gagal dikirim', 3000, () => {
+                        });
+                    }
+                }).catch(err => {
+                    Toast.hide();
+                    Toast.fail('Kode OTP gagal dikirim', 3000, () => {
+                    });
+                })
+
+            }
+            else {
+                Toast.hide()
+                Toast.fail('Kode OTP gagal dikirim', 2000, () => {
+                });
+            }
 
         }).catch(err => {
-            // console.log(err);
+            Toast.hide()
+            Toast.fail('Kode OTP gagal dikirim', 2000, () => {
+            });
         })
 
     }
@@ -391,139 +474,156 @@ export default class AccountPageLogin extends Component {
     }
 
     timerBtnKirimUlangOtp = () => {
-        // setTimeout(() => this.setState({ isBtnWaitOtp: false }), 60000);
-        // setTimeout(() => this.setState({ isBtnConfirmOtp: true }), 3600000);
         this.printCountDown()
     }
 
     toggleCheckOTP = async () => {
-        if (this.state.valueOTP == '') {
-            this.setState({
-                empty_valueOTP: true,
-                KetTextvalueOTP: 'Masukkan kode OTP'
-            });
+
+        let url_otp = 'https://glob.co.id/data/status/otp';
+        let dataAkun = Object.create(null);
+        dataAkun = {
+            tujuan: this.state.no_hp_registered,
+            kode: this.state.sendValueOTP,
+            tipe: "akun"
         }
-        else {
-            let RootGetOtp = 'https://www.mospay.id/sendotp/message/getmessage';
 
-            let dataCheckGetOtp = Object.create(null);
-            dataCheckGetOtp = {
-                messageid: this.state.message_id,
-                userid: 'GMOS001',
-                key: 'z25k4at3jzob718iqceofgor6a1tbm'
-            }
+        var get_otp_input = ""
+        for (var i = 1; i <= 6; i++) {
+            get_otp_input = get_otp_input + document.getElementById('codeBox' + i).value.toString()
+        }
 
+        if (get_otp_input == this.state.sendValueOTP) {
             Toast.loading('loading . . .', () => {
             });
 
-            // await Axios.post(RootGetOtp, dataCheckGetOtp).then(res => {
+            Axios.post(url_otp, dataAkun).then(res => {
 
-            if (this.state.valueOTP === this.state.sendValueOTP) {
-                let query = encrypt("update gcm_master_user set status='A', update_by=" + this.state.data[0].id +
-                    ", update_date = now(), no_hp_verif = true  where id = " + this.state.data[0].id)
+                if (res.data.status === 'success') {
 
-                Axios.post(url.select, {
-                    query: query
-                }).then(data => {
-                    // this.checkVerifiedUser()
-                    this.setState({
-                        openInsertOTP: false
+                    if (res.data.values[0].status_kode == 'expired') {
+                        Toast.fail('Kode OTP sudah tidak berlaku !', 3000, () => {
+                        });
+                    }
+                    else {
+
+                        let query = encrypt("update gcm_master_user set status='A', update_by=" + this.state.data[0].id +
+                            ", update_date = now(), no_hp_verif = true  where id = " + this.state.data[0].id)
+
+                        Axios.post(url.select, {
+                            query: query
+                        }).then(data => {
+                            this.setState({
+                                openInsertOTP: false
+                            });
+                            Toast.hide()
+                            this.getTokenFCM()
+                            localStorage.setItem('Login', true);
+                            localStorage.setItem('UserLogin', encrypt(this.state.data[0].nama));
+                            localStorage.setItem('CompanyIDLogin', encrypt(this.state.data[0].company_id));
+                            localStorage.setItem('UserIDLogin', encrypt(this.state.data[0].id));
+                            localStorage.setItem('TipeBisnis', encrypt(this.state.data[0].tipe_bisnis.toString()));
+                            this.props.history.push('/')
+                            const Notif = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2300,
+                                timerProgressBar: true,
+                                onOpen: (toast) => {
+                                    //   toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    //   toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                }
+                            })
+                            Notif.fire({
+                                icon: 'success',
+                                title: 'Selamat datang, ' + this.state.data[0].nama
+                            })
+                        }).catch(err => {
+                            Toast.fail('Proses aktivasi akun gagal !', 3000, () => {
+                            });
+                            console.log(err);
+                        })
+                    }
+                }
+                else {
+                    Toast.fail('Gagal memeriksa kode OTP', 3000, () => {
                     });
-                    Toast.hide()
-                    this.getTokenFCM()
-                    localStorage.setItem('Login', true);
-                    localStorage.setItem('UserLogin', encrypt(this.state.data[0].nama));
-                    localStorage.setItem('CompanyIDLogin', encrypt(this.state.data[0].company_id));
-                    localStorage.setItem('UserIDLogin', encrypt(this.state.data[0].id));
-                    localStorage.setItem('TipeBisnis', encrypt(this.state.data[0].tipe_bisnis.toString()));
-                    this.props.history.push('/')
-                    const Notif = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2300,
-                        timerProgressBar: true,
-                        onOpen: (toast) => {
-                            //   toast.addEventListener('mouseenter', Swal.stopTimer)
-                            //   toast.addEventListener('mouseleave', Swal.resumeTimer)
-                        }
-                    })
-                    Notif.fire({
-                        icon: 'success',
-                        title: 'Selamat datang, ' + this.state.data[0].nama
-                    })
-                }).catch(err => {
-                    // console.log('error');
-                    // console.log(err);
-                })
-            }
-            else {
-                Toast.fail('Kode OTP salah !', 2000, () => {
+                }
+
+            }).catch(err => {
+                Toast.fail('Gagal memeriksa kode OTP', 3000, () => {
                 });
-            }
-            // }).catch(err => {
-            //     // console.log(err);
-            // })
+            })
 
         }
+        else {
+            Toast.fail('Kode OTP salah !', 3000, () => {
+            });
+        }
+
     }
 
     toggleOTP = async () => {
-        if (this.state.inputNoTelp == '') {
+        if (this.state.inputTipeOTP != '') {
             this.setState({
-                empty_NoTelp: true,
-                KetTextNoTelp: 'Inputkan Nomor Handphone'
+                openConfirmationOTP: !this.state.openConfirmationOTP,
+                openOTP: !this.state.openOTP
             });
-        }
-
-        if (this.state.inputTipeOTP == '') {
-            this.setState({
-                empty_TipeOTP: true,
-                KetTextTipeOTP: 'Pilih tipe pengiriman OTP'
-            });
-        }
-
-        if (this.state.inputNoTelp != '' && this.state.inputTipeOTP != '') {
-
-            let query = encrypt("select no_hp from gcm_master_user where company_id = " + this.state.data[0].company_id +
-                " and username='" + document.getElementById("login-username").value + "' ")
-
-            Toast.loading('loading . . .', () => {
-            });
-            await Axios.post(url.select, {
-                query: query
-            }).then(data => {
-                this.setState({ no_hp_registered: data.data.data[0].no_hp });
-                Toast.hide()
-            }).catch(err => {
-                // console.log('error');
-                // console.log(err);
-            })
-
-            if (this.state.no_hp_registered != this.state.inputNoTelp) {
-                Toast.fail('Inputkan nomor Handphone yang sama saat pendaftaran', 2500, () => {
-                });
-            }
-            else {
-                this.setState({
-                    openConfirmationOTP: !this.state.openConfirmationOTP,
-                    openOTP: !this.state.openOTP
-                });
-
-                // this.setState({ openInsertOTP: true });
-                // this.sendOtp()
-                // this.timerBtnKirimUlangOtp()
-            }
         }
     }
 
     toggleKirimOTP = async () => {
-        this.setState({
-            openConfirmationOTP: false,
-            openInsertOTP: true
-        });
         this.sendOtp()
-        this.timerBtnKirimUlangOtp()
+    }
+
+    // Function input kode
+    getCodeBoxElement = (index) => {
+        return document.getElementById('codeBox' + index);
+    }
+
+    onKeyUpEvent = (index, event) => {
+        const eventCode = event.which || event.keyCode;
+        this.setState({ disabledInputKodeVerifikasi: true })
+
+        //cek semua isi code box
+        var all_contain = true
+        for (var i = 1; i <= 6; i++) {
+            if (document.getElementById('codeBox' + i).value.toString() == "") {
+                all_contain = false
+                break
+            }
+        }
+
+        if (all_contain == true) {
+            this.setState({ disabledInputKodeVerifikasi: false })
+        }
+
+        if (this.getCodeBoxElement(index).value.length === 1) {
+            if (index !== "6") {
+                this.getCodeBoxElement(parseInt(index) + 1).focus();
+            } else {
+                this.getCodeBoxElement(index).blur();
+                // Submit code
+                this.setState({ disabledInputKodeVerifikasi: false })
+            }
+        }
+        if (eventCode === 8 && index !== 1) {
+            // this.setState({
+            //     KetTextKodeVerifikasi: ''
+            // })
+            if (parseInt(index) > 1) {
+                this.getCodeBoxElement(parseInt(index) - 1).focus();
+            }
+        }
+    }
+    onFocusEvent = (index) => {
+        for (var item = 1; item < parseInt(index); item++) {
+            const currentElement = this.getCodeBoxElement(item);
+            if (!currentElement.value) {
+                currentElement.focus();
+                break;
+            }
+        }
     }
 
     render() {
@@ -553,7 +653,7 @@ export default class AccountPageLogin extends Component {
                             </div>
                             <div className="col-md-6 d-flex">
                                 <div className="card flex-grow-1 mb-md-0">
-                                    <div id="login-form" className="card-body">
+                                    <div className="card-body">
                                         <h3 className="card-title">Masuk</h3>
                                         <form>
                                             <div className="form-group">
@@ -594,7 +694,7 @@ export default class AccountPageLogin extends Component {
                                                     <FormFeedback>Masukkan password Anda</FormFeedback>
                                                 </InputGroup>
                                             </div>
-                                            <label className="text-lupaakun" onClick={this.ClickLupaAkun}>lupa akun</label>
+                                            <Link className="text-lupaakun" to={`/reset-password`}>Lupa password ?</Link>
                                         </form>
                                         <button onClick={this.ClickLogin} className="btn btn-primary mt-2 mt-md-3 mt-lg-4 float-right" >
                                             OK
@@ -608,32 +708,26 @@ export default class AccountPageLogin extends Component {
                     </div>
 
                     <Modal isOpen={this.state.openOTP} size="sm" centered>
-                        <ModalHeader className="stickytopmodal" toggle={() => this.setState({ openOTP: false })}>Aktivasi Pengguna</ModalHeader>
+                        <ModalHeader className="stickytopmodal" toggle={() => this.setState({ openOTP: false, disabledInputOTPtype: true })}>Aktivasi Pengguna</ModalHeader>
                         <div className="card-body">
                             <div className="row">
                                 <div className="col-md-12 ">
                                     <form>
                                         <div className="form-group">
-                                            <label htmlFor="alamat-provinsi">Nomor Handphone</label>
-                                            <InputGroup>
-                                                <Input
-                                                    type="text"
-                                                    spellCheck="false"
-                                                    autoComplete="off"
-                                                    className="form-control"
-                                                    maxLength="15"
-                                                    invalid={this.state.empty_NoTelp}
-                                                    onKeyPress={event => this.handleWhitespace(event)}
-                                                    onChange={event => this.Numeric_validation(event)}
-                                                    value={this.state.inputNoTelp}
-                                                />
-                                                <FormFeedback>{this.state.KetTextNoTelp}</FormFeedback>
-                                            </InputGroup>
-                                        </div>
+                                            <label className="address-card__row-title">Kami akan mengirimkan kode OTP untuk proses aktivasi akun Anda.</label>
+                                            <label className="address-card__row-title">Pilih tipe pengiriman :</label>
+                                            <div class="outerdiv-otp">
+                                                <div id="otp-wa-box" class="innerdiv-otp" onClick={event => this.handleOTPtype("otp-wa-box")}>
+                                                    <img src={"/images/whatsapp.png"} height="50" width="50" />
+                                                    <label style={{ position: "absolute", bottom: 0, fontSize: "12px" }}>WhatsApp</label>
+                                                </div>
+                                                <div id="otp-sms-box" class="innerdiv-otp" onClick={event => this.handleOTPtype("otp-sms-box")}>
+                                                    <img src={"/images/sms.png"} height="50" width="50" />
+                                                    <label style={{ position: "absolute", bottom: 0, fontSize: "12px" }}>SMS</label>
+                                                </div>
+                                            </div>
 
-                                        <div className="form-group">
-                                            <label>Pengiriman OTP</label>
-                                            <InputGroup>
+                                            {/* <InputGroup>
                                                 <Input
                                                     type="select"
                                                     spellCheck="false"
@@ -649,7 +743,7 @@ export default class AccountPageLogin extends Component {
 
                                                 </Input>
                                                 <FormFeedback>{this.state.KetTextTipeOTP}</FormFeedback>
-                                            </InputGroup>
+                                            </InputGroup> */}
                                         </div>
 
                                     </form>
@@ -657,7 +751,7 @@ export default class AccountPageLogin extends Component {
                             </div>
                             <div className="row">
                                 <div className="col-md-12 d-flex">
-                                    <button id="btnRegister" type="submit" onClick={this.toggleOTP} block className="btn btn-primary mt-12 mt-md-2 mt-lg-3">
+                                    <button id="btnRegister" type="submit" disabled={this.state.disabledInputOTPtype} onClick={this.toggleOTP} block className="btn btn-primary mt-12 mt-md-2 mt-lg-3">
                                         Minta OTP
                                     </button>
                                 </div>
@@ -672,7 +766,19 @@ export default class AccountPageLogin extends Component {
                         <DialogTitle id="responsive-dialog-title">Verifikasi Akun</DialogTitle>
                         <DialogContent>
                             <DialogContentText>
-                                Kode OTP akan dikirimkan ke nomor{' '} <span><strong>{this.state.inputNoTelp}</strong></span> {' '} via {' '} <span><strong>{this.state.inputTipeOTP}</strong></span>
+                                Kode OTP akan dikirimkan ke nomor{' '} <span><strong>{this.state.no_hp_registered}</strong></span> {' '} via {' '}
+                                {this.state.inputTipeOTP == 'WA' ?
+                                    (<span>
+                                        <strong>
+                                            WhatsApp
+                                        </strong>
+                                    </span>) :
+                                    (<span>
+                                        <strong>
+                                            {this.state.inputTipeOTP}
+                                        </strong>
+                                    </span>)
+                                }
                             </DialogContentText>
                         </DialogContent>
                         <DialogActions>
@@ -694,7 +800,19 @@ export default class AccountPageLogin extends Component {
                             <DialogContentText>
                                 <label><center>Masukkan kode OTP yang dikirimkan ke nomor : {' '} <span><strong>{this.state.inputNoTelp}</strong></span></center></label>
                             </DialogContentText>
-                            <InputGroup>
+
+                            <div className="input_kode">
+                                <form>
+                                    <input id="codeBox1" type="number" maxLength="1" onKeyUp={event => this.onKeyUpEvent("1", event)} onFocus={() => this.onFocusEvent("1")} onKeyPress={event => this.handleWhitespace(event)} />
+                                    <input id="codeBox2" type="number" maxLength="1" onKeyUp={event => this.onKeyUpEvent("2", event)} onFocus={() => this.onFocusEvent("2")} onKeyPress={event => this.handleWhitespace(event)} />
+                                    <input id="codeBox3" type="number" maxLength="1" onKeyUp={event => this.onKeyUpEvent("3", event)} onFocus={() => this.onFocusEvent("3")} onKeyPress={event => this.handleWhitespace(event)} />
+                                    <input id="codeBox4" type="number" maxLength="1" onKeyUp={event => this.onKeyUpEvent("4", event)} onFocus={() => this.onFocusEvent("4")} onKeyPress={event => this.handleWhitespace(event)} />
+                                    <input id="codeBox5" type="number" maxLength="1" onKeyUp={event => this.onKeyUpEvent("5", event)} onFocus={() => this.onFocusEvent("5")} onKeyPress={event => this.handleWhitespace(event)} />
+                                    <input id="codeBox6" type="number" maxLength="1" onKeyUp={event => this.onKeyUpEvent("6", event)} onFocus={() => this.onFocusEvent("6")} onKeyPress={event => this.handleWhitespace(event)} />
+                                </form>
+                            </div>
+
+                            {/* <InputGroup>
                                 <Input
                                     id="input-otp"
                                     type="text"
@@ -707,17 +825,29 @@ export default class AccountPageLogin extends Component {
                                     onChange={event => this.InputOTP_validation(event)}
                                 />
                                 <FormFeedback>{this.state.KetTextvalueOTP}</FormFeedback>
-                            </InputGroup>
+                            </InputGroup> */}
 
-                            {this.state.timer == 'Kirim ulang OTP' ?
+                            {/* {this.state.timer == 'Kirim ulang OTP' ?
                                 (<label onClick={() => { this.sendOtp(); this.timerBtnKirimUlangOtp() }} style={{ fontSize: '13px', fontWeight: '400', textDecoration: 'underline', cursor: 'pointer' }}>{this.state.timer}</label>
                                 ) :
                                 (<label style={{ fontSize: '13px', fontWeight: '400' }}>{this.state.timer}</label>
                                 )
-                            }
+                            } */}
                         </DialogContent>
+                        <center>
+                            <label className="address-card__row-title" style={{ fontSize: '14px', marginTop: '15px' }}>
+                                {this.state.waiting_timer == true ?
+                                    (<label>
+                                        Kirim ulang kode verifikasi dalam <strong>{this.state.timer} detik</strong>
+                                    </label>) :
+                                    (<label onClick={() => { this.sendOtp(); this.timerBtnKirimUlangOtp() }} style={{ textDecoration: 'underline', cursor: 'pointer' }}>
+                                        Kirim ulang kode verifikasi
+                                    </label>)
+                                }
+                            </label>
+                        </center>
                         <DialogActions>
-                            <Button color="primary" onClick={this.toggleCheckOTP}>
+                            <Button color="primary" disabled={this.state.disabledInputKodeVerifikasi} onClick={this.toggleCheckOTP}>
                                 Konfirmasi
                             </Button>
                             <button className="btn btn-light" onClick={() => { this.setState({ openInsertOTP: false }) }}>
