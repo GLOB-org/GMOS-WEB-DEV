@@ -51,9 +51,11 @@ export default class AccountPageRegister extends Component {
             listPenjual: [],
             listPenjuallength: '',
             data_user: [],
+            data_file_upload: [],
+            data_url_file_upload: [],
             selectedPenjual: [],
             listTipeBisnis: [],
-            openListPenjual: false, openConfirmationUpload: false, openUpload: false, openInfoBerkas: false,
+            openListPenjual: false, openConfirmationUpload: false, openUpload: false, openInfoBerkas: false, openConfirmationRegister: false,
             progress_upload: 0,
             inputTipeRegister: '', empty_tiperegister: false,
             inputNamaPerusahaan: '', empty_namaperusahaan: false, KetTextNamaPerusahaan: '',
@@ -442,7 +444,7 @@ export default class AccountPageRegister extends Component {
                 "'" + this.state.inputEmail + "'," +
                 "'" + this.state.inputNoTelp + "'," +
                 "'" + this.state.inputTipeBisnis + "'," +
-                "'" + this.state.inputUrl + "'," +
+                "'listing'," +
                 "0, " +
                 "'" + this.state.inputTipeRegister + "','I'," +
                 "null,'', null, " + this.state.inputCheckPPN + ") RETURNING id as id_company ), "
@@ -467,13 +469,29 @@ export default class AccountPageRegister extends Component {
                     "'" + this.state.inputEmail + "'," +
                     "'" + this.state.inputNoTelp + "'," +
                     "'" + this.state.inputTipeBisnis + "'," +
-                    "'" + this.state.inputUrl + "'," +
+                    "'listing'," +
                     "0, " +
                     "'" + this.state.inputTipeRegister + "'," +
                     + seller_status + "," +
                     "null,'', null ) RETURNING id as id_company ), "
             }
         }
+
+        var loop_dokumen = ""
+        var query_dokumen = "insert into gcm_listing_dokumen (company_id, url_file, tipe) values "
+        var dokumen_length = this.state.data_url_file_upload.length
+
+        for (var i = 0; i < dokumen_length; i++) {
+            loop_dokumen = loop_dokumen + "((select id_company from new_insert1) ,'" + this.state.data_url_file_upload[i].url + "', '" + this.state.data_url_file_upload[i].tipe + "')"
+            if (i < dokumen_length - 1) {
+                loop_dokumen = loop_dokumen.concat(",")
+            }
+            // if (i == dokumen_length - 1) {
+            //     loop_dokumen = loop_dokumen.concat(")")
+            // }
+        }
+
+        query_dokumen = query_dokumen + loop_dokumen
 
         if (checked_null == false) {
             let alamat_perusahaan = "new_insert2 as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, " +
@@ -502,7 +520,7 @@ export default class AccountPageRegister extends Component {
                 "(select id_company from new_insert1)" +
                 ",0,0, null, null, null, false, false,null,0,false,'')),"
 
-            let registrasi_akun_seller = "INSERT INTO gcm_master_user " +
+            let registrasi_akun_seller = "new_insert3 as (INSERT INTO gcm_master_user " +
                 "(nama, no_ktp, email, no_hp, username, password, status, role, company_id, create_by, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, blacklist_by, id_blacklist, is_blacklist, notes_blacklist) " +
                 "VALUES ('" + this.state.inputNamaLengkap + "'," +
                 "'" + this.state.inputNoKTP + "'," +
@@ -513,11 +531,11 @@ export default class AccountPageRegister extends Component {
                 "'" + this.state.inputStatus + "'," +
                 "'" + this.state.inputRole + "'," +
                 "(select id_company from new_insert1)" +
-                ",0,0,now() ,'" + sa_role + "', " + sa_divisi + ", false, false,null,0,false,'')"
+                ",0,0,now() ,'" + sa_role + "', " + sa_divisi + ", false, false,null,0,false,''))"
 
             if (this.state.inputTipeRegister == 'B') {
                 let listing_company = "new_insert5 as (INSERT INTO gcm_company_listing (buyer_id, seller_id, buyer_number_mapping, seller_number_mapping, blacklist_by, notes_blacklist) VALUES "
-                let listing_alamat = "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_shipto_customer, kode_billto_customer) VALUES "
+                let listing_alamat = "new_insert6 as (insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_shipto_customer, kode_billto_customer) VALUES "
                 let loop_company = ""
                 let loop_alamat = ""
                 let length = this.state.selectedPenjual.length;
@@ -534,11 +552,15 @@ export default class AccountPageRegister extends Component {
                     if (i < length - 1) {
                         loop_alamat = loop_alamat.concat(",")
                     }
+
+                    if (i == length - 1) {
+                        loop_alamat = loop_alamat.concat(")")
+                    }
                 }
-                var insert_company = encrypt(registrasi_perusahaan.concat(alamat_perusahaan).concat(',').concat(registrasi_akun_buyer).concat(listing_company.concat(loop_company).concat(listing_alamat).concat(loop_alamat)))
+                var insert_company = encrypt(registrasi_perusahaan.concat(alamat_perusahaan).concat(',').concat(registrasi_akun_buyer).concat(listing_company.concat(loop_company).concat(',').concat(listing_alamat).concat(loop_alamat).concat(query_dokumen)))
             }
             else {
-                var insert_company = encrypt(registrasi_perusahaan.concat(alamat_perusahaan).concat(registrasi_akun_seller))
+                var insert_company = encrypt(registrasi_perusahaan.concat(alamat_perusahaan).concat(',').concat(registrasi_akun_seller).concat(query_dokumen))
             }
 
             Toast.loading('loading . . .', () => {
@@ -756,7 +778,7 @@ export default class AccountPageRegister extends Component {
             }
         }
 
-        else if (this.state.inputUrl == '') {
+        else if (this.state.data_url_file_upload == '') {
             Toast.info('Silakan unggah kelengkapan berkas !', 2500, () => {
             });
         }
@@ -817,23 +839,118 @@ export default class AccountPageRegister extends Component {
                 })
             }
             else {
-                this.fungsiPendaftaran()
+                this.setState({ openConfirmationRegister: !this.state.openConfirmationRegister })
+                // this.fungsiPendaftaran()
             }
         }
     }
 
     handleDaftarBuyerLanjutan = () => {
-        this.fungsiPendaftaran()
-    }
-
-    fungsi = () => {
-        console.log(this.state.selectedPenjual)
+        this.setState({ openConfirmationRegister: !this.state.openConfirmationRegister })
+        // this.fungsiPendaftaran()
     }
 
     handleWhitespace = (event) => {
         if (event.which === 32) {
             event.preventDefault();
         }
+    }
+
+    onUploadSubmission = (e) => {
+        this.setState({
+            openConfirmationUpload: !this.state.openConfirmationUpload,
+            openUpload: !this.state.openUpload
+        })
+
+        const promises = []
+        const data_upload = this.state.data_file_upload
+
+        var count_upload = 1
+        var progress = 0
+        var progress_round = 0
+        var last_progress = 0
+
+        let x = this
+
+        // data_upload.forEach(file =>{
+        //     console.log("nama file : " + file.name)
+        //     console.log("isi : " + file.file)
+        //     console.log("detail : "+ file.file.name)
+        // })
+
+        // const temp = this.state.inputUrl
+        // // const tempName = new Date().getTime() + ".zip"
+        // const storageRef = storage.ref(`documents/` + tempName);
+        // const uploadTask = storageRef.put(temp)
+
+        data_upload.forEach((file, index) => {
+            const tempName = new Date().getTime() + "-" + file.file.name
+            const storageRef = storage.ref(`documents/` + tempName);
+            const uploadTask = storageRef.put(file.file)
+            promises.push(uploadTask)
+
+            uploadTask.on(
+                // firebase.storage.TaskEvent.STATE_CHANGED,
+                'state_changed',
+                snapshot => {
+                    const progress = ((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    progress_round = Math.ceil(Number(progress) / this.state.data_file_upload.length)
+                    last_progress = last_progress + progress_round
+                    if (last_progress > 100) {
+                        last_progress = 100
+                    }
+
+                    this.setState({ progress_upload: last_progress })
+                    // if (snapshot.state === storage.TaskState.RUNNING) {
+                    // console.log(`Progress: ${last_progress}%`);
+                    // }
+                },
+                error => console.log(error.code),
+                async () => {
+                    const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+
+                    this.setState(prevState => ({
+                        data_url_file_upload: [...prevState.data_url_file_upload,
+                        {
+                            tipe: file.name,
+                            url: downloadURL
+                        }
+                        ]
+                    }))
+
+                    if (count_upload == this.state.data_file_upload.length) {
+                        x.setState({
+                            status_upload: 'done',
+                            openInfoBerkas: false,
+                            openUpload: false
+                        })
+                    }
+
+                    count_upload++
+
+                    // x.setState({
+                    //     inputUrl: downloadURL,
+                    //     status_upload: 'done',
+                    //     openInfoBerkas: false,
+                    //     openUpload: false
+                    // })
+                    // console.log(index)
+                    // console.log(downloadURL)
+                }
+            )
+
+        });
+
+        Promise.all(promises)
+            .then(
+                // x.setState({
+                //     status_upload: 'done',
+                //     openInfoBerkas: false,
+                //     openUpload: false
+                // })
+            )
+            .catch(err => console.log(err.code));
+
     }
 
     handleUpload = () => {
@@ -875,56 +992,6 @@ export default class AccountPageRegister extends Component {
                 })
         })
 
-        // uploadTask.on('state_changed', (snapshot) => {
-        //     progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        //     progress_round = Math.ceil(Number(progress))
-        //     this.setState({ progress_upload: progress_round })
-        //     console.log('Upload is ' + progress_round + '% done');
-
-        //     if (progress == 100) {
-        //         uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-        //             console.log('generate url')
-        //             console.log(downloadURL)
-        //             console.log('generate url after')
-        //             x.setState({
-        //                 inputUrl: downloadURL,
-        //                 status_upload: 'done',
-        //                 openUpload: false
-        //             })
-        //         });
-        //     }
-
-        // }, (error) => {
-        //     // Handle unsuccessful uploads
-        //     Toast.fail('Gagal mengunggah berkas !', 3500, () => {
-        //     });
-        //     this.setState({ openUpload: !this.state.openUpload })
-        // }, () => {
-        //     // if (progress == 100) {
-        //     //     console.log('sukses')
-        //     //     uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-        //     //         x.setState({
-        //     //             inputUrl: downloadURL,
-        //     //             status_upload: 'done',
-        //     //             openConfirmationUpload: false
-        //     //         })
-        //     //         console.log('get url')
-        //     //         Toast.hide()
-        //     //     });
-        //     // }
-        //     // else {
-        //     //     console.log('uploading')
-        //     // }
-        //     // uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-        //     //     console.log('tayo')
-        //     //     // x.setState({
-        //     //     //     inputUrl: downloadURL,
-        //     //     //     status_upload: 'done',
-        //     //     //     openConfirmationUpload: false
-        //     //     // })
-        //     //     // Toast.hide()
-        //     // });
-        // })
     }
 
     inputNamaPerusahaan = (event) => {
@@ -1437,6 +1504,10 @@ export default class AccountPageRegister extends Component {
     handleInsertFile = (e) => {
 
         if (e.target.value !== '') {
+
+            const get_file = e.target.files[0]
+            var get_tipe_file
+
             this.setState({
                 [e.target.name]: e.target.value
             })
@@ -1464,6 +1535,8 @@ export default class AccountPageRegister extends Component {
                     })
                 }
 
+                get_tipe_file = "KTP"
+
             }
             else if (e.target.name === 'inputNPWP') {
                 this.setState({
@@ -1482,6 +1555,9 @@ export default class AccountPageRegister extends Component {
                         previewNPWP: 'none'
                     })
                 }
+
+                get_tipe_file = "NPWP/SPPKP"
+
             }
             else if (e.target.name === 'inputSIUP') {
                 this.setState({
@@ -1500,6 +1576,9 @@ export default class AccountPageRegister extends Component {
                         previewSIUP: 'none'
                     })
                 }
+
+                get_tipe_file = "SIUP/SIUI"
+
             }
             else if (e.target.name === 'inputGXP') {
                 this.setState({
@@ -1518,6 +1597,9 @@ export default class AccountPageRegister extends Component {
                         previewGXP: 'none'
                     })
                 }
+
+                get_tipe_file = "GXP"
+
             }
             else if (e.target.name === 'inputPBF') {
                 this.setState({
@@ -1536,14 +1618,19 @@ export default class AccountPageRegister extends Component {
                         previewPBF: 'none'
                     })
                 }
+
+                get_tipe_file = "PBF"
+
             }
 
+            this.setState(prevState => ({
+                data_file_upload: [...prevState.data_file_upload, {
+                    name: get_tipe_file,
+                    file: get_file
+                }]
+            }))
+
         }
-        // else if (e.target.value === '') {
-        //     this.setState({
-        //         fotoUpload: '',
-        //     })
-        // }
     }
 
     async handleTempDocument(e) {
@@ -2442,7 +2529,7 @@ export default class AccountPageRegister extends Component {
                                         <div style={{ display: this.state.display_formGXP }}>
                                             <div className="form-group">
                                                 <label>Sertifikat GXP
-                                                    <span style={{ fontSize: '11px' }}>{' '}(CPOB atau CDOB)</span>
+                                                    <span style={{ fontSize: '11px' }}>{' '}(GMP atau GDP)</span>
                                                 </label>
                                                 <InputGroup>
                                                     <InputGroup>
@@ -2470,8 +2557,8 @@ export default class AccountPageRegister extends Component {
                                                     <InputGroup>
                                                         <label class="btn btn-light btn-sm mt-2 center-side" onClick={() => this.handleDeleteFile("deleteGXP")} style={{ width: '120px' }}>
                                                             <i class="fas fa-trash fa-xs mr-2"></i>
-                                                    hapus
-                                                    </label>
+                                                            hapus
+                                                        </label>
                                                     </InputGroup>
                                                 </center>
                                             </div>
@@ -2571,6 +2658,8 @@ export default class AccountPageRegister extends Component {
                     </Modal> */}
 
                     <Dialog
+                        fullWidth={false}
+                        maxWidth={"xs"}
                         open={this.state.openConfirmationUpload}
                         aria-labelledby="responsive-dialog-title">
                         <DialogTitle id="responsive-dialog-title">Konfirmasi Unggah Berkas</DialogTitle>
@@ -2580,7 +2669,7 @@ export default class AccountPageRegister extends Component {
                             </DialogContentText>
                         </DialogContent>
                         <DialogActions>
-                            <Button color="primary" onClick={() => this.handleUpload()}>
+                            <Button color="primary" onClick={() => this.onUploadSubmission()}>
                                 Ya
                         </Button>
                             <Button color="light" onClick={() => this.setState({ openConfirmationUpload: false, file_upload: '' })}>
@@ -2590,6 +2679,8 @@ export default class AccountPageRegister extends Component {
                     </Dialog>
 
                     <Dialog
+                        fullWidth={false}
+                        maxWidth={"xs"}
                         open={this.state.openUpload}
                         aria-labelledby="responsive-dialog-title">
                         <DialogTitle id="responsive-dialog-title">Unggah Berkas</DialogTitle>
@@ -2604,6 +2695,27 @@ export default class AccountPageRegister extends Component {
                             {/* <Button color="light" onClick={() => this.setState({ openUpload: false, file_upload: '' })}>
                                 Batal
                             </Button> */}
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog
+                        fullWidth={false}
+                        maxWidth={"xs"}
+                        open={this.state.openConfirmationRegister}
+                        aria-labelledby="responsive-dialog-title">
+                        <DialogTitle id="responsive-dialog-title">Konfirmasi Pendaftaran</DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>
+                                Apakah Anda yakin akan melakukan proses pendaftaran pada aplikasi GLOB ?
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button color="primary" onClick={() => this.fungsiPendaftaran()}>
+                                Ya
+                        </Button>
+                            <Button color="light" onClick={() => this.setState({ openConfirmationRegister: false })}>
+                                Batal
+                        </Button>
                         </DialogActions>
                     </Dialog>
 

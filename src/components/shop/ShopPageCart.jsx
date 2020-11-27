@@ -6,8 +6,6 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Card, CardBody, Input } from 'reactstrap';
-import TextField from '@material-ui/core/TextField';
 
 // application
 import AsyncAction from '../shared/AsyncAction';
@@ -26,6 +24,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { Button } from 'reactstrap';
 import Toast from 'light-toast';
+// import { EmptyCart } from '../../svg';
 import DialogCatch from '../shared/DialogCatch';
 import { CartContext } from '../../context/cart';
 
@@ -243,6 +242,7 @@ class ShopPageCart extends Component {
     }
 
     async loadDataCart() {
+
         let get_penjual = encrypt("SELECT distinct(d.id), d.nama_perusahaan " +
             "FROM gcm_master_cart a inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on b.barang_id=c.id inner join gcm_master_company d " +
             "on b.company_id=d.id where a.company_id= " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and a.status='A'")
@@ -289,10 +289,8 @@ class ShopPageCart extends Component {
 
         }).catch(err => {
             this.setState({
-                displaycatch: true,
+                displaycatch: true
             });
-            // console.log('error' + err);
-            // console.log(err);
         })
 
         Axios.post(url.select, {
@@ -304,10 +302,8 @@ class ShopPageCart extends Component {
 
         }).catch(err => {
             this.setState({
-                displaycatch: true,
+                displaycatch: true
             });
-            // console.log('error' + err);
-            // console.log(err);
         })
 
     }
@@ -500,10 +496,6 @@ class ShopPageCart extends Component {
                             <td className="cart-table__column cart-table__column--image" style={{ border: 'none' }}>
                                 <img src={image} alt="" />
                             </td>
-                            {/* <td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
-                                {item.nama}
-                            </td> */}
-
                             {item.nego_count > 0 && item.harga_final == 0 && item.history_nego_id != 0 ?
                                 (<td className="cart-table__column cart-table__column--product" style={{ border: 'none' }}>
                                     {item.nama} <span style={{ fontSize: '13px', fontWeight: '700' }}>( dalam proses negosiasi )</span>
@@ -808,6 +800,7 @@ class ShopPageCart extends Component {
                     <div className="block block-empty">
                         <div className="container">
                             <div className="block-empty__body">
+                                {/* <EmptyCart/> */}
                                 <div className="block-empty__message">Keranjang belanja Anda kosong!</div>
                                 <div className="block-empty__actions">
                                     <Link to="/daftarproduklangganan" className="btn btn-primary btn-sm">Belanja Sekarang</Link>

@@ -114,7 +114,6 @@ $local-transition-duration: .1s;
     }
 }
 
-
 .btn-primary {
     @include local-button-variant(
         $btn-primary-bg-color,        $btn-primary-font-color,        $btn-primary-icon-color,
@@ -122,6 +121,7 @@ $local-transition-duration: .1s;
         $btn-primary-active-bg-color, $btn-primary-active-font-color, $btn-primary-active-icon-color
     );
 }
+
 .btn-secondary {
     @include local-button-variant(
         $btn-secondary-bg-color,        $btn-secondary-font-color,        $btn-secondary-icon-color,

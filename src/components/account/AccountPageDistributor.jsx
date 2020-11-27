@@ -335,6 +335,8 @@ class AccountPageDashboard extends Component {
                 </Modal>
 
                 <Dialog
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openConfirmation}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title">Konfirmasi</DialogTitle>

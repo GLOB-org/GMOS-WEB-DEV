@@ -14,6 +14,8 @@ import BlockProductColumns from '../blocks/BlockProductColumns';
 import BlockProducts from '../blocks/BlockProducts';
 import BlockSlideShow from '../blocks/BlockSlideShow';
 import BlockTabbedProductsCarousel from '../blocks/BlockTabbedProductsCarousel';
+import { Button, Modal } from 'reactstrap';
+import { CartContext } from '../../context/cart';
 
 // data stubs
 import categories from '../../data/shopBlockCategories';
@@ -26,13 +28,16 @@ class HomePageTwo extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            display_overlay: 'block'
+            openPermissionNotif: false
         };
     }
 
-    clickOverlay = () => {
-        this.setState({ display_overlay: 'none' })
+    componentDidMount() {
+        if (Notification.permission === 'default' && localStorage.getItem('Login') != null) {
+            this.setState({ openPermissionNotif: true })
+        }
     }
+
 
     render() {
         const columns = [
@@ -51,59 +56,107 @@ class HomePageTwo extends Component {
         ];
 
         const checkLogin = localStorage.getItem('Login');
-        if (checkLogin) {
-            if (this.state.display_overlay == 'none') {
-                var display_overlay = 'none'
-            }
-            else {
-                var display_overlay = 'block'
-            }
-
-        }
-        else {
-            var display_overlay = 'none'
-        }
 
         return (
 
             // <div className="overlay-notification" onClick={this.clickOverlay} style={{ display: display_overlay }}>
 
-                <React.Fragment>
+            <React.Fragment>
 
-                    <Helmet>
-                        <title>{`Beranda — ${theme.name}`}</title>
-                    </Helmet>
+                <Helmet>
+                    <title>{`Beranda — ${theme.name}`}</title>
+                </Helmet>
 
-                    <BlockSlideShow />
+                <BlockSlideShow />
 
-                    <BlockFeatures layout="boxed" />
+                <BlockFeatures layout="boxed" />
 
-                    {/* <BlockTabbedProductsCarousel title="Produk Unggulan" layout="grid-5" rows={2} /> */}
+                {/* <BlockTabbedProductsCarousel title="Produk Unggulan" layout="grid-5" rows={2} /> */}
 
-                    {/* <BlockProducts
+                {/* <BlockProducts
                     title="Terlaris"
                     layout="large-last"
                     featuredProduct={products[0]}
                     products={products.slice(1, 7)}
                 /> */}
 
-                    {checkLogin ?
-                        (<BlockTabbedProductsCarousel title="Produk Langganan Terlaris" layout="grid-5" rows={1} />) :
-                        (<BlockTabbedProductsCarousel title="Produk Terlaris" layout="grid-5" rows={1} />)
-                    }
+                {checkLogin ?
+                    (<BlockTabbedProductsCarousel title="Produk Langganan Terlaris" layout="grid-5" rows={1} />) :
+                    (<BlockTabbedProductsCarousel title="Produk Terlaris" layout="grid-5" rows={1} />)
+                }
 
-                    <BlockBanner />
+                <BlockBanner />
 
-                    {/* <BlockCategories title="Categories" layout="compact" categories={categories} /> */}
+                {/* <BlockCategories title="Categories" layout="compact" categories={categories} /> */}
 
-                    {/* <BlockTabbedProductsCarousel title="New Arrivals" layout="grid-5" /> */}
+                {/* <BlockTabbedProductsCarousel title="New Arrivals" layout="grid-5" /> */}
 
-                    <BlockPosts title="Latest News" layout="grid-nl" posts={posts} />
+                <BlockPosts title="Latest News" layout="grid-nl" posts={posts} />
 
-                    <BlockBrands />
+                <BlockBrands />
 
-                    {/* <BlockProductColumns columns={columns} /> */}
-                </React.Fragment>
+                <CartContext.Consumer>
+                    {value => {
+                        const load_permission = value.notif_permission_show;
+                        if (!load_permission) {
+                            return (
+                                <Modal isOpen={this.state.openPermissionNotif} size="md" centered>
+                                    <div className="card-body">
+                                        <div className="row">
+                                            <div className="col-1 col-md-1  col-sm-1 col-xs-1">
+                                                <img src={"/images/north_west.svg"} />
+                                            </div>
+                                            <div className="col-11 col-md-11 col-sm-11 col-xs-11">
+                                                <div className="row ml-1">
+                                                    <h5>Permintaan Notifikasi</h5>
+                                                </div>
+                                                <div className="row ml-1 mt-1">
+                                                    Untuk mendapatkan notifikasi, izinkan permintaan di atas
+                                                </div>
+                                                <div className="row ml-1 mt-3" >
+                                                    <CartContext.Consumer>
+                                                        {(value) => (
+                                                            <Button color="primary" onClick={async () => { await this.setState({ openPermissionNotif: false }); await value.loadNotifPermission() }}>
+                                                                OK
+                                                            </Button>
+                                                        )}
+                                                    </CartContext.Consumer>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Modal>
+                            )
+                        }
+
+                    }}
+                </CartContext.Consumer>
+
+                {/* <Modal isOpen={this.state.openPermissionNotif} size="md" centered>
+                    <div className="card-body">
+                        <div className="row">
+                            <div className="col-1 col-md-1  col-sm-1 col-xs-1">
+                                <img src={"/images/circled-up-left-24.png"} />
+                            </div>
+                            <div className="col-11 col-md-11 col-sm-11 col-xs-11">
+                                <div className="row ml-1">
+                                    <h5>Izinkan Notifikasi</h5>
+                                </div>
+                                <div className="row ml-1 mt-1">
+                                    Untuk mendapatkan notifikasi di aplikasi GLOB
+                                </div>
+                                <div className="row ml-1 mt-3" >
+                                    <Button color="primary" onClick={() => this.setState({ openPermissionNotif: false })}>
+                                        Mengerti
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Modal> */}
+
+                {/* <BlockProductColumns columns={columns} /> */}
+            </React.Fragment>
             // </div>
 
         );

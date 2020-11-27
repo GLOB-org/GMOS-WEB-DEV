@@ -18,6 +18,7 @@ export { ReactComponent as Compare16Svg } from './compare-16.svg';
 export { ReactComponent as Cross10Svg } from './cross-10.svg';
 export { ReactComponent as Cross12Svg } from './cross-12.svg';
 export { ReactComponent as Cross20Svg } from './cross-20.svg';
+export { ReactComponent as EmptyCart } from './empty-cart.svg';
 export { ReactComponent as Fi24Hours48Svg } from './fi-24-hours-48.svg';
 export { ReactComponent as FiFreeDelivery48Svg } from './fi-free-delivery-48.svg';
 export { ReactComponent as FiPaymentSecurity48Svg } from './fi-payment-security-48.svg';

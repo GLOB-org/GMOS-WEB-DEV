@@ -900,7 +900,8 @@ export default class InfoCompanyCard extends Component{
                         }
 
                         <Dialog
-                            maxWidth="xs"
+                            fullWidth={false}
+                            maxWidth={"xs"}
                             open={this.state.openTambahAkunRestrict}
                             aria-labelledby="responsive-dialog-title">
                             <DialogTitle id="responsive-dialog-title">Tambah Akun</DialogTitle>
@@ -1250,6 +1251,8 @@ export default class InfoCompanyCard extends Component{
                 </Modal>    
 
                 <Dialog
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openConfirmation}
                     aria-labelledby="responsive-dialog-title"
                     >
@@ -1270,6 +1273,8 @@ export default class InfoCompanyCard extends Component{
                 </Dialog>
 
                 <Dialog
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openConfirmationEditAkun}
                     aria-labelledby="responsive-dialog-title"
                     >

@@ -37,6 +37,7 @@ class ShopPageProductNonLangganan extends Component {
             product_detail_length: '',
             status_cart: '',
             shoppage_category: 'nonlangganan',
+            barang_id: '',
             category_id: ''
         }
     }
@@ -49,9 +50,12 @@ class ShopPageProductNonLangganan extends Component {
         let query = encrypt("select a.nama, b.barang_id, b.id, b.kode_barang, price, price_terendah, " +
             "case when b.persen_nego_1 != 0 or b.persen_nego_2 != 0 or b.persen_nego_3 != 0 then true else false end as nego_auto, " +
             "case when price = price_terendah then 'no' else 'yes' end as negotiable, foto, flag_foto, category_id, b.company_id, berat, " +
-            "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.kode_seller, c.nama_perusahaan, d.alias as satuan, e.nominal as kurs FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a " +
-            "inner join gcm_list_barang b on a.id=b.barang_id inner join gcm_listing_kurs e on b.company_id = e.company_id where b.status='A' " +
-            "and now() between e.tgl_start and e.tgl_end and b.company_id = c.id and a.satuan = d.id and b.id =  " + arraystring[0] + " order by b.create_date desc, category_id asc, nama asc")
+            "b.deskripsi, b.jumlah_min_beli, b.jumlah_min_nego, c.kode_seller, c.nama_perusahaan, d.alias as satuan, e.nominal as kurs " +
+            "FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a " +
+            "inner join gcm_list_barang b on a.id=b.barang_id " +
+            "left join (select company_id, nominal from gcm_listing_kurs where now() between tgl_start and tgl_end ) e on b.company_id = e.company_id " +
+            "where b.status='A' and b.company_id = c.id and a.satuan = d.id and b.id =  " + arraystring[0] +
+            " order by b.create_date desc, category_id asc, nama asc")
 
         Axios.post(url.select, {
             query: query
@@ -59,6 +63,7 @@ class ShopPageProductNonLangganan extends Component {
             await this.setState({
                 product_detail: data.data.data[0],
                 product_detail_length: data.data.data.length,
+                barang_id: data.data.data[0].barang_id,
                 category_id: data.data.data[0].category_id
             })
 
@@ -68,10 +73,40 @@ class ShopPageProductNonLangganan extends Component {
             Axios.post(url.select, {
                 query: get_seller
             }).then(async (data) => {
-                let getrelated_product = encrypt("SELECT nama, b.id, b.kode_barang, price, foto, flag_foto, category_id, b.company_id, berat, " +
-                    "b.deskripsi, c.kode_seller, c.nama_perusahaan FROM gcm_master_company c, gcm_master_barang a " +
-                    "inner join gcm_list_barang b on a.id=b.barang_id where b.status='A' and b.company_id = c.id and " +
-                    "b.id not in(" + arraystring[0] + ") and b.company_id not in (" + data.data.data[0].seller + ") and category_id=" + this.state.category_id + " order by b.create_date desc, category_id asc, nama asc");
+
+                if (this.state.category_id != 5) {
+                    var getrelated_product = encrypt("SELECT nama, b.id, b.kode_barang, price, foto, flag_foto, category_id, b.company_id, berat, " +
+                        "b.deskripsi, c.kode_seller, c.nama_perusahaan FROM gcm_master_company c, gcm_master_barang a " +
+                        "inner join gcm_list_barang b on a.id=b.barang_id where b.status='A' and b.company_id = c.id and " +
+                        "b.id !=" + arraystring[0] + " and b.company_id not in (" + data.data.data[0].seller + ") " +
+                        "and category_id=" + this.state.category_id + " order by b.create_date desc, category_id asc, nama asc");
+                }
+                else {
+                    if (decrypt(localStorage.getItem('TipeBisnis')) != 1) {
+                        var getrelated_product = encrypt("SELECT nama, b.id, b.kode_barang, price, foto, flag_foto, category_id, b.company_id, berat, " +
+                            "b.deskripsi, c.kode_seller, c.nama_perusahaan FROM gcm_master_company c, gcm_master_barang a " +
+                            "inner join gcm_list_barang b on a.id=b.barang_id " +
+                            "where b.status='A' and b.company_id = c.id" +
+                            " and b.id !=" + arraystring[0] +
+                            " and b.barang_id != " + this.state.barang_id +
+                            " and b.departmen_sales = " + decrypt(localStorage.getItem('TipeBisnis')) +
+                            " and b.company_id not in (" + data.data.data[0].seller + ")" +
+                            " and category_id=" + this.state.category_id +
+                            " order by b.create_date desc, category_id asc, nama asc");
+                    }
+                    else {
+                        var getrelated_product = encrypt("SELECT distinct on (b.barang_id) nama, b.id, b.barang_id,  b.kode_barang, price, foto, flag_foto, category_id, b.company_id, berat, " +
+                            "b.deskripsi, c.kode_seller, c.nama_perusahaan FROM gcm_master_company c, gcm_master_barang a " +
+                            "inner join gcm_list_barang b on a.id=b.barang_id " +
+                            "where b.status='A' and b.company_id = c.id" +
+                            " and b.id !=" + arraystring[0] +
+                            " and b.barang_id != " + this.state.barang_id +
+                            " and b.company_id not in (" + data.data.data[0].seller + ")" +
+                            " and category_id=" + this.state.category_id +
+                            " order by barang_id, price desc");
+                    }
+                }
+
 
                 Axios.post(url.select, {
                     query: getrelated_product

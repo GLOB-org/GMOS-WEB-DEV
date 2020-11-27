@@ -149,103 +149,109 @@ export default class Messenger extends Component {
     }
 
     const sendChat = (message) =>{
-      var keyRoom = this.state.keyRoom
-      var keyChat = ""
-  
-      var direktori_write = "/" + keyRoom + "/message"
-      let sendRef = firebase.database().ref(direktori_write);
-  
-      var direktori_update = "/" + keyRoom 
-      let updateRef = firebase.database().ref(direktori_update);
-  
-      var get_date = new Date().getDate() 
-      var get_day = new Date().getDay()
-      var get_month = new Date().getMonth()
-      var get_hours = new Date().getHours()
-      var get_minutes = new Date().getMinutes()
-      var get_seconds = new Date().getSeconds()
-      var get_year = new Date().getFullYear()
-      var get_time = new Date().getTime()
-      var get_timezone = new Date().getTimezoneOffset()
 
-      if(this.state.barang_id != ""){
-        var param = { 
-          'barang_id': Number(this.state.barang_id),
-          'uid': "",
-          'contain': message,
-          'read': false,
-          'receiver': Number(this.state.seller_id),
-          'sender': Number(decrypt(localStorage.getItem("CompanyIDLogin"))),
-          'timestamp':  {   
-                            'date': get_date,
-                            'day': get_day,
-                            'hours':get_hours,
-                            'minutes': get_minutes,
-                            'month': get_month,
-                            'seconds': get_seconds,
-                            'time': get_time,
-                            'timezoneOffset': get_timezone,
-                            'year':get_year
-                        },
-          'type': "barang" 
-        }
-      }
-      else {
-        var param = { 
-          'uid': "",
-          'contain': message,
-          'read': false,
-          'receiver': Number(this.state.seller_id),
-          'sender': Number(decrypt(localStorage.getItem("CompanyIDLogin"))),
-          'timestamp':  {   
-                            'date': get_date,
-                            'day': get_day,
-                            'hours':get_hours,
-                            'minutes': get_minutes,
-                            'month': get_month,
-                            'seconds': get_seconds,
-                            'time': get_time,
-                            'timezoneOffset': get_timezone,
-                            'year':get_year
-                        },
-          'type': "text"    
-        }
-      }
-
-      if(keyRoom != ""){
-        sendRef.push(param)
-        .then(res => {
-            //update uid
-            keyChat = res.getKey()
-            var direktori_update_uid = "/" + keyRoom + "/message/" + keyChat
-            let uidRef = firebase.database().ref(direktori_update_uid);
-            uidRef.update({'uid': keyChat})
-            
-            //update last timestamp
-            updateRef.update({ 'last_timestamp': get_time });
-            
-            //scroll chat page
-            document.getElementById("input-chat").value = ""
-            var objDiv = document.getElementById("message-room");
-            objDiv.scrollTop = objDiv.scrollHeight;
-  
-            //hide preview
-            hidePreview()
-          })
-        .catch(err => {
-          Toast.fail('Gagal mengirim pesan', 2000, () => {
-          });
-          // console.log('error' + err);
-          // console.log(err);
-        })
-      }
-      else {
-        Toast.fail('Tidak dapat mengirim pesan!', 2000, () => {
+      if(message === ''){
+        Toast.fail('Pesan tidak boleh kosong !', 2000, () => {
         });
-        document.getElementById("input-chat").value = ""
-
       }
+      else {
+        var keyRoom = this.state.keyRoom
+        var keyChat = ""
+    
+        var direktori_write = "/" + keyRoom + "/message"
+        let sendRef = firebase.database().ref(direktori_write);
+    
+        var direktori_update = "/" + keyRoom 
+        let updateRef = firebase.database().ref(direktori_update);
+    
+        var get_date = new Date().getDate() 
+        var get_day = new Date().getDay()
+        var get_month = new Date().getMonth()
+        var get_hours = new Date().getHours()
+        var get_minutes = new Date().getMinutes()
+        var get_seconds = new Date().getSeconds()
+        var get_year = new Date().getFullYear()
+        var get_time = new Date().getTime()
+        var get_timezone = new Date().getTimezoneOffset()
 
+        if(this.state.barang_id != ""){
+          var param = { 
+            'barang_id': Number(this.state.barang_id),
+            'uid': "",
+            'contain': message,
+            'read': false,
+            'receiver': Number(this.state.seller_id),
+            'sender': Number(decrypt(localStorage.getItem("CompanyIDLogin"))),
+            'timestamp':  {   
+                              'date': get_date,
+                              'day': get_day,
+                              'hours':get_hours,
+                              'minutes': get_minutes,
+                              'month': get_month,
+                              'seconds': get_seconds,
+                              'time': get_time,
+                              'timezoneOffset': get_timezone,
+                              'year':get_year
+                          },
+            'type': "barang" 
+          }
+        }
+        else {
+          var param = { 
+            'uid': "",
+            'contain': message,
+            'read': false,
+            'receiver': Number(this.state.seller_id),
+            'sender': Number(decrypt(localStorage.getItem("CompanyIDLogin"))),
+            'timestamp':  {   
+                              'date': get_date,
+                              'day': get_day,
+                              'hours':get_hours,
+                              'minutes': get_minutes,
+                              'month': get_month,
+                              'seconds': get_seconds,
+                              'time': get_time,
+                              'timezoneOffset': get_timezone,
+                              'year':get_year
+                          },
+            'type': "text"    
+          }
+        }
+
+        if(keyRoom != ""){
+          sendRef.push(param)
+          .then(res => {
+              //update uid
+              keyChat = res.getKey()
+              var direktori_update_uid = "/" + keyRoom + "/message/" + keyChat
+              let uidRef = firebase.database().ref(direktori_update_uid);
+              uidRef.update({'uid': keyChat})
+              
+              //update last timestamp
+              updateRef.update({ 'last_timestamp': get_time });
+              
+              //scroll chat page
+              document.getElementById("input-chat").value = ""
+              var objDiv = document.getElementById("message-room");
+              objDiv.scrollTop = objDiv.scrollHeight;
+    
+              //hide preview
+              hidePreview()
+            })
+          .catch(err => {
+            Toast.fail('Gagal mengirim pesan', 2000, () => {
+            });
+            // console.log('error' + err);
+            // console.log(err);
+          })
+        }
+        else {
+          Toast.fail('Tidak dapat mengirim pesan!', 2000, () => {
+          });
+          document.getElementById("input-chat").value = ""
+
+        }   
+      }
     }
 
     return (

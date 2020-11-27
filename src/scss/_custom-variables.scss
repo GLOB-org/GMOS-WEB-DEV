@@ -24,6 +24,19 @@ sans-serif;
     float: right;
 }
 
+.btn-detail-transaction {
+    background-color: white;
+    border: 1.3px solid #8CC63E;
+    color: #8CC63E;
+}
+
+.btn-detail-transaction:hover {
+    cursor: pointer;
+    background-color: rgb(250, 250, 250);
+    border: 1.3px solid #8CC63E;
+    color: #8CC63E;
+}
+
 #searchBarTransaction {
     border-width: 2px;
     border-color: rgb(238, 238, 238);
@@ -126,7 +139,7 @@ hr {
     clear: both;
 }
 
-.center-side{
+.center-side {
     margin: 0 auto;
 }
 
@@ -544,7 +557,6 @@ btnshimmer-small {
     box-shadow: inset 0 0 5000px #000000;
 }
 
-
 .overlay {
     position: absolute;
     width: 100%;
@@ -765,6 +777,11 @@ ul.timeline>li:before {
     font-size: 13px;
     font-weight: 500;
     color: #de0707;
+}
+
+.permission-notif {
+    background-color: transparent;
+    
 }
 
 .input_kode {

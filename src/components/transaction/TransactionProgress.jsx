@@ -14,6 +14,7 @@ import { Button, Input } from 'reactstrap';
 import Pagination from '../shared/Pagination';
 import Toast from 'light-toast';
 import DialogCatch from '../shared/DialogCatch';
+import { CartContext } from '../../context/cart';
 
 // data stubs
 import addresses from '../../data/accountAddresses';
@@ -59,6 +60,8 @@ export default class TransactionProgress extends Component {
             openConfirmation: false, openConfirmationReceived: false,
             openConfirmationComplained: false, openTimeLimitComplained: false,
             openTimeLimitPaid: false,
+            openConfirmationReOrder: false,
+            openConfirmationReOrderCountBarang: false, textInformationReOrder: '',
             activeTab: 'waiting',
             page_waiting: 1,
             total_page_waiting: '',
@@ -97,7 +100,8 @@ export default class TransactionProgress extends Component {
             openFilter: false,
             date_from: '', date_to: '',
             nama_foto: '',
-            foto: ''
+            foto: '',
+            id_ReOrder: ''
         };
     }
 
@@ -247,70 +251,70 @@ export default class TransactionProgress extends Component {
     async LoadDataAll() {
         if (localStorage.getItem('Login') != null) {
 
-            let query_limit_time_bayar = encrypt("select string_agg(''''||a.id_transaction||''''  , ',') as id_transaction, string_agg(''||a.id_transaction||''  , ', ') as id_transaction_edit, " +
-                "count (a.id_transaction) as jumlah from gcm_master_transaction a " +
-                "inner join gcm_payment_listing b on a.payment_id = b.id " +
-                "inner join gcm_seller_payment_listing c on b.payment_id = c.id " +
-                "inner join gcm_master_payment d on c.payment_id = d.id " +
-                "where a.status = 'WAITING' and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
-                " and now() > a.create_date + interval '48 hours' and d.id = 2 order by id_transaction")
+            // let query_limit_time_bayar = encrypt("select string_agg(''''||a.id_transaction||''''  , ',') as id_transaction, string_agg(''||a.id_transaction||''  , ', ') as id_transaction_edit, " +
+            //     "count (a.id_transaction) as jumlah from gcm_master_transaction a " +
+            //     "inner join gcm_payment_listing b on a.payment_id = b.id " +
+            //     "inner join gcm_seller_payment_listing c on b.payment_id = c.id " +
+            //     "inner join gcm_master_payment d on c.payment_id = d.id " +
+            //     "where a.status = 'WAITING' and a.company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+            //     " and now() > a.create_date + interval '48 hours' and d.id = 2 order by id_transaction")
 
-            await Axios.post(url.select, {
-                query: query_limit_time_bayar
-            }).then(data => {
-                if (data.data.data[0].id_transaction != null) {
-                    this.setState({
-                        count_id_canceled_by_time: data.data.data[0].jumlah,
-                        label_id_canceled_by_time: data.data.data[0].id_transaction_edit
-                    })
+            // await Axios.post(url.select, {
+            //     query: query_limit_time_bayar
+            // }).then(data => {
+            //     if (data.data.data[0].id_transaction != null) {
+            //         this.setState({
+            //             count_id_canceled_by_time: data.data.data[0].jumlah,
+            //             label_id_canceled_by_time: data.data.data[0].id_transaction_edit
+            //         })
 
-                    let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='CANCELED', id_cancel_reason = 2, " +
-                        "date_canceled = create_date + interval '2 days', cancel_reason = 'melewati batas waktu pembayaran' where tanggal_bayar is null " +
-                        " and id_list_bank is null and pemilik_rekening is null and  id_transaction in (" + data.data.data[0].id_transaction + ")")
+            //         let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='CANCELED', id_cancel_reason = 2, " +
+            //             "date_canceled = create_date + interval '2 days', cancel_reason = 'melewati batas waktu pembayaran' where tanggal_bayar is null " +
+            //             " and id_list_bank is null and pemilik_rekening is null and  id_transaction in (" + data.data.data[0].id_transaction + ")")
 
-                    Axios.post(url.select, {
-                        query: query_update_limit_time_bayar
-                    }).then(data => {
-                        if (this.state.count_id_canceled_by_time > 0) {
-                            this.setState({ openTimeLimitPaid: true })
-                        }
-                    }).catch(err => {
-                        // console.log('error');
-                        // console.log(err);
-                    })
-                }
-            }).catch(err => {
-                // console.log('error');
-                // console.log(err);
-            })
+            //         Axios.post(url.select, {
+            //             query: query_update_limit_time_bayar
+            //         }).then(data => {
+            //             if (this.state.count_id_canceled_by_time > 0) {
+            //                 this.setState({ openTimeLimitPaid: true })
+            //             }
+            //         }).catch(err => {
+            //             // console.log('error');
+            //             // console.log(err);
+            //         })
+            //     }
+            // }).catch(err => {
+            //     // console.log('error');
+            //     // console.log(err);
+            // })
 
-            let query_limit_time_complain = encrypt("select string_agg(''''||e.id_transaction||'''' , ',') as id_transaction " +
-                "from  gcm_master_company gmc ,gcm_transaction_detail a inner join " +
-                "gcm_list_barang b on a.barang_id=b.id " +
-                "inner join gcm_master_transaction e on e.id_transaction = a.transaction_id " +
-                "inner join gcm_limit_complain f on b.company_id = f.company_id " +
-                "where gmc.id = b.company_id and e.status = 'RECEIVED' " +
-                "and now() > e.date_received + ( f.limit_hari || ' days')::interval")
+            // let query_limit_time_complain = encrypt("select string_agg(''''||e.id_transaction||'''' , ',') as id_transaction " +
+            //     "from  gcm_master_company gmc ,gcm_transaction_detail a inner join " +
+            //     "gcm_list_barang b on a.barang_id=b.id " +
+            //     "inner join gcm_master_transaction e on e.id_transaction = a.transaction_id " +
+            //     "inner YARjoin gcm_limit_complain f on b.company_id = f.company_id " +
+            //     "where gmc.id = b.company_id and e.status = 'RECEIVED' " +
+            //     "and now() > e.date_received + ( f.limit_hari || ' days')::interval")
 
-            await Axios.post(url.select, {
-                query: query_limit_time_complain
-            }).then(data => {
-                if (data.data.data[0].id_transaction != null) {
-                    let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='FINISHED', " +
-                        "date_finished = now() where id_transaction in (" + data.data.data[0].id_transaction + ")")
-                    Axios.post(url.select, {
-                        query: query_update_limit_time_bayar
-                    }).then(data => {
+            // await Axios.post(url.select, {
+            //     query: query_limit_time_complain
+            // }).then(data => {
+            //     if (data.data.data[0].id_transaction != null) {
+            //         let query_update_limit_time_bayar = encrypt("update gcm_master_transaction set status ='FINISHED', " +
+            //             "date_finished = now() where id_transaction in (" + data.data.data[0].id_transaction + ")")
+            //         Axios.post(url.select, {
+            //             query: query_update_limit_time_bayar
+            //         }).then(data => {
 
-                    }).catch(err => {
-                        // console.log('error');
-                        // console.log(err);
-                    })
-                }
-            }).catch(err => {
-                // console.log('error');
-                // console.log(err);
-            })
+            //         }).catch(err => {
+            //             // console.log('error');
+            //             // console.log(err);
+            //         })
+            //     }
+            // }).catch(err => {
+            //     // console.log('error');
+            //     // console.log(err);
+            // })
 
             // let query_limit_time_bayar = "with new_update as ( " +
             //     "update gcm_master_transaction set status ='CANCELED', update_date = now(), cancel_reason = 'melewati batas waktu pembayaran'" +
@@ -494,10 +498,6 @@ export default class TransactionProgress extends Component {
                     document.getElementById('rowTransactionCanceled').style.display = 'inset'
                     document.getElementById('alertemptyCanceled').style.display = 'none'
                 }
-
-                // if (this.state.count_id_canceled_by_time > 0) {
-                //     this.setState({ openTimeLimitPaid: true })
-                // }
 
             }).catch(err => {
                 // this.setState({
@@ -1177,6 +1177,88 @@ export default class TransactionProgress extends Component {
 
     }
 
+    handleReOrderTransaction = async () => {
+
+        if (this.state.id_ReOrder != '') {
+            //get data barang transaksi
+            let query = encrypt("select barang_id, qty from gcm_transaction_detail gtd where " +
+                "buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and transaction_id = '" + this.state.id_ReOrder + "'")
+            Toast.loading('loading . . .', () => {
+            });
+            await Axios.post(url.select, {
+                query: query
+            }).then(async (data) => {
+                const data_barang = data.data.data
+
+                var loop_barang = ""
+                var query_add_to_cart = "new_insert as (insert into gcm_master_cart (company_id, barang_id, qty, create_by, update_by, shipto_id, billto_id, payment_id) " +
+                    "select d.company_id, d.barang_id, d.qty, d.create_by, d.update_by, d.shipto_id, d.billto_id, d.payment_id " +
+                    "from data d " +
+                    "where not exists (select 1 from gcm_master_cart c where c.barang_id = d.barang_id and status = 'A' and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + ") returning barang_id ) " +
+                    "select count(barang_id) as count_insert from new_insert"
+
+                var query_get_shipto = "(select id from gcm_master_alamat where company_id = '" + decrypt(localStorage.getItem('CompanyIDLogin')) + "' and flag_active = 'A' and shipto_active = 'Y' )"
+                var query_get_billto = "(select id from gcm_master_alamat where company_id = '" + decrypt(localStorage.getItem('CompanyIDLogin')) + "' and flag_active = 'A' and billto_active = 'Y' )"
+                var query_get_payment = "(select a.id " +
+                    "from gcm_payment_listing a " +
+                    "inner join gcm_seller_payment_listing b on a.payment_id = b.id " +
+                    "inner join gcm_master_payment c on b.payment_id = c.id " +
+                    "where buyer_id = '" + decrypt(localStorage.getItem('CompanyIDLogin')) + "' and b.status = 'A' and a.status = 'A' order by c.payment_name asc limit 1)"
+
+                var query_data_insert = "with data(company_id, barang_id, qty, create_by, update_by, shipto_id, billto_id, payment_id) as ( values "
+
+                for (var i = 0; i < data_barang.length; i++) {
+                    loop_barang = loop_barang + "(" + decrypt(localStorage.getItem('CompanyIDLogin')) + " ," + data_barang[i].barang_id + ", " +
+                        data_barang[i].qty + "," + decrypt(localStorage.getItem('UserIDLogin')) + "," + decrypt(localStorage.getItem('UserIDLogin')) +
+                        "," + query_get_shipto + "," + query_get_billto + "," + query_get_payment + " )"
+                    if (i < data_barang.length - 1) {
+                        loop_barang = loop_barang.concat(",")
+                    }
+                    if (i == data_barang.length - 1) {
+                        loop_barang = loop_barang.concat("),")
+                    }
+
+                }
+
+                var query_final = encrypt(query_data_insert.concat(loop_barang).concat(query_add_to_cart))
+
+                await Axios.post(url.select, {
+                    query: query_final
+                }).then(async (data) => {
+                    var count_not_inserted = data_barang.length - Number(data.data.data[0].count_insert)
+                    if (count_not_inserted == data_barang.length) {
+                        this.setState({
+                            textInformationReOrder: 'Tidak ada barang yang ditambahkan, semua barang pada transaksi sudah terdapat di keranjang',
+                            openConfirmationReOrderCountBarang: true
+                        })
+                    }
+                    else if (count_not_inserted > 0 && count_not_inserted != data_barang.length) {
+                        this.setState({
+                            textInformationReOrder: count_not_inserted + ' barang tidak ditambahkan ke keranjang karena sudah terdapat di keranjang',
+                            openConfirmationReOrderCountBarang: true
+                        })
+                    }
+                    else {
+                        this.props.history.push('/keranjang')
+                    }
+                    Toast.hide()
+
+                }).catch(err => {
+                    Toast.fail('Gagal melakukan pesan ulang !', 2500, () => {
+                    });
+                })
+
+            }).catch(err => {
+                Toast.fail('Gagal mengambil data transaksi !', 2500, () => {
+                });
+            })
+        }
+        else {
+            Toast.fail('Gagal melakukan pesan ulang !', 2500, () => {
+            });
+        }
+    }
+
     pencarianTabel = (event) => {
 
         let searching;
@@ -1737,6 +1819,20 @@ export default class TransactionProgress extends Component {
         });
     }
 
+    toggleConfirmationReOrder = (id) => {
+        this.setState({
+            openConfirmationReOrder: !this.state.openConfirmationReOrder,
+            id_ReOrder: id
+        })
+    }
+
+    toggleInformationReOrder = (id) => {
+        this.setState({
+            openConfirmationReOrderCountBarang: false
+        })
+        this.props.history.push('/keranjang')
+    }
+
     toggleTimeLimitComplained = () => {
         this.setState({
             openTimeLimitComplained: !this.state.openTimeLimitComplained
@@ -1848,6 +1944,7 @@ export default class TransactionProgress extends Component {
                                     <table >
                                         <thead>
                                             <tr>
+                                                <th></th>
                                                 <th><center>ID Transaksi</center></th>
                                                 <th><center>Tanggal Transaksi</center></th>
                                                 <th><center>Total Transaksi</center></th>
@@ -1860,13 +1957,16 @@ export default class TransactionProgress extends Component {
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                 </tr>
                                                 <tr>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
@@ -1910,6 +2010,7 @@ export default class TransactionProgress extends Component {
                                     <table>
                                         <thead>
                                             <tr>
+                                                <th></th>
                                                 <th><center>ID Transaksi</center></th>
                                                 <th><center>Tanggal Transaksi</center></th>
                                                 <th><center>Tanggal Diproses</center></th>
@@ -1923,14 +2024,17 @@ export default class TransactionProgress extends Component {
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                 </tr>
                                                 <tr>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
@@ -1970,6 +2074,7 @@ export default class TransactionProgress extends Component {
                                     <table>
                                         <thead>
                                             <tr>
+                                                <th></th>
                                                 <th><center>ID Transaksi</center></th>
                                                 <th><center>Tanggal Transaksi</center></th>
                                                 <th><center>Tanggal Dikirim</center></th>
@@ -1985,15 +2090,18 @@ export default class TransactionProgress extends Component {
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                 </tr>
                                                 <tr>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
@@ -2033,11 +2141,7 @@ export default class TransactionProgress extends Component {
                                     <table>
                                         <thead>
                                             <tr>
-                                                {/* <th style={{ width: '20%' }}><center>ID Transaksi</center></th>
-                                                <th style={{ width: '20%' }}><center>Tanggal Transaksi</center></th>
-                                                <th style={{ width: '20%' }}><center>Tanggal Diterima</center></th>
-                                                <th style={{ width: '25%' }}><center>Total Transaksi</center></th>
-                                                <th style={{ width: '30%' }}><center>Aksi</center></th> */}
+                                                <th></th>
                                                 <th ><center>ID Transaksi</center></th>
                                                 <th ><center>Tanggal Transaksi</center></th>
                                                 <th ><center>Tanggal Diterima</center></th>
@@ -2053,15 +2157,18 @@ export default class TransactionProgress extends Component {
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                 </tr>
                                                 <tr>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
@@ -2102,6 +2209,7 @@ export default class TransactionProgress extends Component {
                                     <table>
                                         <thead>
                                             <tr>
+                                                <th></th>
                                                 <th><center>ID Transaksi</center></th>
                                                 <th><center>Tanggal Transaksi</center></th>
                                                 <th><center>Tanggal Komplain</center></th>
@@ -2118,15 +2226,18 @@ export default class TransactionProgress extends Component {
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                 </tr>
                                                 <tr>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
@@ -2166,10 +2277,12 @@ export default class TransactionProgress extends Component {
                                     <table>
                                         <thead>
                                             <tr>
+                                                <th></th>
                                                 <th><center>ID Transaksi</center></th>
                                                 <th><center>Tanggal transaksi</center></th>
                                                 <th><center>Tanggal selesai</center></th>
                                                 <th><center>Total Transaksi</center></th>
+                                                <th><center>Aksi</center></th>
                                             </tr>
                                         </thead>
 
@@ -2180,14 +2293,20 @@ export default class TransactionProgress extends Component {
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                 </tr>
                                                 <tr>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
@@ -2197,7 +2316,7 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionFinished" style={{ display: 'none' }}>
                                                 {this.state.data_finished.slice(this.state.sliceX_finished, this.state.sliceY_finished).map((value) => {
-                                                    return (<TransactionFinished data={value} printInvoice={this.printDiv} />)
+                                                    return (<TransactionFinished data={value} printInvoice={this.printDiv} clickReOrder={this.toggleConfirmationReOrder} />)
                                                 })
                                                 }
                                             </div>
@@ -2226,10 +2345,12 @@ export default class TransactionProgress extends Component {
                                     <table>
                                         <thead>
                                             <tr>
+                                                <th></th>
                                                 <th><center>ID Transaksi</center></th>
                                                 <th><center>Tanggal transaksi</center></th>
                                                 <th><center>Tanggal dibatalkan</center></th>
                                                 <th><center>Total Transaksi</center></th>
+                                                <th><center>Aksi</center></th>
                                             </tr>
                                         </thead>
 
@@ -2240,14 +2361,20 @@ export default class TransactionProgress extends Component {
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><linestable class="shine"></linestable></td>
-                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                 </tr>
                                                 <tr>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><linestable class="shine"></linestable></td>
+                                                    <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
                                                     <td><linestable class="shine"></linestable></td>
@@ -2257,7 +2384,7 @@ export default class TransactionProgress extends Component {
 
                                             <div id="contentShimmerTransactionCanceled" style={{ display: 'none' }}>
                                                 {this.state.data_canceled.slice(this.state.sliceX_canceled, this.state.sliceY_canceled).map((value) => {
-                                                    return (<TransactionCanceled data={value} printInvoice={this.printDiv} />)
+                                                    return (<TransactionCanceled data={value} printInvoice={this.printDiv} clickReOrder={this.toggleConfirmationReOrder} />)
                                                 })
                                                 }
                                             </div>
@@ -2372,6 +2499,49 @@ export default class TransactionProgress extends Component {
                         </Button>
                         <Button color="light" onClick={this.toggleCloseConfirmation}>
                             Batal
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={this.state.openConfirmationReOrder}
+                    fullWidth={false}
+                    maxWidth={"xs"}
+                    aria-labelledby="responsive-dialog-title">
+                    <DialogTitle id="responsive-dialog-title">Konfirmasi Pesan Ulang </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Apakah Anda yakin akan melakukan pesan ulang barang pada transaksi ini ?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <CartContext.Consumer>
+                            {(value) => (
+                                <Button color="primary" onClick={async () => { await this.handleReOrderTransaction(); await value.loadDataCart(); }} >
+                                    Ya
+                                </Button>
+                            )}
+                        </CartContext.Consumer>
+                        <Button color="light" onClick={() => this.setState({ openConfirmationReOrder: false })}>
+                            Batal
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                <Dialog
+                    open={this.state.openConfirmationReOrderCountBarang}
+                    fullWidth={false}
+                    maxWidth={"xs"}
+                    aria-labelledby="responsive-dialog-title">
+                    <DialogTitle id="responsive-dialog-title">Informasi Pesan Ulang</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            {this.state.textInformationReOrder}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color="primary" onClick={() => this.toggleInformationReOrder()}>
+                            Mengerti
                         </Button>
                     </DialogActions>
                 </Dialog>

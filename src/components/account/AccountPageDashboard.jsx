@@ -755,20 +755,20 @@ class AccountPageDashboard extends Component {
                     // var update_shipto_cart = ", new_update_cart_shipto as (update gcm_master_cart set shipto_id = " +
                     //     "(select id from new_insert) where billto_id = (select id from new_insert ) and status = 'A') "
 
-                    var update_shipbill_cart = "new_update_cart as ( update gcm_master_cart set billto_id = (select id from new_insert), "+
-                    "shipto_id = (select id from new_insert) where billto_id = " + this.state.selected_update + " and status = 'A' )"    
+                    var update_shipbill_cart = "new_update_cart as ( update gcm_master_cart set billto_id = (select id from new_insert), " +
+                        "shipto_id = (select id from new_insert) where billto_id = " + this.state.selected_update + " and status = 'A' )"
                 }
                 else {
                     var shipto = 'N'
-                    var update_shipbill_cart = "new_update_cart as ( update gcm_master_cart set billto_id = (select id from new_insert) "+
-                    "where billto_id = " + this.state.selected_update + " and status = 'A' )"    
+                    var update_shipbill_cart = "new_update_cart as ( update gcm_master_cart set billto_id = (select id from new_insert) " +
+                        "where billto_id = " + this.state.selected_update + " and status = 'A' )"
                 }
 
                 var queryalamat = "with new_update as (update gcm_master_alamat set shipto_active = 'N', billto_active = 'N', flag_active = 'I' where id = " + this.state.selected_update + " ), " +
                     "new_insert as (insert into gcm_master_alamat (kelurahan, kecamatan, kota, provinsi, kodepos, no_telp, shipto_active, billto_active, company_id, alamat, flag_active) values (" +
                     this.state.inputKelurahan + "," + this.state.inputKecamatan + "," + this.state.inputKota + "," + this.state.inputProvinsi + "," + this.state.inputKodePOS + ", '" + this.state.inputNoTelp + "', '" + shipto +
                     "', 'Y', " + decrypt(localStorage.getItem('CompanyIDLogin')) + ", '" + this.state.inputAlamat + "', 'A') returning id ), " + update_shipbill_cart
-                    // "new_update_cart_billto as ( update gcm_master_cart set billto_id = (select id from new_insert) where billto_id = " + this.state.selected_update + " and status = 'A' )" + update_shipto_cart
+                // "new_update_cart_billto as ( update gcm_master_cart set billto_id = (select id from new_insert) where billto_id = " + this.state.selected_update + " and status = 'A' )" + update_shipto_cart
 
                 queryalamat = queryalamat + "insert into gcm_listing_alamat (id_master_alamat, id_buyer, id_seller, kode_shipto_customer, kode_billto_customer) values "
                 var loop = ""
@@ -1255,6 +1255,8 @@ class AccountPageDashboard extends Component {
                 </Modal>
 
                 <Dialog
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openConfirmationSave}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title">Konfirmasi</DialogTitle>
@@ -1274,6 +1276,8 @@ class AccountPageDashboard extends Component {
                 </Dialog>
 
                 <Dialog
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openConfirmationDelete}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title">Konfirmasi</DialogTitle>
@@ -1293,7 +1297,8 @@ class AccountPageDashboard extends Component {
                 </Dialog>
 
                 <Dialog
-                    maxWidth="xs"
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openConfirmationDeleteFalse}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title">Hapus Alamat</DialogTitle>
@@ -1310,7 +1315,8 @@ class AccountPageDashboard extends Component {
                 </Dialog>
 
                 <Dialog
-                    maxWidth="xs"
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openConfirmationAddFalse}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title">Tambah Alamat</DialogTitle>

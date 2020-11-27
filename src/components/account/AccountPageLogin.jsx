@@ -11,15 +11,13 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogCatch from '../shared/DialogCatch';
 import { decrypt, encrypt, url } from '../../lib';
 import Axios from 'axios';
 import Swal from 'sweetalert2'
 import swal from 'sweetalert';
 import Toast from 'light-toast';
 import firebase from 'firebase';
-
-import { makeStyles } from '@material-ui/core/styles';
-import Fab from '@material-ui/core/Fab';
 
 // application
 import PageHeader from '../shared/PageHeader';
@@ -77,7 +75,8 @@ export default class AccountPageLogin extends Component {
             Axios.post(url.select, {
                 query: query
             }).then(data => {
-                console.log('store token success')
+                // console.log('store token success')
+                // console.log(token)
                 localStorage.setItem('Token', encrypt(token));
             })
         }).catch((error) => {
@@ -162,16 +161,9 @@ export default class AccountPageLogin extends Component {
                     });
                 }
             }).catch(err => {
-                // console.log("eror : " + err);
-                swal(err, {
-                    title: "Gagal Masuk",
-                    icon: "error",
-                    buttons: false,
-                    timer: 3000,
-                    closeOnClickOutside: false,
-                });
+                Toast.hide()
+                this.setState({ displaycatch: true })
             })
-
         }
     }
 
@@ -760,7 +752,8 @@ export default class AccountPageLogin extends Component {
                     </Modal>
 
                     <Dialog
-                        maxWidth="xs"
+                        fullWidth={false}
+                        maxWidth={"xs"}
                         open={this.state.openConfirmationOTP}
                         aria-labelledby="responsive-dialog-title">
                         <DialogTitle id="responsive-dialog-title">Verifikasi Akun</DialogTitle>
@@ -792,7 +785,8 @@ export default class AccountPageLogin extends Component {
                     </Dialog>
 
                     <Dialog
-                        maxWidth="xs"
+                        fullWidth={false}
+                        maxWidth={"xs"}
                         open={this.state.openInsertOTP}
                         aria-labelledby="responsive-dialog-title">
                         <DialogTitle id="responsive-dialog-title">Verifikasi Akun</DialogTitle>
@@ -812,27 +806,6 @@ export default class AccountPageLogin extends Component {
                                 </form>
                             </div>
 
-                            {/* <InputGroup>
-                                <Input
-                                    id="input-otp"
-                                    type="text"
-                                    spellCheck="false"
-                                    autoComplete="off"
-                                    className="form-control"
-                                    maxLength="6"
-                                    invalid={this.state.empty_valueOTP}
-                                    value={this.state.valueOTP}
-                                    onChange={event => this.InputOTP_validation(event)}
-                                />
-                                <FormFeedback>{this.state.KetTextvalueOTP}</FormFeedback>
-                            </InputGroup> */}
-
-                            {/* {this.state.timer == 'Kirim ulang OTP' ?
-                                (<label onClick={() => { this.sendOtp(); this.timerBtnKirimUlangOtp() }} style={{ fontSize: '13px', fontWeight: '400', textDecoration: 'underline', cursor: 'pointer' }}>{this.state.timer}</label>
-                                ) :
-                                (<label style={{ fontSize: '13px', fontWeight: '400' }}>{this.state.timer}</label>
-                                )
-                            } */}
                         </DialogContent>
                         <center>
                             <label className="address-card__row-title" style={{ fontSize: '14px', marginTop: '15px' }}>
@@ -857,7 +830,8 @@ export default class AccountPageLogin extends Component {
                     </Dialog>
 
                     <Dialog
-                        maxWidth="xs"
+                        fullWidth={false}
+                        maxWidth={"xs"}
                         open={this.state.openLupaAkun}
                         aria-labelledby="responsive-dialog-title">
                         <DialogTitle id="responsive-dialog-title">Lupa Akun</DialogTitle>
@@ -889,6 +863,8 @@ export default class AccountPageLogin extends Component {
                             </button>
                         </DialogActions>
                     </Dialog>
+
+                    <DialogCatch isOpen={this.state.displaycatch} />
 
                 </div>
             </React.Fragment>

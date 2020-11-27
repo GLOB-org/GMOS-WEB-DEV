@@ -60,10 +60,55 @@ class ShopPageProductLangganan extends Component {
                 product_detail_length: data.data.data.length,
             })
 
-            let getrelated_product = encrypt("SELECT a.nama, b.id, b.barang_id, b.kode_barang, d.alias as satuan, price, b.price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable,  b.jumlah_min_beli, b.jumlah_min_nego, foto, flag_foto, category_id, b.company_id, berat, b.deskripsi, c.kode_seller, c.nama_perusahaan, e.nominal as kurs " +
-                "FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a inner join gcm_list_barang b on a.id=b.barang_id " +
-                "inner join gcm_listing_kurs e on b.company_id = e.company_id inner join gcm_company_listing f on b.company_id = f.seller_id where b.status='A' and b.company_id = c.id and a.satuan = d.id " +
-                "and b.id not in(" + arraystring[0] + ") and f.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + "  and category_id=" + data.data.data[0].category_id + " and now() between e.tgl_start and e.tgl_end order by b.create_date desc, category_id asc, nama asc")
+            if (data.data.data[0].category_id != 5) {
+                var getrelated_product = encrypt("SELECT a.nama, b.id, b.barang_id, b.kode_barang, d.alias as satuan, price, b.price_terendah, " +
+                    "case when price = price_terendah then 'no' else 'yes' end as negotiable,  b.jumlah_min_beli, b.jumlah_min_nego, foto, " +
+                    "flag_foto, category_id, b.company_id, berat, b.deskripsi, c.kode_seller, c.nama_perusahaan, e.nominal as kurs " +
+                    "FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a inner join gcm_list_barang b on a.id=b.barang_id " +
+                    "inner join gcm_listing_kurs e on b.company_id = e.company_id " +
+                    "inner join gcm_company_listing f on b.company_id = f.seller_id " +
+                    "where b.status='A' and b.company_id = c.id and a.satuan = d.id " +
+                    "and b.id != " + arraystring[0] + " and f.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+                    " and category_id=" + data.data.data[0].category_id + " and now() between e.tgl_start and e.tgl_end " +
+                    "order by b.create_date desc, category_id asc, nama asc")
+            }
+            else {
+
+                if (decrypt(localStorage.getItem('TipeBisnis')) != 1) {
+                    var getrelated_product = encrypt("SELECT a.nama, b.id, b.barang_id, b.kode_barang, d.alias as satuan, " +
+                        "price, b.price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable, " +
+                        "b.jumlah_min_beli, b.jumlah_min_nego, foto, flag_foto, category_id, b.company_id, berat, b.deskripsi, " +
+                        "c.kode_seller, c.nama_perusahaan, e.nominal as kurs " +
+                        "FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a " +
+                        "inner join gcm_list_barang b on a.id=b.barang_id " +
+                        "inner join gcm_listing_kurs e on b.company_id = e.company_id " +
+                        "inner join gcm_company_listing f on b.company_id = f.seller_id " +
+                        "where b.status='A' and b.company_id = c.id and a.satuan = d.id and b.id != " + arraystring[0] +
+                        " and b.barang_id != " + data.data.data[0].barang_id +
+                        " and b.departmen_sales = " + decrypt(localStorage.getItem('TipeBisnis')) +
+                        " and f.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+                        " and category_id=" + data.data.data[0].category_id +
+                        " and now() between e.tgl_start and e.tgl_end " +
+                        "order by b.create_date desc, category_id asc, nama asc")
+                }
+                else {
+                    var getrelated_product = encrypt("SELECT distinct on (b.barang_id) a.nama, b.id, b.barang_id, b.kode_barang, d.alias as satuan, " +
+                        "price, b.price_terendah, case when price = price_terendah then 'no' else 'yes' end as negotiable, " +
+                        "b.jumlah_min_beli, b.jumlah_min_nego, foto, flag_foto, category_id, b.company_id, berat, b.deskripsi, " +
+                        "c.kode_seller, c.nama_perusahaan, e.nominal as kurs " +
+                        "FROM gcm_master_satuan d, gcm_master_company c, gcm_master_barang a " +
+                        "inner join gcm_list_barang b on a.id=b.barang_id " +
+                        "inner join gcm_listing_kurs e on b.company_id = e.company_id " +
+                        "inner join gcm_company_listing f on b.company_id = f.seller_id " +
+                        "where b.status='A' and b.company_id = c.id and a.satuan = d.id and b.id != " + arraystring[0] +
+                        " and b.barang_id != " + data.data.data[0].barang_id +
+                        " and f.buyer_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) +
+                        " and category_id=" + data.data.data[0].category_id +
+                        " and now() between e.tgl_start and e.tgl_end " +
+                        "order by barang_id, price desc")
+                }
+
+            }
 
             Axios.post(url.select, {
                 query: getrelated_product

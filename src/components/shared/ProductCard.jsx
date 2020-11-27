@@ -14,7 +14,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { decrypt, encrypt, url } from '../../lib';
 import Axios from 'axios';
-import InputNumber from './InputNumberMax';
 import InputNumber_sm from './InputNumber';
 
 // application
@@ -29,7 +28,6 @@ import NumberFormat from 'react-number-format';
 import Toast from 'light-toast';
 import { CartContext } from '../../context/cart';
 import openSocket from "socket.io-client";
-import { toast } from 'react-toastify';
 
 class ProductCard extends Component {
     constructor(props) {
@@ -1093,6 +1091,7 @@ class ProductCard extends Component {
                         this.state.data_alamat_shipto + "," +
                         this.state.data_alamat_billto + "," +
                         payment_id + ");");
+
                     await Axios.post(url.select, {
                         query: query
                     }).then(() => {

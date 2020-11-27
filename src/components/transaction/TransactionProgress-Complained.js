@@ -242,13 +242,16 @@ export default class InfoCompanyCard extends Component{
 
         <div style={{display:'contents'}}>
         <tr id='rowTransactionComplained' style={{fontSize:'13px', color:'#3D464D'}}>
-            <td style={{textAlign: 'center'}}>
-                <strong>
-                    <span data-toggle="tooltip" title="Lihat detail">
-                        <label id='idTransaction' onClick={()=>this.detailComplained(this.props.data.id_transaction)}>{this.props.data.id_transaction}</label>
-                    </span>
-                </strong>
+            <td>
+                <div className="buttonAction">
+                    <center>
+                        <button type="button" class="btn btn-xs btn-detail-transaction" onClick={()=>this.detailComplained(this.props.data.id_transaction)} >Lihat Detail</button>
+                    </center>
+                </div>
             </td>
+            <td style={{textAlign: 'center'}}>
+                <label>{this.props.data.id_transaction}</label>
+            </td>   
             <td style={{textAlign: 'center'}}>{this.props.data.create_date_edit}</td>
             <td style={{textAlign: 'center'}}>{this.props.data.date_complained}</td>
             <td style={{textAlign: 'right'}}><NumberFormat value={Number(this.props.data.totaltrx_tax_final)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></td>

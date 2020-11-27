@@ -17,6 +17,8 @@ export const CartContext = React.createContext(
             count_data_notif: 0,
             check_load_notif: 'no'
         },
+        notif_permission_show: false,
+        loadNotifPermission: () => { },
         loadDataCart: () => { },
         loadDataNotif: () => { },
         sendNotifikasi: () => { },
@@ -38,8 +40,8 @@ export default class CartContainer extends Component {
                 count_data_notif: 0,
                 check_load_notif: 'no'
             },
-            room_id: '',
-            setRoomID: this.setRoomID,
+            notif_permission_show: false,
+            loadNotifPermission: this.loadNotifPermission,
             loadDataCart: this.loadDataCart,
             loadDataNotif: this.loadDataNotif,
             sendNotifikasi: this.sendNotifikasi,
@@ -53,10 +55,10 @@ export default class CartContainer extends Component {
             navigator.serviceWorker
                 .register("./firebase-messaging-sw.js")
                 .then(function (registration) {
-                    console.log("Registration successful, scope is:", registration.scope);
+                    // console.log("Registration successful, scope is:", registration.scope);
                 })
                 .catch(function (err) {
-                    console.log("Service worker registration failed, error:", err);
+                    // console.log("Service worker registration failed, error:", err);
                 });
         }
 
@@ -83,6 +85,11 @@ export default class CartContainer extends Component {
                     check_load: 'yes'
                 },
             });
+
+            // if (param == 're-order') {
+            //     this.props.history.push('/keranjang')
+            // }
+
         }).catch(err => {
             console.log('error' + err);
             console.log(err);
@@ -118,6 +125,10 @@ export default class CartContainer extends Component {
         })
     }
 
+    loadNotifPermission = async () => {
+        this.setState({ notif_permission_show: true })
+    }
+
     buildAlert = (key_notif) => {
 
         const timeout = 0
@@ -148,8 +159,6 @@ export default class CartContainer extends Component {
         else {
             var key_notif = get_message.data.data.key
         }
-
-        console.log(get_message)
 
         this.loadDataNotif()
         this.buildAlert(key_notif)
@@ -202,7 +211,7 @@ export default class CartContainer extends Component {
 
                 Axios.post("https://glob.co.id/External/sendNotification", body)
                     .then(res => {
-                        console.log(res);
+                        // console.log(res);
                     })
 
 
@@ -214,13 +223,14 @@ export default class CartContainer extends Component {
 
     }
 
-    sendNotifikasiTrx = (get_send_notifikasi, get_id_sales, get_company_id_seller) => {
+    sendNotifikasiTrx = (get_send_notifikasi, get_id_sales, get_company_id_seller, get_company_id_transaction) => {
 
         if (get_send_notifikasi == true) {
 
             const body = {
                 id_sales: get_id_sales,
-                company_id_seller: get_company_id_seller
+                company_id_seller: get_company_id_seller,
+                company_id_transaction: get_company_id_transaction
             }
 
             Axios.post("https://glob.co.id/External/sendNotificationTrx", body)
@@ -284,12 +294,6 @@ export default class CartContainer extends Component {
         // })
 
     }
-
-    setRoomID = (get_room) => {
-        this.setState({
-            room_id: get_room
-        });
-    };
 
     render() {
         const { children } = this.props;

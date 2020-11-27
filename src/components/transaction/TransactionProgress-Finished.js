@@ -232,16 +232,26 @@ export default class InfoCompanyCard extends Component{
 
         <div style={{display:'contents'}}>
         <tr id='rowTransactionFinished' style={{fontSize:'13px', color:'#3D464D'}}>
+            <td>
+                <div className="buttonAction">
+                    <center>
+                        <button type="button" class="btn btn-xs btn-detail-transaction" onClick={()=>this.detailFinished(this.props.data.id_transaction)} >Lihat Detail</button>
+                    </center>
+                </div>
+            </td>
             <td style={{textAlign: 'center'}}>
-                <strong>
-                    <span data-toggle="tooltip" title="Lihat detail">
-                        <label id='idTransaction' onClick={()=>this.detailFinished(this.props.data.id_transaction)}>{this.props.data.id_transaction}</label>
-                    </span>
-                </strong>
+                <label>{this.props.data.id_transaction}</label>
             </td>            
             <td style={{textAlign: 'center'}}>{this.props.data.create_date_edit}</td>
             <td style={{textAlign: 'center'}}>{this.props.data.date_finished}</td>
             <td style={{textAlign: 'right'}}><NumberFormat value={Number(this.props.data.totaltrx_tax_final)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></td>
+            <td>
+                <div className="buttonAction">
+                    <center>
+                        <button type="button" class="btn btn-primary btn-xs" onClick={()=>this.props.clickReOrder(this.props.data.id_transaction)} >Pesan Ulang</button>
+                    </center>
+                </div>
+            </td>
         </tr> 
         
             <Modal isOpen={this.state.isOpen} size="xl">

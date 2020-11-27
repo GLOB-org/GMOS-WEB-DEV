@@ -790,6 +790,16 @@ class ShopPageCheckout extends Component {
             query: final_query
         }).then(async (data) => {
 
+            var get_id_transaction_seller = ""
+            var id_transaction_seller = ""
+            for (var h = 0; h < this.state.data_penjual.length; h++) {
+                get_id_transaction_seller = this.state.data_penjual[h].id + "-" + data.data.data[h].id_transaction
+                id_transaction_seller = id_transaction_seller.concat(get_id_transaction_seller)
+                if (h < this.state.data_penjual.length - 1) {
+                    id_transaction_seller = id_transaction_seller.concat(",")
+                }
+            }
+
             var get_id_transaction = ""
             for (var i = 0; i < data.data.data.length; i++) {
                 get_id_transaction = get_id_transaction.concat(data.data.data[i].id_transaction)
@@ -799,6 +809,7 @@ class ShopPageCheckout extends Component {
             }
 
             await this.setState({
+                id_transaction_seller: id_transaction_seller,
                 label_id_transaction: get_id_transaction
             });
 
@@ -1832,7 +1843,8 @@ class ShopPageCheckout extends Component {
                 </Modal>
 
                 <Dialog
-                    maxWidth="xs"
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openresponkurs}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title">Perubahan Kurs</DialogTitle>
@@ -1850,7 +1862,8 @@ class ShopPageCheckout extends Component {
                 </Dialog>
 
                 <Dialog
-                    maxWidth="xs"
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openrespontransaksi}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title">Konfirmasi Buat Pesanan</DialogTitle>
@@ -1865,7 +1878,7 @@ class ShopPageCheckout extends Component {
                                 <Button color="primary" onClick={async () => {
                                     await this.submitTransaksi();
                                     await value.loadDataCart();
-                                    await value.sendNotifikasiTrx(this.state.send_notifikasi, this.state.id_sales_string, this.state.id_penjual_string)
+                                    await value.sendNotifikasiTrx(this.state.send_notifikasi, this.state.id_sales_string, this.state.id_penjual_string, this.state.id_transaction_seller)
                                 }}>
                                     Lanjutkan
                                 </Button>
@@ -1878,7 +1891,8 @@ class ShopPageCheckout extends Component {
                 </Dialog>
 
                 <Dialog
-                    maxWidth="xs"
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openresponalamat}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title">Transaksi Tidak Dapat Dilakukan !</DialogTitle>
@@ -1913,7 +1927,8 @@ class ShopPageCheckout extends Component {
                 </Dialog>
 
                 <Dialog
-                    maxWidth="xs"
+                    fullWidth={false}
+                    maxWidth={"xs"}
                     open={this.state.openresponerror}
                     aria-labelledby="responsive-dialog-title">
                     <DialogTitle id="responsive-dialog-title">Transaksi Gagal !</DialogTitle>

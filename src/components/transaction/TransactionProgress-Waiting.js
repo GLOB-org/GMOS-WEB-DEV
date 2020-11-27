@@ -51,7 +51,7 @@ export default class InfoCompanyCard extends Component{
 
     clearForm(){
         this.setState({ 
-            inputUrl: '', previewFoto: 'none', imgfotoUpload: '',
+            inputUrl: '', previewFoto: 'none', imgfotoUpload: '', emptyFoto: false, KetTextFoto: '',
             inputNama: '', emptyNama: false, KetTextNama: '',
             inputBank: '', emptyBank: false, KetTextBank: '',
             inputTanggalBayar: '', emptyTanggalBayar: false, KetTextTanggalBayar: ''
@@ -81,7 +81,7 @@ export default class InfoCompanyCard extends Component{
         "case when e.tgl_permintaan_kirim is not null then to_char(e.tgl_permintaan_kirim, 'dd-MM-yyyy') else '-' end as tgl_permintaan_kirim , e.ppn_seller, "+
         "e.payment_id, case when a.note is null or a.note = '' then '-' else a.note end as note, case when status_payment = 'UNPAID' then case when id_list_bank is null "+
         "then 'menunggu pembayaran' else 'menunggu verifikasi' end else 'pembayaran selesai' end as payment_status, e.id_transaction_ref, e.foto_transaction_ref, "+
-        "to_char(case when h.durasi = '0' then e.create_date + interval '2 days' else e.create_date + (h.durasi || ' days')::interval end , 'dd-MM-yyyy / HH24:MI') as date_last_payment "+
+        "to_char(case when h.durasi = '0' then e.create_date + interval '7 days' else e.create_date + (h.durasi || ' days')::interval end , 'dd-MM-yyyy / HH24:MI') as date_last_payment "+
         "from gcm_master_satuan d, gcm_master_company gmc ,gcm_transaction_detail a inner join gcm_list_barang b on a.barang_id=b.id inner join gcm_master_barang c on "+
         "b.barang_id=c.id inner join gcm_master_transaction e on e.id_transaction = a.transaction_id "+
         "inner join gcm_payment_listing f on f.seller_id = b.company_id and e.payment_id = f.id inner join gcm_seller_payment_listing g on g.seller_id = b.company_id "+
@@ -313,6 +313,14 @@ export default class InfoCompanyCard extends Component{
             this.setState({
                 emptyTanggalBayar: true,
                 KetTextTanggalBayar: 'isi data yang kosong'
+            })    
+        }
+
+        if(this.state.fotoUpload == ''){
+            contain_data_all = false
+            this.setState({
+                emptyFoto: true,
+                KetTextFoto: 'isi data yang kosong'
             })    
         }
 
@@ -548,8 +556,6 @@ export default class InfoCompanyCard extends Component{
             "where status = 'WAITING' and company_id = " + decrypt(localStorage.getItem('CompanyIDLogin')) + " and id_transaction = '" + this.props.data.id_transaction + "'" )
         }
 
-        console.log(decrypt(query))
-
         Axios.post(url.select,{
             query: query
         }).then(data=>{
@@ -612,13 +618,16 @@ export default class InfoCompanyCard extends Component{
 
         <div style={{display:'contents'}}>
             <tr id='rowTransactionWaiting' style={{fontSize:'13px', color:'#3D464D'}}>
-                <td style={{textAlign: 'center'}}>
-                    <strong>
-                        <span data-toggle="tooltip" title="Lihat detail">
-                            <label id='idTransaction' onClick={()=>this.detailWaiting(this.props.data.id_transaction)}>{this.props.data.id_transaction}</label>
-                        </span>
-                    </strong>
+                <td>
+                    <div className="buttonAction">
+                        <center>
+                            <button type="button" class="btn btn-xs btn-detail-transaction" onClick={()=>this.detailWaiting(this.props.data.id_transaction)} >Lihat Detail</button>
+                        </center>
+                    </div>
                 </td>
+                <td style={{textAlign: 'center'}}>
+                    <label>{this.props.data.id_transaction}</label>
+                </td>   
                 <td style={{textAlign: 'center'}}>{this.props.data.create_date_edit}</td>
                 <td style={{textAlign: 'right'}}><NumberFormat value={Number(this.props.data.totaltrx_tax)} displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} /></td>
             </tr> 
@@ -848,7 +857,7 @@ export default class InfoCompanyCard extends Component{
                             <div style={{border: '2px solid #8CC63E', borderRadius: '5px', padding:'10px'}}>
                                 <div className="address-card__row" >
                                     <center>
-                                        <div className="address-card__row-title">Total Transaksi</div>
+                                        <div style={{fontSize: '12px', fontWeight: '500'}}>Total Transaksi</div>
                                         <span style={{fontSize:'17px', fontWeight: 'bold'}}>
                                             <NumberFormat value={Number(this.props.data.totaltrx) + (Math.ceil(Number(this.props.data.total) * (Number(this.state.ppn_seller/100)))) } displayType={'text'} thousandSeparator={'.'} decimalSeparator={','} prefix={'Rp '} />
                                         </span>
@@ -1040,12 +1049,18 @@ export default class InfoCompanyCard extends Component{
                                 <div className="form-group">
                                     <label htmlFor="alamat">
                                         Bukti Pembayaran
-                                            <span style={{fontSize: '10px'}}>{' '}(opsional)</span>
                                     </label>
                                     <InputGroup>
-                                        <Input  className="form-control" type="file" id="pilihfile" accept="image/*" onChange={this.handleInsertFoto} 
-                                                style={{ cursor: 'pointer', fontSize:'12px', paddingTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        <Input  
+                                            className="form-control" 
+                                            type="file" 
+                                            id="pilihfile" 
+                                            accept="image/*" 
+                                            onChange={this.handleInsertFoto} 
+                                            invalid={this.state.emptyFoto}
+                                            style={{ cursor: 'pointer', fontSize:'12px', paddingTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                         </Input>
+                                        <FormFeedback>{this.state.KetTextFoto}</FormFeedback>
                                     </InputGroup>
                                 </div>
 
